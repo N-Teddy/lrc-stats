@@ -1,1 +1,422 @@
-[]
+[
+  {
+    "id": "act-2024-0",
+    "name": "AUTRES - 2024 #1",
+    "date": "2024-01-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-1",
+    "name": "ACTIVITE LUDIQUE - 2024 #2",
+    "date": "2024-01-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-2",
+    "name": "ACTIVITE LUDIQUE - 2024 #3",
+    "date": "2024-02-10",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-3",
+    "name": "ACTIVITE LUDIQUE - 2024 #4",
+    "date": "2024-02-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-4",
+    "name": "AUTRES - 2024 #5",
+    "date": "2024-03-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-5",
+    "name": "JPO - 2024 #6",
+    "date": "2024-03-25",
+    "type": "JPO",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-6",
+    "name": "SERVICE JRS - 2024 #7",
+    "date": "2024-04-10",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-7",
+    "name": "REUNION MENSUELLE - 2024 #8",
+    "date": "2024-04-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-8",
+    "name": "SERVICE JRS - 2024 #9",
+    "date": "2024-05-10",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-9",
+    "name": "ACTIVITE LUDIQUE - 2024 #10",
+    "date": "2024-05-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-10",
+    "name": "REUNION MENSUELLE - 2024 #11",
+    "date": "2024-06-10",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-11",
+    "name": "AUTRES - 2024 #12",
+    "date": "2024-06-25",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-12",
+    "name": "REUNION MENSUELLE - 2024 #13",
+    "date": "2024-07-10",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-13",
+    "name": "SERVICE JRS - 2024 #14",
+    "date": "2024-07-25",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-14",
+    "name": "SERVICE JRS - 2024 #15",
+    "date": "2024-08-10",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-15",
+    "name": "JPO - 2024 #16",
+    "date": "2024-08-25",
+    "type": "JPO",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-16",
+    "name": "AUTRES - 2024 #17",
+    "date": "2024-09-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-17",
+    "name": "AUTRES - 2024 #18",
+    "date": "2024-09-25",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-18",
+    "name": "AUTRES - 2024 #19",
+    "date": "2024-10-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2024-19",
+    "name": "ACTIVITE LUDIQUE - 2024 #20",
+    "date": "2024-10-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2024"
+  },
+  {
+    "id": "act-2025-0",
+    "name": "CONFERENCE - 2025 #1",
+    "date": "2025-01-10",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-1",
+    "name": "AUTRES - 2025 #2",
+    "date": "2025-01-25",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-2",
+    "name": "CONFERENCE - 2025 #3",
+    "date": "2025-02-10",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-3",
+    "name": "CONFERENCE - 2025 #4",
+    "date": "2025-02-25",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-4",
+    "name": "AUTRES - 2025 #5",
+    "date": "2025-03-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-5",
+    "name": "REUNION MENSUELLE - 2025 #6",
+    "date": "2025-03-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-6",
+    "name": "REUNION MENSUELLE - 2025 #7",
+    "date": "2025-04-10",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-7",
+    "name": "REUNION MENSUELLE - 2025 #8",
+    "date": "2025-04-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-8",
+    "name": "CONFERENCE - 2025 #9",
+    "date": "2025-05-10",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-9",
+    "name": "REUNION MENSUELLE - 2025 #10",
+    "date": "2025-05-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-10",
+    "name": "ACTIVITE LUDIQUE - 2025 #11",
+    "date": "2025-06-10",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-11",
+    "name": "SERVICE JRS - 2025 #12",
+    "date": "2025-06-25",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-12",
+    "name": "AUTRES - 2025 #13",
+    "date": "2025-07-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-13",
+    "name": "REUNION MENSUELLE - 2025 #14",
+    "date": "2025-07-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-14",
+    "name": "SERVICE JRS - 2025 #15",
+    "date": "2025-08-10",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-15",
+    "name": "CONFERENCE - 2025 #16",
+    "date": "2025-08-25",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-16",
+    "name": "ACTIVITE LUDIQUE - 2025 #17",
+    "date": "2025-09-10",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-17",
+    "name": "ACTIVITE LUDIQUE - 2025 #18",
+    "date": "2025-09-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-18",
+    "name": "SERVICE JRS - 2025 #19",
+    "date": "2025-10-10",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2025-19",
+    "name": "CONFERENCE - 2025 #20",
+    "date": "2025-10-25",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2025"
+  },
+  {
+    "id": "act-2026-0",
+    "name": "REUNION MENSUELLE - 2026 #1",
+    "date": "2026-01-10",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-1",
+    "name": "CONFERENCE - 2026 #2",
+    "date": "2026-01-25",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-2",
+    "name": "JPO - 2026 #3",
+    "date": "2026-02-10",
+    "type": "JPO",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-3",
+    "name": "JPO - 2026 #4",
+    "date": "2026-02-25",
+    "type": "JPO",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-4",
+    "name": "ACTIVITE LUDIQUE - 2026 #5",
+    "date": "2026-03-10",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-5",
+    "name": "AUTRES - 2026 #6",
+    "date": "2026-03-25",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-6",
+    "name": "AUTRES - 2026 #7",
+    "date": "2026-04-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-7",
+    "name": "ACTIVITE LUDIQUE - 2026 #8",
+    "date": "2026-04-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-8",
+    "name": "AUTRES - 2026 #9",
+    "date": "2026-05-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-9",
+    "name": "SERVICE JRS - 2026 #10",
+    "date": "2026-05-25",
+    "type": "SERVICE JRS",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-10",
+    "name": "AUTRES - 2026 #11",
+    "date": "2026-06-10",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-11",
+    "name": "AUTRES - 2026 #12",
+    "date": "2026-06-25",
+    "type": "AUTRES",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-12",
+    "name": "CONFERENCE - 2026 #13",
+    "date": "2026-07-10",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-13",
+    "name": "JPO - 2026 #14",
+    "date": "2026-07-25",
+    "type": "JPO",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-14",
+    "name": "CONFERENCE - 2026 #15",
+    "date": "2026-08-10",
+    "type": "CONFERENCE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-15",
+    "name": "REUNION MENSUELLE - 2026 #16",
+    "date": "2026-08-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-16",
+    "name": "ACTIVITE LUDIQUE - 2026 #17",
+    "date": "2026-09-10",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-17",
+    "name": "REUNION MENSUELLE - 2026 #18",
+    "date": "2026-09-25",
+    "type": "REUNION MENSUELLE",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-18",
+    "name": "JPO - 2026 #19",
+    "date": "2026-10-10",
+    "type": "JPO",
+    "notes": "Automated seed data for 2026"
+  },
+  {
+    "id": "act-2026-19",
+    "name": "ACTIVITE LUDIQUE - 2026 #20",
+    "date": "2026-10-25",
+    "type": "ACTIVITE LUDIQUE",
+    "notes": "Automated seed data for 2026"
+  }
+]
