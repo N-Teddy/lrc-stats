@@ -4,6 +4,7 @@ import Dashboard from './modules/Dashboard';
 import PeopleModule from './modules/PeopleModule';
 import ActivitiesModule from './modules/ActivitiesModule';
 import AttendanceModule from './modules/AttendanceModule';
+import StatsModule from './modules/StatsModule';
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -28,12 +29,7 @@ function App() {
                     onBack={() => setActiveTab('activities')}
                 />;
             case 'stats':
-                return (
-                    <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                        <h2 className="gradient-text" style={{ fontSize: '2rem' }}>Coming Soon</h2>
-                        <p style={{ color: '#444' }}>Statistics & visualization module is scheduled for Phase 5.</p>
-                    </div>
-                );
+                return <StatsModule />;
             default:
                 return <Dashboard />;
         }
