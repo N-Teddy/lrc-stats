@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { dataService } from './dataService';
 
 /**
@@ -60,7 +60,7 @@ export const reportService = {
             return row;
         });
 
-        doc.autoTable({
+        autoTable(doc, {
             startY: 65,
             head: tableHeaders,
             body: tableData,
@@ -72,7 +72,8 @@ export const reportService = {
         });
 
         // Add Totals for Activities at the bottom
-        const finalY = doc.lastAutoTable.finalY + 10;
+        // Use the function return or the lastAutoTable property if available
+        const finalY = (doc.lastAutoTable?.finalY || 70) + 10;
         doc.setFontSize(10);
         doc.text('Activity Presence Summary:', 14, finalY);
 
@@ -81,7 +82,7 @@ export const reportService = {
             return [`${a.date} - ${a.name}`, (attr?.count || 0).toString()];
         });
 
-        doc.autoTable({
+        autoTable(doc, {
             startY: finalY + 5,
             head: [['Activity', 'Attendees']],
             body: summaryData,
