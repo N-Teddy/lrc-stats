@@ -10,89 +10,80 @@ export const reportService = {
      * Generates a comprehensive yearly attendance report
      */
     generateYearlyReport: async (year = new Date().getFullYear()) => {
-        const [people, activities, attendance] = await Promise.all([
-            dataService.getPeople(),
-            dataService.getActivities(),
-            dataService.getAttendance()
-        ]);
+        try {
+            const [people, activities, attendance] = await Promise.all([
+                dataService.getPeople(),
+                dataService.getActivities(),
+                dataService.getAttendance()
+            ]);
 
-        const doc = new jsPDF();
-        const activePeople = people.filter(p => !p.isArchived).sort((a, b) => a.name.localeCompare(b.name));
-        const filteredActivities = activities
-            .filter(a => new Date(a.date).getFullYear() === year)
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        // Header
-        doc.setFontSize(22);
-        doc.setTextColor(0, 0, 0);
-        doc.text('LRC MISSION - YEARLY ATTENDANCE AUDIT', 14, 22);
-
-        doc.setFontSize(12);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`Report Period: January ${year} - December ${year}`, 14, 30);
-        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 36);
-
-        // Stats Summary
-        doc.setDrawColor(200, 200, 200);
-        doc.line(14, 42, 196, 42);
-
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Total Personnel: ${activePeople.length}`, 14, 50);
-        doc.text(`Total Activities: ${filteredActivities.length}`, 14, 56);
-        doc.text(`Avg. Presence: ${attendance.length > 0 ? Math.round(attendance.reduce((s, a) => s + a.count, 0) / attendance.length) : 0}`, 70, 50);
-
-        // Detailed Table
-        // Headers: Name | [Dates of Activities...] | Total
-        const tableHeaders = [['Person Name', ...filteredActivities.map(a => a.name.substring(0, 5) + '.'), 'Total']];
-        const tableData = activePeople.map(person => {
-            let row = [person.name];
-            let personTotal = 0;
-
-            filteredActivities.forEach(act => {
-                const actAttendance = attendance.find(attr => attr.activityId === act.id);
-                const isPresent = actAttendance && actAttendance.personIds.includes(person.id);
-                row.push(isPresent ? 'X' : '-');
-                if (isPresent) personTotal++;
+            // Optimization: If there are too many activities, we might want landscape
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
             });
 
-            row.push(personTotal.toString());
-            return row;
-        });
+            const activePeople = people.filter(p => !p.isArchived).sort((a, b) => a.name.localeCompare(b.name));
+            const filteredActivities = activities
+                .filter(a => new Date(a.date).getFullYear() === year)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        autoTable(doc, {
-            startY: 65,
-            head: tableHeaders,
-            body: tableData,
-            theme: 'grid',
-            headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 8 },
-            styles: { fontSize: 7, cellPadding: 2 },
-            columnStyles: { 0: { fontStyle: 'bold', fontSize: 8 } },
-            margin: { top: 65 }
-        });
+            if (filteredActivities.length === 0) {
+                alert(`No activities found for year ${year}.`);
+                return false;
+            }
 
-        // Add Totals for Activities at the bottom
-        // Use the function return or the lastAutoTable property if available
-        const finalY = (doc.lastAutoTable?.finalY || 70) + 10;
-        doc.setFontSize(10);
-        doc.text('Activity Presence Summary:', 14, finalY);
+            // Header
+            doc.setFontSize(22);
+            doc.setTextColor(0, 0, 0);
+            doc.text('LRC MISSION - YEARLY ATTENDANCE AUDIT', 14, 22);
 
-        const summaryData = filteredActivities.map(a => {
-            const attr = attendance.find(at => at.activityId === a.id);
-            return [`${a.date} - ${a.name}`, (attr?.count || 0).toString()];
-        });
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Report Period: January ${year} - December ${year}`, 14, 30);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 36);
 
-        autoTable(doc, {
-            startY: finalY + 5,
-            head: [['Activity', 'Attendees']],
-            body: summaryData,
-            theme: 'striped',
-            headStyles: { fillColor: [50, 50, 50] },
-            margin: { left: 14, right: 100 }
-        });
+            // Detailed Table
+            const tableHeaders = [['Person Name', ...filteredActivities.map(a => a.date.substring(5, 10)), 'Total']];
+            const tableData = activePeople.map(person => {
+                let row = [person.name];
+                let personTotal = 0;
 
-        // Save
-        doc.save(`LRC_Yearly_Audit_${year}.pdf`);
-        return true;
+                filteredActivities.forEach(act => {
+                    const actAttendance = attendance.find(attr => attr.activityId === act.id);
+                    const isPresent = actAttendance && actAttendance.personIds.includes(person.id);
+                    row.push(isPresent ? 'X' : '-');
+                    if (isPresent) personTotal++;
+                });
+
+                row.push(personTotal.toString());
+                return row;
+            });
+
+            autoTable(doc, {
+                startY: 45,
+                head: tableHeaders,
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 6 },
+                styles: { fontSize: 6, cellPadding: 1 },
+                columnStyles: { 0: { fontStyle: 'bold', fontSize: 7, cellWidth: 'wrap' } },
+                margin: { top: 45 }
+            });
+
+            const finalY = (doc.lastAutoTable?.finalY || 50) + 10;
+
+            // Success! Save the file.
+            // In some Tauri versions, doc.save() triggers a download,
+            // but we can also use writeFile to AppData if preferred.
+            doc.save(`LRC_Yearly_Audit_${year}.pdf`);
+            console.log('PDF generated successfully');
+            return true;
+        } catch (err) {
+            console.error('PDF Generation Error:', err);
+            alert(`Failed to generate PDF: ${err.message}`);
+            return false;
+        }
     }
 };

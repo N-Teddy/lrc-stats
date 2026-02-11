@@ -147,19 +147,44 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     </div>
                 </div>
 
-                {/* Name (Mandatory) */}
-                <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Full Name *</label>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                        <User size={18} color="var(--text-muted)" />
-                        <input
-                            name="name"
-                            value={formData.name || ''}
+                {/* Name and Status */}
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+                    <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Full Name *</label>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                            <User size={18} color="var(--text-muted)" />
+                            <input
+                                name="name"
+                                value={formData.name || ''}
+                                onChange={handleChange}
+                                placeholder="e.g. Jean Dupont"
+                                style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '1rem', color: 'var(--text-primary)', outline: 'none' }}
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Status</label>
+                        <select
+                            name="status"
+                            value={formData.status}
                             onChange={handleChange}
-                            placeholder="e.g. Jean Dupont"
-                            style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '1rem', color: 'var(--text-primary)', outline: 'none' }}
-                            required
-                        />
+                            style={{
+                                width: '100%',
+                                backgroundColor: 'var(--bg-tertiary)',
+                                padding: '14px',
+                                borderRadius: 'var(--radius-md)',
+                                border: '1px solid var(--border-color)',
+                                fontSize: '1rem',
+                                color: 'var(--text-primary)',
+                                outline: 'none',
+                                appearance: 'none',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <option value="Membre">Membre</option>
+                            <option value="Eleve">Eleve</option>
+                        </select>
                     </div>
                 </div>
 

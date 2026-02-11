@@ -24,7 +24,7 @@ function generatePeople(count) {
             id: `p-${dateId}-${i}`,
             name: `${firstName} ${lastName}`,
             phone: `+237 6${Math.floor(Math.random() * 90000000 + 10000000)}`,
-            status: 'active',
+            status: Math.random() > 0.8 ? 'Eleve' : 'Membre',
             dob: `19${Math.floor(Math.random() * 40 + 50)}-${String(Math.floor(Math.random() * 12 + 1)).padStart(2, '0')}-${String(Math.floor(Math.random() * 28 + 1)).padStart(2, '0')}`,
             dateIntegration: `202${Math.floor(Math.random() * 4)}-${String(Math.floor(Math.random() * 12 + 1)).padStart(2, '0')}-${String(Math.floor(Math.random() * 28 + 1)).padStart(2, '0')}`,
             dateDeparture: '',

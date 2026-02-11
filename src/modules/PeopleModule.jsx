@@ -150,8 +150,19 @@ const PeopleModule = () => {
                                 )}
                             </div>
                             <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                     <h3 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.5px' }}>{person.name}</h3>
+                                    <span style={{
+                                        fontSize: '0.6rem',
+                                        background: person.status === 'Eleve' ? 'rgba(255, 170, 0, 0.1)' : 'rgba(0, 210, 255, 0.1)',
+                                        color: person.status === 'Eleve' ? '#ffaa00' : 'var(--accent-cyan)',
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        fontWeight: '900',
+                                        border: person.status === 'Eleve' ? '1px solid rgba(255, 170, 0, 0.2)' : '1px solid rgba(0, 210, 255, 0.2)'
+                                    }}>
+                                        {(person.status || 'Membre').toUpperCase()}
+                                    </span>
                                     {person.isJRs && (
                                         <span style={{ fontSize: '0.6rem', background: 'rgba(57, 255, 20, 0.1)', color: 'var(--accent-green)', padding: '2px 8px', borderRadius: '4px', fontWeight: '900', border: '1px solid rgba(57, 255, 20, 0.2)' }}>JRS</span>
                                     )}

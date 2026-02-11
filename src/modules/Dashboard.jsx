@@ -35,8 +35,10 @@ const StatCard = ({ icon: Icon, label, value, trend, color, subtext }) => (
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
-        people: 0,
+        membres: 0,
+        eleves: 0,
         jrs: 0,
+        total: 0,
         activitiesCount: 0,
         avgAttendance: 0,
         recentAttendance: []
@@ -51,7 +53,9 @@ const Dashboard = () => {
             ]);
 
             const activePeople = people.filter(p => !p.isArchived);
-            const activeJrs = activePeople.filter(p => p.isJRs).length;
+            const jrs = activePeople.filter(p => p.isJRs).length;
+            const membres = activePeople.filter(p => p.status === 'Membre').length;
+            const eleves = activePeople.filter(p => p.status === 'Eleve').length;
 
             // Calculate Average Attendance
             const totalAttendanceRecords = attendance.reduce((sum, entry) => sum + (entry.count || 0), 0);
@@ -68,8 +72,10 @@ const Dashboard = () => {
                 }));
 
             setStats({
-                people: activePeople.length,
-                jrs: activeJrs,
+                membres,
+                eleves,
+                jrs,
+                total: activePeople.length,
                 activitiesCount: activities.length,
                 avgAttendance: avg,
                 recentAttendance: chartData
@@ -105,10 +111,42 @@ const Dashboard = () => {
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
-                <div className="animate-in stagger-1"><StatCard icon={Users} label="Personnel" value={stats.people} color="0, 210, 255" subtext="Active members" /></div>
-                <div className="animate-in stagger-2"><StatCard icon={Activity} label="Junior Core" value={stats.jrs} color="57, 255, 20" subtext="Eligible JRs" /></div>
-                <div className="animate-in stagger-3"><StatCard icon={Calendar} label="Operations" value={stats.activitiesCount} color="0, 112, 243" subtext="Registered activities" /></div>
-                <div className="animate-in stagger-4"><StatCard icon={TrendingUp} label="Flow Density" value={stats.avgAttendance} color="121, 40, 202" subtext="Avg. attendance" /></div>
+                <div className="animate-in stagger-1">
+                    <StatCard
+                        icon={Users}
+                        label="Membres"
+                        value={stats.membres}
+                        color="0, 210, 255"
+                        subtext="Permanent Members"
+                    />
+                </div>
+                <div className="animate-in stagger-2">
+                    <StatCard
+                        icon={Users}
+                        label="Eleves"
+                        value={stats.eleves}
+                        color="121, 40, 202"
+                        subtext="Probationary / Students"
+                    />
+                </div>
+                <div className="animate-in stagger-3">
+                    <StatCard
+                        icon={Activity}
+                        label="Jeunes (JRs)"
+                        value={stats.jrs}
+                        color="57, 255, 20"
+                        subtext="Rosicrucian Youth"
+                    />
+                </div>
+                <div className="animate-in stagger-4">
+                    <StatCard
+                        icon={Calendar}
+                        label="Operations"
+                        value={stats.activitiesCount}
+                        color="0, 112, 243"
+                        subtext={`Avg. Attendance: ${stats.avgAttendance}`}
+                    />
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '40px' }}>

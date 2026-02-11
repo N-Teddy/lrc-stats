@@ -101,12 +101,40 @@ export const dataService = {
         }
     },
 
-    // Images (Simple implementation for now)
+    // Images implementation for Tauri
     saveImage: async (id, base64Data) => {
-        // Tauri image saving would involve converting base64 to Uint8Array
-        // and writing to a specific images folder.
-        // For simplicity during migration, we'll implement this if needed.
-        return { success: false, error: 'Image saving not yet implemented for Tauri' };
+        try {
+            // 1. Ensure directories
+            await ensureDbDir();
+            const imagesDirExists = await exists('images', { baseDir: BaseDirectory.AppData });
+            if (!imagesDirExists) {
+                await mkdir('images', { baseDir: BaseDirectory.AppData, recursive: true });
+            }
+
+            // 2. Process base64
+            const base64Image = base64Data.split(';base64,').pop();
+            const binaryString = atob(base64Image);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // 3. Save file
+            const fileName = `${id}_${Date.now()}.png`;
+            const relativePath = await join('images', fileName);
+            const { writeFile } = await import('@tauri-apps/plugin-fs');
+            await writeFile(relativePath, bytes, { baseDir: BaseDirectory.AppData });
+
+            // 4. Return full path for Tauri use
+            const appData = await appDataDir();
+            const fullPath = await join(appData, relativePath);
+            // Prefix for Tauri's internal asset serving if needed,
+            // but usually just the path works with convertFileSrc
+            return { success: true, url: fullPath };
+        } catch (err) {
+            console.error('Error saving image in Tauri:', err);
+            return { success: false, error: err.message };
+        }
     }
 };
 
@@ -119,11 +147,16 @@ export const ACTIVITY_TYPES = [
     'JPO'
 ];
 
+export const PERSON_STATUS_TYPES = [
+    'Membre',
+    'Eleve'
+];
+
 export const createPersonModel = (data = {}) => ({
     id: Date.now().toString(),
     name: '',
     phone: '',
-    status: 'active',
+    status: PERSON_STATUS_TYPES[0], // Default to 'Membre'
     dob: '',
     dateIntegration: '',
     dateDeparture: '',
