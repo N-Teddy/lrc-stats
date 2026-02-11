@@ -89,8 +89,8 @@ const StatsModule = () => {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #333', borderRadius: '8px' }}
-                                    itemStyle={{ color: 'white', fontSize: '0.8rem' }}
+                                    contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                                    itemStyle={{ color: 'var(--text-primary)', fontSize: '0.8rem' }}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
@@ -99,7 +99,7 @@ const StatsModule = () => {
                         {distribution.map((d, i) => (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: COLORS[i % COLORS.length] }} />
-                                <span style={{ fontSize: '0.75rem', color: '#666' }}>{d.name}: {d.value}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{d.name}: {d.value}</span>
                             </div>
                         ))}
                     </div>
@@ -114,21 +114,21 @@ const StatsModule = () => {
                     <div style={{ width: '100%', height: '260px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={typeData}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#1a1a1a" />
+                                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="var(--border-color)" />
                                 <XAxis
                                     dataKey="name"
-                                    tick={{ fill: '#444', fontSize: 9 }}
+                                    tick={{ fill: 'var(--text-muted)', fontSize: 9 }}
                                     axisLine={false}
                                     tickLine={false}
                                 />
                                 <YAxis
-                                    tick={{ fill: '#444', fontSize: 9 }}
+                                    tick={{ fill: 'var(--text-muted)', fontSize: 9 }}
                                     axisLine={false}
                                     tickLine={false}
                                 />
                                 <Tooltip
                                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #333', borderRadius: '8px' }}
+                                    contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
                                 />
                                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                                     {typeData.map((entry, index) => (
@@ -142,16 +142,16 @@ const StatsModule = () => {
             </div>
 
             {/* Yearly Report Preview Placeholder */}
-            <div className="glass" style={{ padding: '40px', borderRadius: 'var(--radius-lg)', textAlign: 'center', border: '1px dashed #222' }}>
-                <FileText size={48} color="#222" style={{ marginBottom: '20px' }} />
+            <div className="glass" style={{ padding: '40px', borderRadius: 'var(--radius-lg)', textAlign: 'center', border: '1px dashed var(--border-color)' }}>
+                <FileText size={48} color="var(--border-color)" style={{ marginBottom: '20px' }} />
                 <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px' }}>Ready for Yearly Audit?</h4>
-                <p style={{ color: '#444', fontSize: '0.9rem', maxWidth: '500px', margin: '0 auto 24px' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '500px', margin: '0 auto 24px' }}>
                     Compiling all attendance sheets, activity logs, and personnel status into a standardized PDF format for the current administrative year.
                 </p>
                 <button
                     onClick={handleGenerateReport}
                     disabled={isGenerating}
-                    style={{ padding: '12px 32px', borderRadius: '30px', border: '1px solid #333', color: '#888', background: 'transparent', fontSize: '0.85rem' }}
+                    style={{ padding: '12px 32px', borderRadius: '30px', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', background: 'transparent', fontSize: '0.85rem' }}
                 >
                     {isGenerating ? 'Compiling PDF...' : 'Initiate Audit Sequence'}
                 </button>

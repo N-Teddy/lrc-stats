@@ -85,18 +85,18 @@ const PeopleModule = () => {
 
             {/* Search & Filters */}
             <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', alignItems: 'center' }}>
-                <div style={{ position: 'relative', flex: 1, backgroundColor: '#111', borderRadius: 'var(--radius-md)', border: '1px solid #222' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+                <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                         type="text"
                         placeholder="Search by name..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', fontSize: '1rem', color: 'white' }}
+                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', fontSize: '1rem', color: 'var(--text-primary)' }}
                     />
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', backgroundColor: '#111', padding: '4px', borderRadius: '30px', border: '1px solid #222' }}>
+                <div style={{ display: 'flex', gap: '8px', backgroundColor: 'var(--bg-tertiary)', padding: '4px', borderRadius: '30px', border: '1px solid var(--border-color)' }}>
                     {['active', 'jrs', 'archived'].map(f => (
                         <button
                             key={f}
@@ -108,8 +108,8 @@ const PeopleModule = () => {
                                 fontWeight: '700',
                                 textTransform: 'uppercase',
                                 letterSpacing: '1px',
-                                color: filter === f ? 'white' : '#555',
-                                backgroundColor: filter === f ? '#222' : 'transparent',
+                                color: filter === f ? 'var(--text-primary)' : 'var(--text-muted)',
+                                backgroundColor: filter === f ? 'var(--bg-secondary)' : 'transparent',
                                 transition: 'all 0.2s'
                             }}
                         >
@@ -140,13 +140,13 @@ const PeopleModule = () => {
                         <div style={{ display: 'flex', gap: '20px' }}>
                             <div style={{
                                 width: '72px', height: '72px', borderRadius: 'var(--radius-md)',
-                                backgroundColor: '#161616', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                border: '1px solid #333', overflow: 'hidden'
+                                backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                border: '1px solid var(--border-color)', overflow: 'hidden'
                             }}>
                                 {person.image ? (
                                     <img src={person.image} alt={person.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
-                                    <User size={32} color={person.isJRs ? 'var(--accent-green)' : '#333'} />
+                                    <User size={32} color={person.isJRs ? 'var(--accent-green)' : 'var(--border-color)'} />
                                 )}
                             </div>
                             <div style={{ flex: 1 }}>
@@ -160,7 +160,7 @@ const PeopleModule = () => {
                                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                         <Phone size={14} /> {person.phone || 'N/A'}
                                     </p>
-                                    <p style={{ fontSize: '0.75rem', color: '#444' }}>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                         Joined: {person.dateIntegration || '---'}
                                     </p>
                                 </div>
@@ -169,7 +169,7 @@ const PeopleModule = () => {
                             <div style={{ position: 'relative' }}>
                                 <button
                                     onClick={() => setActiveMenuId(activeMenuId === person.id ? null : person.id)}
-                                    style={{ color: '#444', padding: '4px' }}
+                                    style={{ color: 'var(--text-muted)', padding: '4px' }}
                                 >
                                     <MoreVertical size={20} />
                                 </button>
@@ -178,7 +178,7 @@ const PeopleModule = () => {
                                     <div className="glass" style={{
                                         position: 'absolute', right: 0, top: '30px', width: '160px',
                                         borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 10,
-                                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid #333'
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid var(--border-color)'
                                     }}>
                                         <button
                                             onClick={() => { setEditingPerson(person); setIsFormOpen(true); setActiveMenuId(null); }}
@@ -188,7 +188,7 @@ const PeopleModule = () => {
                                         </button>
                                         <button
                                             onClick={() => handleArchive(person.id)}
-                                            style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: person.isArchived ? 'var(--accent-cyan)' : '#888' }}
+                                            style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: person.isArchived ? 'var(--accent-cyan)' : 'var(--text-secondary)' }}
                                         >
                                             <Archive size={16} /> {person.isArchived ? 'Restore' : 'Archive'}
                                         </button>
@@ -200,7 +200,7 @@ const PeopleModule = () => {
                 ))}
 
                 {filteredPeople.length === 0 && (
-                    <div style={{ gridColumn: '1 / -1', padding: '80px 0', textAlign: 'center', color: '#444', border: '1px dashed #222', borderRadius: 'var(--radius-lg)' }}>
+                    <div style={{ gridColumn: '1 / -1', padding: '80px 0', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
                         <p>No members match your criteria.</p>
                     </div>
                 )}

@@ -26,6 +26,7 @@
   --text-primary: #ffffff;
   --text-secondary: #888888;
   --text-muted: #555555;
+  --text-inverted: #000000;
   --border-color: #222;
   --scrollbar-thumb: #222;
   --scrollbar-hover: #333;
@@ -42,6 +43,7 @@
   --text-primary: #1a1a1a;
   --text-secondary: #666666;
   --text-muted: #888888;
+  --text-inverted: #ffffff;
   --border-color: #e9ecef;
   --scrollbar-thumb: #dee2e6;
   --scrollbar-hover: #ced4da;
@@ -81,7 +83,7 @@
 .hover-glow:hover {
   border-color: var(--accent-cyan) !important;
   box-shadow: 0 0 20px rgba(0, 210, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-secondary) !important;
 }
 
 .stagger-1 {

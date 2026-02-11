@@ -80,22 +80,22 @@ const AttendanceModule = ({ activity, onBack }) => {
                             Recording Attendance
                         </span>
                         <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '4px' }}>{activity.name}</h2>
-                        <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '4px' }}>{activity.date} • {activity.type}</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>{activity.date} • {activity.type}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <p style={{ fontSize: '0.8rem', color: '#444', textTransform: 'uppercase', letterSpacing: '1px' }}>Present</p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Present</p>
                         <p style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-green)' }}>{selectedIds.size}</p>
                     </div>
                 </div>
             </div>
 
             <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-                <div style={{ position: 'relative', flex: 1, backgroundColor: '#111', borderRadius: 'var(--radius-md)' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+                <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
                         placeholder="Search people..."
                         value={search} onChange={(e) => setSearch(e.target.value)}
-                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'white' }}
+                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
                 </div>
                 <button
@@ -130,23 +130,23 @@ const AttendanceModule = ({ activity, onBack }) => {
                                 alignItems: 'center',
                                 gap: '16px',
                                 cursor: 'pointer',
-                                border: isSelected ? '1px solid var(--accent-green)' : '1px solid #1a1a1a',
+                                border: isSelected ? '1px solid var(--accent-green)' : '1px solid var(--border-color)',
                                 backgroundColor: isSelected ? 'rgba(57, 255, 20, 0.05)' : 'transparent',
                                 transition: 'all 0.2s'
                             }}
                         >
                             <div style={{
-                                width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#111',
+                                width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-tertiary)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
                                 {person.image ? (
                                     <img src={person.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
-                                    <User size={20} color="#333" />
+                                    <User size={20} color="var(--text-muted)" />
                                 )}
                             </div>
                             <div style={{ flex: 1 }}>
-                                <p style={{ fontSize: '0.95rem', fontWeight: '600', color: isSelected ? 'white' : '#888' }}>{person.name}</p>
+                                <p style={{ fontSize: '0.95rem', fontWeight: '600', color: isSelected ? 'var(--accent-green)' : 'var(--text-primary)' }}>{person.name}</p>
                                 {person.isJRs && <span style={{ fontSize: '0.6rem', color: 'var(--accent-green)', fontWeight: 'bold' }}>JRs</span>}
                             </div>
                             {isSelected && <Check size={20} color="var(--accent-green)" />}

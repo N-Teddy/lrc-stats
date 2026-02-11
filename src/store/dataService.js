@@ -47,12 +47,12 @@ export const dataService = {
 
 // Activity Types as requested
 export const ACTIVITY_TYPES = [
-    'reunion mensuelle',
-    'conference',
-    'service jrs',
-    'activite ludique',
-    'autres',
-    'jpo'
+    'REUNION MENSUELLE',
+    'CONFERENCE',
+    'SERVICE JRS',
+    'ACTIVITE LUDIQUE',
+    'AUTRES',
+    'JPO'
 ];
 
 // Helper to create a new person object with all required fields

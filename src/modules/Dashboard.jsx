@@ -29,7 +29,7 @@ const StatCard = ({ icon: Icon, label, value, trend, color, subtext }) => (
         </div>
         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700' }}>{label}</p>
         <p style={{ fontSize: '2.2rem', fontWeight: '900', marginTop: '4px', letterSpacing: '-1px' }}>{value}</p>
-        {subtext && <p style={{ fontSize: '0.7rem', color: '#444', marginTop: '4px' }}>{subtext}</p>}
+        {subtext && <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>{subtext}</p>}
     </div>
 );
 
@@ -81,10 +81,10 @@ const Dashboard = () => {
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="glass" style={{ padding: '12px', border: '1px solid #333', borderRadius: '8px' }}>
+                <div className="glass" style={{ padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                     <p style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{payload[0].payload.name}</p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>{payload[0].value} Attendees</p>
-                    <p style={{ fontSize: '0.65rem', color: '#666' }}>{payload[0].payload.date}</p>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{payload[0].payload.date}</p>
                 </div>
             );
         }
@@ -98,9 +98,9 @@ const Dashboard = () => {
                     <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>Command Center</h2>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>LRC Mission Statistics & Network Analysis</p>
                 </div>
-                <div style={{ padding: '8px 16px', backgroundColor: '#111', borderRadius: '30px', border: '1px solid #222', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ padding: '8px 16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '30px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-green)', boxShadow: '0 0 10px var(--accent-green)' }} />
-                    <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: '#666' }}>System Active</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-muted)' }}>System Active</span>
                 </div>
             </header>
 
@@ -113,11 +113,11 @@ const Dashboard = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '40px' }}>
                 {/* Main Presence Chart */}
-                <div className="glass animate-in stagger-2" style={{ borderRadius: 'var(--radius-lg)', padding: '32px', border: '1px solid #1a1a1a' }}>
+                <div className="glass animate-in stagger-2" style={{ borderRadius: 'var(--radius-lg)', padding: '32px', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                         <div>
                             <h3 style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.5px' }}>Engagement Dynamics</h3>
-                            <p style={{ fontSize: '0.8rem', color: '#444' }}>Attendance volume over recent activities</p>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Attendance volume over recent activities</p>
                         </div>
                     </div>
 
@@ -131,20 +131,20 @@ const Dashboard = () => {
                                             <stop offset="95%" stopColor="var(--accent-cyan)" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a1a1a" />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                                     <XAxis
                                         dataKey="name"
                                         axisLine={false}
                                         tickLine={false}
-                                        tick={{ fill: '#444', fontSize: 10, fontWeight: 700 }}
+                                        tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
                                         dy={10}
                                     />
                                     <YAxis
                                         axisLine={false}
                                         tickLine={false}
-                                        tick={{ fill: '#444', fontSize: 10, fontWeight: 700 }}
+                                        tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }}
                                     />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#333', strokeWidth: 1 }} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--border-color)', strokeWidth: 1 }} />
                                     <Area
                                         type="monotone"
                                         dataKey="count"
@@ -157,8 +157,8 @@ const Dashboard = () => {
                                 </AreaChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #222', borderRadius: '12px' }}>
-                                <p style={{ color: '#333', fontSize: '0.9rem' }}>Awaiting operational data to generate analytics.</p>
+                            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--border-color)', borderRadius: '12px' }}>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Awaiting operational data to generate analytics.</p>
                             </div>
                         )}
                     </div>
@@ -167,20 +167,20 @@ const Dashboard = () => {
                 {/* Right Panel: Performance & Status */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className="glass animate-in stagger-3" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', flex: 1 }}>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '1px', color: '#555' }}>
+                        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>
                             Recent Activity Hub
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {stats.recentAttendance.length > 0 ? stats.recentAttendance.slice(-3).reverse().map((act, idx) => (
-                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingBottom: '12px', borderBottom: '1px solid #111' }}>
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
                                     <div style={{ width: '10px', height: '10px', borderRadius: '50%', border: '2px solid var(--accent-cyan)' }} />
                                     <div style={{ flex: 1 }}>
                                         <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{act.name}</p>
-                                        <p style={{ fontSize: '0.7rem', color: '#444' }}>{act.date}</p>
+                                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{act.date}</p>
                                     </div>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--accent-cyan)' }}>{act.count}</span>
                                 </div>
-                            )) : <p style={{ fontSize: '0.8rem', color: '#444' }}>No activities logged yet.</p>}
+                            )) : <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No activities logged yet.</p>}
                         </div>
                     </div>
 
@@ -190,16 +190,16 @@ const Dashboard = () => {
                             <button
                                 onClick={() => reportService.generateYearlyReport()}
                                 style={{
-                                    width: '100%', padding: '12px', backgroundColor: '#111', borderRadius: '8px',
-                                    border: '1px solid #1a1a1a', color: '#888', fontSize: '0.8rem', textAlign: 'left',
+                                    width: '100%', padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px',
+                                    border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.8rem', textAlign: 'left',
                                     display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer'
                                 }}
                             >
                                 <Download size={14} /> Generate Yearly Audit
                             </button>
                             <button style={{
-                                width: '100%', padding: '12px', backgroundColor: '#111', borderRadius: '8px',
-                                border: '1px solid #1a1a1a', color: '#888', fontSize: '0.8rem', textAlign: 'left',
+                                width: '100%', padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px',
+                                border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.8rem', textAlign: 'left',
                                 display: 'flex', alignItems: 'center', gap: '10px'
                             }}>
                                 <Clock size={14} /> View Archived Personnel
@@ -216,6 +216,9 @@ const Dashboard = () => {
                 }
                 .recharts-cartesian-grid-horizontal line {
                     stroke-dasharray: 4 4;
+                }
+                .recharts-tooltip-wrapper {
+                    outline: none;
                 }
             `}</style>
         </div>

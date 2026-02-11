@@ -79,18 +79,18 @@ const PersonForm = ({ person, onSave, onCancel }) => {
             borderRadius: 'var(--radius-lg)',
             zIndex: 1000,
             boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
-            border: '1px solid #333'
+            border: '1px solid var(--border-color)'
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
                         {person ? 'Update Profile' : 'Member Registration'}
                     </h3>
-                    <p style={{ fontSize: '0.8rem', color: '#555', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         ID: {formData.id}
                     </p>
                 </div>
-                <button onClick={onCancel} style={{ color: '#444', padding: '8px', borderRadius: '50%', backgroundColor: '#111' }}><X size={20} /></button>
+                <button onClick={onCancel} style={{ color: 'var(--text-muted)', padding: '8px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)' }}><X size={20} /></button>
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -103,8 +103,8 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                             width: '96px',
                             height: '96px',
                             borderRadius: 'var(--radius-md)',
-                            backgroundColor: '#111',
-                            border: '1px dashed #333',
+                            backgroundColor: 'var(--bg-tertiary)',
+                            border: '1px dashed var(--border-color)',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -120,8 +120,8 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                             <img src={previewImage} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                             <>
-                                <Camera size={24} color="#333" />
-                                <span style={{ fontSize: '0.65rem', color: '#444', marginTop: '4px', fontWeight: 'bold' }}>PHOTO</span>
+                                <Camera size={24} color="var(--border-color)" />
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 'bold' }}>PHOTO</span>
                             </>
                         )}
                         <div style={{
@@ -134,7 +134,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
 
                     <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)' }}>Profile Image</p>
-                        <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                             {previewImage ? 'Click avatar to change photo.' : 'Upload a portrait photo.'}
                         </p>
                         <input
@@ -149,15 +149,15 @@ const PersonForm = ({ person, onSave, onCancel }) => {
 
                 {/* Name (Mandatory) */}
                 <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Full Name *</label>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: '#111', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a' }}>
-                        <User size={18} color="#444" />
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Full Name *</label>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                        <User size={18} color="var(--text-muted)" />
                         <input
                             name="name"
                             value={formData.name || ''}
                             onChange={handleChange}
                             placeholder="e.g. Jean Dupont"
-                            style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '1rem', color: 'white', outline: 'none' }}
+                            style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '1rem', color: 'var(--text-primary)', outline: 'none' }}
                             required
                         />
                     </div>
@@ -166,29 +166,29 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     {/* Phone */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Phone</label>
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: '#111', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a' }}>
-                            <Phone size={18} color="#444" />
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Phone</label>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                            <Phone size={18} color="var(--text-muted)" />
                             <input
                                 name="phone"
                                 value={formData.phone || ''}
                                 onChange={handleChange}
                                 placeholder="+237..."
-                                style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '0.95rem', color: 'white', outline: 'none' }}
+                                style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '0.95rem', color: 'var(--text-primary)', outline: 'none' }}
                             />
                         </div>
                     </div>
                     {/* DOB */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Date of Birth</label>
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: '#111', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a' }}>
-                            <Calendar size={18} color="#444" />
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Date of Birth</label>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                            <Calendar size={18} color="var(--text-muted)" />
                             <input
                                 name="dob"
                                 type="date"
                                 value={formData.dob || ''}
                                 onChange={handleChange}
-                                style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '0.95rem', color: 'white', colorScheme: 'dark', outline: 'none' }}
+                                style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '0.95rem', color: 'var(--text-primary)', colorScheme: 'inherit', outline: 'none' }}
                             />
                         </div>
                     </div>
@@ -197,24 +197,24 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     {/* Integration Date */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Integration Date</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Integration Date</label>
                         <input
                             name="dateIntegration"
                             type="date"
                             value={formData.dateIntegration || ''}
                             onChange={handleChange}
-                            style={{ width: '100%', backgroundColor: '#111', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a', fontSize: '0.95rem', color: 'white', colorScheme: 'dark', outline: 'none' }}
+                            style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', fontSize: '0.95rem', color: 'var(--text-primary)', colorScheme: 'inherit', outline: 'none' }}
                         />
                     </div>
                     {/* Departure Date */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Departure</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Departure</label>
                         <input
                             name="dateDeparture"
                             type="date"
                             value={formData.dateDeparture || ''}
                             onChange={handleChange}
-                            style={{ width: '100%', backgroundColor: '#111', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid #1a1a1a', fontSize: '0.95rem', color: 'white', colorScheme: 'dark', outline: 'none' }}
+                            style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', fontSize: '0.95rem', color: 'var(--text-primary)', colorScheme: 'inherit', outline: 'none' }}
                         />
                     </div>
                 </div>
@@ -252,8 +252,8 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                         disabled={isProcessing}
                         style={{
                             flex: 1,
-                            backgroundColor: isProcessing ? '#333' : 'var(--accent-cyan)',
-                            color: 'black',
+                            backgroundColor: isProcessing ? 'var(--bg-tertiary)' : 'var(--accent-cyan)',
+                            color: 'var(--text-inverted)',
                             padding: '16px',
                             borderRadius: 'var(--radius-md)',
                             fontWeight: '800',
@@ -271,7 +271,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                         type="button"
                         onClick={onCancel}
                         disabled={isProcessing}
-                        style={{ padding: '16px 24px', border: '1px solid #222', borderRadius: 'var(--radius-md)', color: '#666', fontWeight: '600' }}
+                        style={{ padding: '16px 24px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)', fontWeight: '600' }}
                     >
                         Cancel
                     </button>
@@ -281,8 +281,8 @@ const PersonForm = ({ person, onSave, onCancel }) => {
             <style>{`
                 .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
                 .switch input { opacity: 0; width: 0; height: 0; }
-                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1a1a1a; transition: .4s; border-radius: 24px; border: 1px solid #333; }
-                .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: #444; transition: .4s; border-radius: 50%; }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-tertiary); transition: .4s; border-radius: 24px; border: 1px solid var(--border-color); }
+                .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .4s; border-radius: 50%; }
                 input:checked + .slider { background-color: rgba(57, 255, 20, 0.2); border-color: var(--accent-green); }
                 input:checked + .slider:before { transform: translateX(20px); background-color: var(--accent-green); }
             `}</style>

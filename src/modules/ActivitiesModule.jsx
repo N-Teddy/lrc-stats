@@ -20,59 +20,59 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
         <div className="glass" style={{
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
             width: '450px', padding: '32px', borderRadius: 'var(--radius-lg)', zIndex: 1000,
-            boxShadow: '0 20px 50px rgba(0,0,0,0.8)', border: '1px solid #333'
+            boxShadow: '0 20px 50px rgba(0,0,0,0.8)', border: '1px solid var(--border-color)'
         }}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '24px' }}>
                 {activity ? 'Edit Activity' : 'New Activity'}
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase' }}>Activity Name</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Activity Name</label>
                     <input
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="e.g. Monthly Reunion"
-                        style={{ width: '100%', backgroundColor: '#111', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid #222', color: 'white' }}
+                        style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                         required
                     />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase' }}>Date</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Date</label>
                         <input
                             name="date"
                             type="date"
                             value={formData.date}
                             onChange={handleChange}
-                            style={{ width: '100%', backgroundColor: '#111', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid #222', color: 'white', colorScheme: 'dark' }}
+                            style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', colorScheme: 'inherit' }}
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase' }}>Type</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Type</label>
                         <select
                             name="type"
                             value={formData.type}
                             onChange={handleChange}
-                            style={{ width: '100%', backgroundColor: '#111', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid #222', color: 'white' }}
+                            style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                         >
                             {ACTIVITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#666', marginBottom: '8px', textTransform: 'uppercase' }}>Notes (Optional)</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Notes (Optional)</label>
                     <textarea
                         name="notes"
                         value={formData.notes || ''}
                         onChange={handleChange}
                         rows="3"
-                        style={{ width: '100%', backgroundColor: '#111', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid #222', color: 'white', resize: 'none' }}
+                        style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', resize: 'none' }}
                     />
                 </div>
                 <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
                     <button type="submit" style={{ flex: 1, backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px', borderRadius: 'var(--radius-md)', fontWeight: '700' }}>Save Activity</button>
-                    <button type="button" onClick={onCancel} style={{ padding: '12px 20px', border: '1px solid #222', borderRadius: 'var(--radius-md)', color: '#666' }}>Cancel</button>
+                    <button type="button" onClick={onCancel} style={{ padding: '12px 20px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)' }}>Cancel</button>
                 </div>
             </form>
         </div>
@@ -118,12 +118,12 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
                 </button>
             </header>
 
-            <div style={{ position: 'relative', marginBottom: '30px', backgroundColor: '#111', borderRadius: 'var(--radius-md)', border: '1px solid #222' }}>
-                <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+            <div style={{ position: 'relative', marginBottom: '30px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                 <input
                     placeholder="Search activities..."
                     value={search} onChange={(e) => setSearch(e.target.value)}
-                    style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'white' }}
+                    style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                 />
             </div>
 
@@ -143,13 +143,13 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
                         }}
                     >
                         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                            <div style={{ padding: '12px', backgroundColor: '#111', borderRadius: 'var(--radius-sm)', border: '1px solid #222' }}>
+                            <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
                                 <Calendar size={20} color="var(--accent-cyan)" />
                             </div>
                             <div>
                                 <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{activity.name}</h3>
                                 <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
-                                    <span style={{ fontSize: '0.8rem', color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                         <Calendar size={12} /> {activity.date}
                                     </span>
                                     <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -166,7 +166,7 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
                         </button>
                     </div>
                 ))}
-                {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#444', padding: '40px' }}>No activities found.</p>}
+                {filtered.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>No activities found.</p>}
             </div>
 
             {isFormOpen && (
