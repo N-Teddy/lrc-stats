@@ -85,7 +85,7 @@ const StatsModule = () => {
                                     dataKey="value"
                                 >
                                     {distribution.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        <Cell key={`cell - ${index} `} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <Tooltip
@@ -132,7 +132,7 @@ const StatsModule = () => {
                                 />
                                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                                     {typeData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        <Cell key={`cell - ${index} `} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -158,11 +158,11 @@ const StatsModule = () => {
             </div>
 
             <style>{`
-                @keyframes fadeIn {
+@keyframes fadeIn {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
+}.
+`}</style>
         </div>
     );
 };

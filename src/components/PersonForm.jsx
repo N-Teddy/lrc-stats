@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, User, Phone, Calendar, Shield, Save, Upload, Camera } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
 const PersonForm = ({ person, onSave, onCancel }) => {
     const [formData, setFormData] = useState(person || createPersonModel());
@@ -39,8 +40,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
         try {
             let finalData = { ...formData };
 
-            // If a new image was selected (it will be a base64 string in previewImage,
-            // but not yet a lrc-img:// path)
+            // If a new image was selected (it will be a base64 string in previewImage)
             if (previewImage && previewImage.startsWith('data:image')) {
                 console.log('[DEBUG] Attempting to save new image to local storage...');
                 const result = await dataService.saveImage(formData.id, previewImage);
@@ -117,7 +117,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                         }}
                     >
                         {previewImage ? (
-                            <img src={previewImage} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={previewImage.startsWith('http') || previewImage.startsWith('data:') ? previewImage : convertFileSrc(previewImage)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                             <>
                                 <Camera size={24} color="var(--border-color)" />

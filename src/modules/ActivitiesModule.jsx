@@ -84,30 +84,46 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingActivity, setEditingActivity] = useState(null);
     const [search, setSearch] = useState('');
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
 
     useEffect(() => { loadActivities(); }, []);
 
     const loadActivities = async () => {
         const data = await dataService.getActivities();
-        setActivities(data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        const sorted = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setActivities(sorted);
+
+        // If current year has no activities, default to the most recent year available
+        const years = [...new Set(sorted.map(a => new Date(a.date).getFullYear().toString()))];
+        const currentYear = new Date().getFullYear().toString();
+        if (sorted.length > 0 && !years.includes(currentYear)) {
+            setSelectedYear(years[0]);
+        }
     };
 
     const handleSave = async (formData) => {
         const updated = editingActivity
             ? activities.map(a => a.id === formData.id ? formData : a)
             : [...activities, formData];
-        await dataService.saveActivities(updated);
-        setActivities(updated);
+        const sorted = updated.sort((a, b) => new Date(b.date) - new Date(a.date));
+        await dataService.saveActivities(sorted);
+        setActivities(sorted);
         setIsFormOpen(false);
     };
 
-    const filtered = activities.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+    const years = [...new Set(activities.map(a => new Date(a.date).getFullYear().toString()))].sort((a, b) => b - a);
+
+    const filtered = activities.filter(a => {
+        const matchesYear = new Date(a.date).getFullYear().toString() === selectedYear;
+        const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase());
+        return matchesYear && matchesSearch;
+    });
 
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Activities</h2>
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Operations</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Log events and track participation history.</p>
                 </div>
                 <button
@@ -118,13 +134,37 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
                 </button>
             </header>
 
-            <div style={{ position: 'relative', marginBottom: '30px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                    placeholder="Search activities..."
-                    value={search} onChange={(e) => setSearch(e.target.value)}
-                    style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
-                />
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
+                <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input
+                        placeholder="Search activities in selected year..."
+                        value={search} onChange={(e) => setSearch(e.target.value)}
+                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
+                    />
+                </div>
+
+                <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
+                    {years.map(year => (
+                        <button
+                            key={year}
+                            onClick={() => setSelectedYear(year)}
+                            style={{
+                                padding: '8px 16px',
+                                borderRadius: '4px',
+                                backgroundColor: selectedYear === year ? 'var(--bg-secondary)' : 'transparent',
+                                color: selectedYear === year ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                                fontWeight: '700',
+                                fontSize: '0.85rem'
+                            }}
+                        >
+                            {year}
+                        </button>
+                    ))}
+                    {years.length === 0 && (
+                        <span style={{ padding: '8px 16px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date().getFullYear()}</span>
+                    )}
+                </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

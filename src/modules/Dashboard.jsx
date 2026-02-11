@@ -159,9 +159,9 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div style={{ width: '100%', height: '300px' }}>
+                    <div style={{ width: '100%', height: '300px', minHeight: '300px' }}>
                         {stats.recentAttendance.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <AreaChart data={stats.recentAttendance}>
                                     <defs>
                                         <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
