@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Search, MoreVertical, Shield, Archive, Edit2, Trash2, User } from 'lucide-react';
+import { UserPlus, Search, MoreVertical, Shield, Archive, Edit2, Trash2, User, Phone } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
 import PersonForm from '../components/PersonForm';
-import { Phone } from 'lucide-react';
 
 const PeopleModule = () => {
     const [people, setPeople] = useState([]);
@@ -22,13 +21,18 @@ const PeopleModule = () => {
     };
 
     const handleSave = async (formData) => {
+        console.log('[DEBUG] handleSave triggered with:', formData);
         let updatedPeople;
         if (editingPerson) {
             updatedPeople = people.map(p => p.id === formData.id ? formData : p);
         } else {
             updatedPeople = [...people, formData];
         }
-        await dataService.savePeople(updatedPeople);
+
+        console.log('[DEBUG] Saving updated people list (total:', updatedPeople.length, ')');
+        const result = await dataService.savePeople(updatedPeople);
+        console.log('[DEBUG] Save result:', result);
+
         setPeople(updatedPeople);
         setIsFormOpen(false);
         setEditingPerson(null);

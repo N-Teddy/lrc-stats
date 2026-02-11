@@ -27,14 +27,16 @@ This document outlines the granular tasks required to build the LRC Stats deskto
     - [x] Searchable directory with profile cards.
     - [x] Form for adding/editing members (with all custom fields).
     - [x] **Archive logic**: Implementation of the "Archive" action instead of deletion.
-- [ ] **Activity Module**:
-    - [ ] Calendar/List view of events.
-    - [ ] Creation flow with specific activity type dropdowns.
 
-## Phase 4: Business Logic & Statistics
-- [ ] **Attendance Engine**:
-    - [ ] Interactive checklist for marking presence.
-    - [ ] Bulk-save logic to persist attendance to JSON.
+## Phase 4: Activity & Attendance ✅
+- [x] **Activity Module**:
+    - [x] Calendar/List view of events.
+    - [x] Creation flow with specific activity type dropdowns.
+- [x] **Attendance Engine**:
+    - [x] Interactive checklist for marking presence.
+    - [x] Bulk-save logic to persist attendance to JSON.
+
+## Phase 5: Statistics & Reporting
 - [ ] **Dashboard Visualization**:
     - [ ] Metric cards (Total People, Active JRs, Avg. Attendance).
     - [ ] Line chart for attendance trends (Recharts).
@@ -42,7 +44,7 @@ This document outlines the granular tasks required to build the LRC Stats deskto
     - [ ] Implementation of PDF generation engine using `jsPDF`.
     - [ ] Yearly report logic: Format data into tables for mandatory yearly audits.
 
-## Phase 5: Polish & Completion
+## Phase 6: Polish & Completion
 - [ ] **Micro-animations**: Add entrance transitions for charts and list items.
 - [ ] **Data Validation**: Ensure no duplicate entries and mandatory field checks.
 - [ ] **Packaging**:

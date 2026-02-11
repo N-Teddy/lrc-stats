@@ -2,9 +2,17 @@ import React, { useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './modules/Dashboard';
 import PeopleModule from './modules/PeopleModule';
+import ActivitiesModule from './modules/ActivitiesModule';
+import AttendanceModule from './modules/AttendanceModule';
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [selectedActivity, setSelectedActivity] = useState(null);
+
+    const handleTrackAttendance = (activity) => {
+        setSelectedActivity(activity);
+        setActiveTab('attendance');
+    };
 
     const renderContent = () => {
         switch (activeTab) {
@@ -13,12 +21,12 @@ function App() {
             case 'people':
                 return <PeopleModule />;
             case 'activities':
-                return (
-                    <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                        <h2 className="gradient-text" style={{ fontSize: '2rem' }}>Coming Soon</h2>
-                        <p style={{ color: '#444' }}>Activity management module is scheduled for Phase 4.</p>
-                    </div>
-                );
+                return <ActivitiesModule onTrackAttendance={handleTrackAttendance} />;
+            case 'attendance':
+                return <AttendanceModule
+                    activity={selectedActivity}
+                    onBack={() => setActiveTab('activities')}
+                />;
             case 'stats':
                 return (
                     <div style={{ textAlign: 'center', padding: '100px 0' }}>
@@ -32,7 +40,7 @@ function App() {
     };
 
     return (
-        <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+        <Layout activeTab={activeTab === 'attendance' ? 'activities' : activeTab} setActiveTab={setActiveTab}>
             {renderContent()}
         </Layout>
     );

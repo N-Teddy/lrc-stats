@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, User, Phone, Calendar, Shield, Save, Upload, Camera } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
 
 const PersonForm = ({ person, onSave, onCancel }) => {
     const [formData, setFormData] = useState(person || createPersonModel());
     const [previewImage, setPreviewImage] = useState(person?.image || null);
-    const [imageFile, setImageFile] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleChange = (e) => {
@@ -19,10 +19,11 @@ const PersonForm = ({ person, onSave, onCancel }) => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImageFile(file);
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
+            reader.onload = () => {
+                const base64 = reader.result;
+                setPreviewImage(base64);
+                console.log('[DEBUG] Image loaded into preview (base64 string starts with:', base64.substring(0, 30), ')');
             };
             reader.readAsDataURL(file);
         }
@@ -30,27 +31,38 @@ const PersonForm = ({ person, onSave, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name) {
-            alert('Name is mandatory');
-            return;
-        }
+        if (!formData.name) return alert('Name is mandatory');
+
+        setIsProcessing(true);
+        console.log('[DEBUG] Form submission started. Name:', formData.name);
 
         try {
             let finalData = { ...formData };
 
-            // If a new image was selected, save it to the local folder
-            if (imageFile && previewImage) {
+            // If a new image was selected (it will be a base64 string in previewImage,
+            // but not yet a lrc-img:// path)
+            if (previewImage && previewImage.startsWith('data:image')) {
+                console.log('[DEBUG] Attempting to save new image to local storage...');
                 const result = await dataService.saveImage(formData.id, previewImage);
+
                 if (result.success) {
-                    finalData.image = result.url; // Use the custom path (lrc-img://...)
+                    console.log('[DEBUG] Image saved successfully. Path:', result.url);
+                    finalData.image = result.url;
+                } else {
+                    console.error('[DEBUG] Image saving failed:', result.error);
+                    alert('Image could not be saved: ' + result.error);
                 }
+            } else {
+                console.log('[DEBUG] No new image to save or image already in path format.');
             }
 
-            console.log('[DEBUG] Form submission logic triggered with:', finalData);
-            onSave(finalData);
+            console.log('[DEBUG] Calling onSave with final data:', finalData);
+            await onSave(finalData);
         } catch (err) {
-            console.error('Submission failed:', err);
-            alert('Failed to save profile. Check the console for details.');
+            console.error('[DEBUG] handleSubmit Exception:', err);
+            alert('An unexpected error occurred during save.');
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -100,7 +112,8 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                             cursor: 'pointer',
                             overflow: 'hidden',
                             position: 'relative',
-                            transition: 'border-color 0.2s'
+                            transition: 'all 0.2s',
+                            opacity: isProcessing ? 0.5 : 1
                         }}
                     >
                         {previewImage ? (
@@ -122,7 +135,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)' }}>Profile Image</p>
                         <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
-                            Upload a portrait photo. Recommended size is square (e.g. 256x256).
+                            {previewImage ? 'Click avatar to change photo.' : 'Upload a portrait photo.'}
                         </p>
                         <input
                             type="file"
@@ -220,7 +233,6 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                         <Shield size={20} color="var(--accent-green)" />
                         <div>
                             <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--accent-green)' }}>Junior Member (JRs)</p>
-                            <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '2px' }}>Verify eligibility before toggling</p>
                         </div>
                     </div>
                     <label className="switch">
@@ -237,10 +249,10 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                 <div style={{ marginTop: '12px', display: 'flex', gap: '12px' }}>
                     <button
                         type="submit"
-                        className="no-drag"
+                        disabled={isProcessing}
                         style={{
                             flex: 1,
-                            backgroundColor: 'var(--accent-cyan)',
+                            backgroundColor: isProcessing ? '#333' : 'var(--accent-cyan)',
                             color: 'black',
                             padding: '16px',
                             borderRadius: 'var(--radius-md)',
@@ -250,16 +262,15 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                             justifyContent: 'center',
                             gap: '10px',
                             fontSize: '1rem',
-                            boxShadow: '0 4px 20px rgba(0, 210, 255, 0.4)'
+                            cursor: isProcessing ? 'not-allowed' : 'pointer'
                         }}
                     >
-                        <Save size={20} />
-                        Save Profile
+                        {isProcessing ? 'Processing...' : <><Save size={20} /> Save Profile</>}
                     </button>
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="no-drag"
+                        disabled={isProcessing}
                         style={{ padding: '16px 24px', border: '1px solid #222', borderRadius: 'var(--radius-md)', color: '#666', fontWeight: '600' }}
                     >
                         Cancel

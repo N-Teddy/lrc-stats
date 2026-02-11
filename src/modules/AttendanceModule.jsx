@@ -1,0 +1,165 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Check, Search, User, Filter, Save } from 'lucide-react';
+import { dataService } from '../store/dataService';
+
+const AttendanceModule = ({ activity, onBack }) => {
+    const [people, setPeople] = useState([]);
+    const [attendance, setAttendance] = useState([]);
+    const [selectedIds, setSelectedIds] = useState(new Set());
+    const [search, setSearch] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        loadData();
+    }, [activity]);
+
+    const loadData = async () => {
+        const [allPeople, allAttendance] = await Promise.all([
+            dataService.getPeople(),
+            dataService.getAttendance()
+        ]);
+
+        // Only show people who are not archived
+        const activePeople = allPeople.filter(p => !p.isArchived);
+        setPeople(activePeople);
+
+        // Find existing attendance for this activity
+        const currentActivityAttendance = allAttendance.find(a => a.activityId === activity.id);
+        if (currentActivityAttendance) {
+            setSelectedIds(new Set(currentActivityAttendance.personIds));
+        }
+    };
+
+    const togglePerson = (id) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) newSelected.delete(id);
+        else newSelected.add(id);
+        setSelectedIds(newSelected);
+    };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const allAttendance = await dataService.getAttendance();
+            const otherAttendance = allAttendance.filter(a => a.activityId !== activity.id);
+
+            const newEntry = {
+                activityId: activity.id,
+                activityName: activity.name,
+                date: activity.date,
+                personIds: Array.from(selectedIds),
+                count: selectedIds.size
+            };
+
+            await dataService.saveAttendance([...otherAttendance, newEntry]);
+            alert('Attendance saved successfully!');
+            onBack();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save attendance.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const filteredPeople = people.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+
+    return (
+        <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+            <button
+                onClick={onBack}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.9rem' }}
+            >
+                <ArrowLeft size={16} /> Back to Activities
+            </button>
+
+            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '30px', border: '1px solid var(--accent-cyan)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px' }}>
+                            Recording Attendance
+                        </span>
+                        <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '4px' }}>{activity.name}</h2>
+                        <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '4px' }}>{activity.date} • {activity.type}</p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: '0.8rem', color: '#444', textTransform: 'uppercase', letterSpacing: '1px' }}>Present</p>
+                        <p style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-green)' }}>{selectedIds.size}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ position: 'relative', flex: 1, backgroundColor: '#111', borderRadius: 'var(--radius-md)' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+                    <input
+                        placeholder="Search people..."
+                        value={search} onChange={(e) => setSearch(e.target.value)}
+                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'white' }}
+                    />
+                </div>
+                <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    style={{
+                        backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '0 32px',
+                        borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.95rem',
+                        display: 'flex', alignItems: 'center', gap: '10px'
+                    }}
+                >
+                    {isSaving ? 'Saving...' : <><Save size={18} /> Save Records</>}
+                </button>
+            </div>
+
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                gap: '12px'
+            }}>
+                {filteredPeople.map(person => {
+                    const isSelected = selectedIds.has(person.id);
+                    return (
+                        <div
+                            key={person.id}
+                            onClick={() => togglePerson(person.id)}
+                            className="glass"
+                            style={{
+                                padding: '16px 20px',
+                                borderRadius: 'var(--radius-md)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px',
+                                cursor: 'pointer',
+                                border: isSelected ? '1px solid var(--accent-green)' : '1px solid #1a1a1a',
+                                backgroundColor: isSelected ? 'rgba(57, 255, 20, 0.05)' : 'transparent',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <div style={{
+                                width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#111',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                                {person.image ? (
+                                    <img src={person.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <User size={20} color="#333" />
+                                )}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <p style={{ fontSize: '0.95rem', fontWeight: '600', color: isSelected ? 'white' : '#888' }}>{person.name}</p>
+                                {person.isJRs && <span style={{ fontSize: '0.6rem', color: 'var(--accent-green)', fontWeight: 'bold' }}>JRs</span>}
+                            </div>
+                            {isSelected && <Check size={20} color="var(--accent-green)" />}
+                        </div>
+                    );
+                })}
+            </div>
+
+            <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+        </div>
+    );
+};
+
+export default AttendanceModule;

@@ -1,12 +1,19 @@
 const { app, BrowserWindow, ipcMain, protocol, net } = require('electron');
 const path = require('path');
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = !app.isPackaged;
 const fs = require('fs').promises;
 
 // Database & Images Paths
+// In development, we use the project folder so it's visible in the IDE
+// In production, we use the standard OS userData path
 const USER_DATA_PATH = app.getPath('userData');
-const DB_PATH = path.join(USER_DATA_PATH, 'db');
-const IMAGES_PATH = path.join(USER_DATA_PATH, 'images');
+const BASE_PATH = isDev ? path.join(__dirname, '..') : USER_DATA_PATH;
+const DB_PATH = path.join(BASE_PATH, 'db');
+const IMAGES_PATH = path.join(BASE_PATH, 'images');
+
+console.log(`[INIT] Storage Paths initialized:`);
+console.log(` - Database: ${DB_PATH}`);
+console.log(` - Images: ${IMAGES_PATH}`);
 
 // Register custom protocol for images
 protocol.registerSchemesAsPrivileged([
@@ -73,12 +80,20 @@ ipcMain.handle('db:load', async (event, filename) => {
 
 ipcMain.handle('db:save', async (event, { filename, data }) => {
     try {
+        await fs.mkdir(DB_PATH, { recursive: true });
         const filePath = path.join(DB_PATH, `${filename}.json`);
-        console.log(`[IPC] Saving ${filename} (${data.length} records) to ${filePath}`);
-        await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+        const jsonContent = JSON.stringify(data, null, 2);
+
+        console.log(`[IPC] ATTEMPTING SAVE: ${filename}`);
+        console.log(` - Path: ${filePath}`);
+        console.log(` - Records: ${data.length}`);
+
+        await fs.writeFile(filePath, jsonContent, 'utf-8');
+
+        console.log(`[IPC] SAVE SUCCESSFUL`);
         return { success: true };
     } catch (err) {
-        console.error(`Error saving ${filename}:`, err);
+        console.error(`[IPC] SAVE FAILED for ${filename}:`, err);
         return { success: false, error: err.message };
     }
 });
