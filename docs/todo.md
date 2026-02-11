@@ -20,13 +20,13 @@ This document outlines the granular tasks required to build the LRC Stats deskto
     - [x] **People**: Support for phone, status, dob, integration/departure dates, isJRs flag, image path, and `isArchived` flag.
     - [x] **Activities**: Support for types: *reunion mensuelle, conference, service jrs, activite ludique, autres, jpo*.
 
-## Phase 3: Core UI Development
-- [ ] **Design Foundation**: Create `src/styles/design-tokens.css` (Glassmorphism, Charcoal palette, technical typography).
-- [ ] **Main Layout**: Implement Sidebar navigation and high-precision App Shell.
-- [ ] **People Module**:
-    - [ ] Searchable directory with profile cards.
+## Phase 3: Core UI Development ✅
+- [x] **Design Foundation**: Create `src/styles/design-tokens.css` (Glassmorphism, Charcoal palette, technical typography).
+- [x] **Main Layout**: Implement Sidebar navigation and high-precision App Shell.
+- [x] **People Module**:
+    - [x] Searchable directory with profile cards.
     - [ ] Form for adding/editing members (with image upload/preview).
-    - [ ] **Archive logic**: Implementation of the "Archive" action instead of deletion.
+    - [x] **Archive logic**: Implementation of the "Archive" filter and view.
 - [ ] **Activity Module**:
     - [ ] Calendar/List view of events.
     - [ ] Creation flow with specific activity type dropdowns.
