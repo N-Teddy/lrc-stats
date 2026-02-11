@@ -20,11 +20,22 @@ const getAPI = () => {
 export const dataService = {
     // People
     getPeople: () => getAPI().loadData('people'),
-    savePeople: (people) => getAPI().saveData('people', people),
+    savePeople: async (people) => {
+        // Validation: No empty names
+        if (people.some(p => !p.name || p.name.trim() === '')) {
+            return { success: false, error: 'All personnel must have a valid name.' };
+        }
+        return getAPI().saveData('people', people);
+    },
 
     // Activities
     getActivities: () => getAPI().loadData('activities'),
-    saveActivities: (activities) => getAPI().saveData('activities', activities),
+    saveActivities: async (activities) => {
+        if (activities.some(a => !a.name || a.name.trim() === '')) {
+            return { success: false, error: 'Activity name is mandatory.' };
+        }
+        return getAPI().saveData('activities', activities);
+    },
 
     // Images
     saveImage: (id, base64Data) => getAPI().saveImage(id, base64Data),

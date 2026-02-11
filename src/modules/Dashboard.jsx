@@ -105,15 +105,15 @@ const Dashboard = () => {
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
-                <StatCard icon={Users} label="Personnel" value={stats.people} color="0, 210, 255" subtext="Active members" />
-                <StatCard icon={Activity} label="Junior Core" value={stats.jrs} color="57, 255, 20" subtext="Eligible JRs" />
-                <StatCard icon={Calendar} label="Operations" value={stats.activitiesCount} color="0, 112, 243" subtext="Registered activities" />
-                <StatCard icon={TrendingUp} label="Flow Density" value={stats.avgAttendance} color="121, 40, 202" subtext="Avg. attendance" />
+                <div className="animate-in stagger-1"><StatCard icon={Users} label="Personnel" value={stats.people} color="0, 210, 255" subtext="Active members" /></div>
+                <div className="animate-in stagger-2"><StatCard icon={Activity} label="Junior Core" value={stats.jrs} color="57, 255, 20" subtext="Eligible JRs" /></div>
+                <div className="animate-in stagger-3"><StatCard icon={Calendar} label="Operations" value={stats.activitiesCount} color="0, 112, 243" subtext="Registered activities" /></div>
+                <div className="animate-in stagger-4"><StatCard icon={TrendingUp} label="Flow Density" value={stats.avgAttendance} color="121, 40, 202" subtext="Avg. attendance" /></div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '40px' }}>
                 {/* Main Presence Chart */}
-                <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: '32px', border: '1px solid #1a1a1a' }}>
+                <div className="glass animate-in stagger-2" style={{ borderRadius: 'var(--radius-lg)', padding: '32px', border: '1px solid #1a1a1a' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                         <div>
                             <h3 style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.5px' }}>Engagement Dynamics</h3>
@@ -166,12 +166,12 @@ const Dashboard = () => {
 
                 {/* Right Panel: Performance & Status */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', flex: 1 }}>
+                    <div className="glass animate-in stagger-3" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', flex: 1 }}>
                         <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '1px', color: '#555' }}>
                             Recent Activity Hub
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {stats.recentAttendance.slice(-3).reverse().map((act, idx) => (
+                            {stats.recentAttendance.length > 0 ? stats.recentAttendance.slice(-3).reverse().map((act, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingBottom: '12px', borderBottom: '1px solid #111' }}>
                                     <div style={{ width: '10px', height: '10px', borderRadius: '50%', border: '2px solid var(--accent-cyan)' }} />
                                     <div style={{ flex: 1 }}>
@@ -180,12 +180,11 @@ const Dashboard = () => {
                                     </div>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--accent-cyan)' }}>{act.count}</span>
                                 </div>
-                            ))}
-                            {stats.recentAttendance.length === 0 && <p style={{ fontSize: '0.8rem', color: '#444' }}>No recently logged activities.</p>}
+                            )) : <p style={{ fontSize: '0.8rem', color: '#444' }}>No activities logged yet.</p>}
                         </div>
                     </div>
 
-                    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.05) 0%, transparent 100%)' }}>
+                    <div className="glass animate-in stagger-4" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.05) 0%, transparent 100%)' }}>
                         <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '16px' }}>Network Utilities</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <button

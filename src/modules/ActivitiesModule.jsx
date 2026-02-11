@@ -128,8 +128,20 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {filtered.map(activity => (
-                    <div key={activity.id} className="glass" style={{ padding: '20px 24px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid var(--glass-border)' }}>
+                {filtered.map((activity, index) => (
+                    <div
+                        key={activity.id}
+                        className={`glass hover-glow animate-in stagger-${(index % 4) + 1}`}
+                        style={{
+                            padding: '20px 24px',
+                            borderRadius: 'var(--radius-md)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            border: '1px solid var(--glass-border)',
+                            transition: 'all 0.3s'
+                        }}
+                    >
                         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                             <div style={{ padding: '12px', backgroundColor: '#111', borderRadius: 'var(--radius-sm)', border: '1px solid #222' }}>
                                 <Calendar size={20} color="var(--accent-cyan)" />

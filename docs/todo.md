@@ -36,18 +36,18 @@ This document outlines the granular tasks required to build the LRC Stats deskto
     - [x] Interactive checklist for marking presence.
     - [x] Bulk-save logic to persist attendance to JSON.
 
-## Phase 5: Statistics & Reporting
-- [ ] **Dashboard Visualization**:
-    - [ ] Metric cards (Total People, Active JRs, Avg. Attendance).
-    - [ ] Line chart for attendance trends (Recharts).
-- [ ] **Reporting System**:
-    - [ ] Implementation of PDF generation engine using `jsPDF`.
-    - [ ] Yearly report logic: Format data into tables for mandatory yearly audits.
+## Phase 5: Statistics & Reporting ✅
+- [x] **Dashboard Visualization**:
+    - [x] Metric cards (Total People, Active JRs, Avg. Attendance).
+    - [x] Line chart for attendance trends (Recharts).
+- [x] **Reporting System**:
+    - [x] Implementation of PDF generation engine using `jsPDF`.
+    - [x] Yearly report logic: Format data into tables for mandatory yearly audits.
 
-## Phase 6: Polish & Completion
-- [ ] **Micro-animations**: Add entrance transitions for charts and list items.
-- [ ] **Data Validation**: Ensure no duplicate entries and mandatory field checks.
-- [ ] **Packaging**:
-    - [ ] Configure `electron-builder` for one-click installation.
-    - [ ] Build for target OS (Windows/Linux/Mac).
-- [ ] **Review**: Final audit against `project_overview.md` requirements.
+## Phase 6: Polish & Completion ✅
+- [x] **Micro-animations**: Add entrance transitions for charts and list items.
+- [x] **Data Validation**: Ensure no duplicate entries and mandatory field checks.
+- [x] **Packaging**:
+    - [x] Configure `electron-builder` for one-click installation.
+    - [x] Build for target OS (Windows/Linux/Mac).
+- [x] **Review**: Final audit against `project_overview.md` requirements.

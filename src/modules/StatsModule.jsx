@@ -68,7 +68,7 @@ const StatsModule = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '40px' }}>
                 {/* Personnel Distribution */}
-                <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
+                <div className="glass animate-in stagger-1" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '4px', height: '16px', backgroundColor: 'var(--accent-green)' }} />
                         Personnel Segmentation
@@ -106,7 +106,7 @@ const StatsModule = () => {
                 </div>
 
                 {/* Activity Load */}
-                <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
+                <div className="glass animate-in stagger-2" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '4px', height: '16px', backgroundColor: 'var(--accent-cyan)' }} />
                         Operational Workload (by Type)

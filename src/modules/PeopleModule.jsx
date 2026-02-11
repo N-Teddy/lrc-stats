@@ -120,15 +120,23 @@ const PeopleModule = () => {
             </div>
 
             {/* Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-                {filteredPeople.map(person => (
-                    <div key={person.id} className="glass" style={{
-                        padding: '24px',
-                        borderRadius: 'var(--radius-lg)',
-                        position: 'relative',
-                        border: activeMenuId === person.id ? '1px solid var(--accent-cyan)' : '1px solid var(--glass-border)',
-                        transition: 'all 0.3s'
-                    }}>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '20px'
+            }}>
+                {filteredPeople.map((person, index) => (
+                    <div
+                        key={person.id}
+                        className={`glass hover-glow animate-in stagger-${(index % 4) + 1}`}
+                        style={{
+                            padding: '24px',
+                            borderRadius: 'var(--radius-lg)',
+                            border: activeMenuId === person.id ? '1px solid var(--accent-cyan)' : '1px solid var(--glass-border)',
+                            position: 'relative',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                        }}
+                    >
                         <div style={{ display: 'flex', gap: '20px' }}>
                             <div style={{
                                 width: '72px', height: '72px', borderRadius: 'var(--radius-md)',
