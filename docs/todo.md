@@ -25,8 +25,8 @@ This document outlines the granular tasks required to build the LRC Stats deskto
 - [x] **Main Layout**: Implement Sidebar navigation and high-precision App Shell.
 - [x] **People Module**:
     - [x] Searchable directory with profile cards.
-    - [ ] Form for adding/editing members (with image upload/preview).
-    - [x] **Archive logic**: Implementation of the "Archive" filter and view.
+    - [x] Form for adding/editing members (with all custom fields).
+    - [x] **Archive logic**: Implementation of the "Archive" action instead of deletion.
 - [ ] **Activity Module**:
     - [ ] Calendar/List view of events.
     - [ ] Creation flow with specific activity type dropdowns.

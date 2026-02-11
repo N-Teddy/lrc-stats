@@ -3,20 +3,35 @@
  * Provides abstract layer for database operations
  */
 
-const API = window.electronAPI;
+// Use a getter to ensure we always get the latest version of the API from the window
+const getAPI = () => {
+    if (window.electronAPI) return window.electronAPI;
+
+    // Fallback/Mock for development in browser or if bridge is slow to load
+    console.warn("Electron API not found on window. Ensure you are running inside Electron.");
+    return {
+        loadData: async () => [],
+        saveData: async () => ({ success: false, error: 'Not in Electron environment' }),
+        saveImage: async () => ({ success: false, error: 'Not in Electron environment' }),
+        ping: async () => 'pong'
+    };
+};
 
 export const dataService = {
     // People
-    getPeople: () => API.loadData('people'),
-    savePeople: (people) => API.saveData('people', people),
+    getPeople: () => getAPI().loadData('people'),
+    savePeople: (people) => getAPI().saveData('people', people),
 
     // Activities
-    getActivities: () => API.loadData('activities'),
-    saveActivities: (activities) => API.saveData('activities', activities),
+    getActivities: () => getAPI().loadData('activities'),
+    saveActivities: (activities) => getAPI().saveData('activities', activities),
+
+    // Images
+    saveImage: (id, base64Data) => getAPI().saveImage(id, base64Data),
 
     // Attendance
-    getAttendance: () => API.loadData('attendance'),
-    saveAttendance: (attendance) => API.saveData('attendance', attendance),
+    getAttendance: () => getAPI().loadData('attendance'),
+    saveAttendance: (attendance) => getAPI().saveData('attendance', attendance),
 };
 
 // Activity Types as requested

@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Search, MoreVertical, Shield, Calendar, Phone, Mail, Archive } from 'lucide-react';
+import { UserPlus, Search, MoreVertical, Shield, Archive, Edit2, Trash2, User } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
+import PersonForm from '../components/PersonForm';
+import { Phone } from 'lucide-react';
 
 const PeopleModule = () => {
     const [people, setPeople] = useState([]);
     const [search, setSearch] = useState('');
-    const [filter, setFilter] = useState('all'); // all, active, archived, jrs
+    const [filter, setFilter] = useState('active');
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [editingPerson, setEditingPerson] = useState(null);
+    const [activeMenuId, setActiveMenuId] = useState(null);
 
     useEffect(() => {
         loadPeople();
@@ -14,6 +19,28 @@ const PeopleModule = () => {
     const loadPeople = async () => {
         const data = await dataService.getPeople();
         setPeople(data);
+    };
+
+    const handleSave = async (formData) => {
+        let updatedPeople;
+        if (editingPerson) {
+            updatedPeople = people.map(p => p.id === formData.id ? formData : p);
+        } else {
+            updatedPeople = [...people, formData];
+        }
+        await dataService.savePeople(updatedPeople);
+        setPeople(updatedPeople);
+        setIsFormOpen(false);
+        setEditingPerson(null);
+    };
+
+    const handleArchive = async (id) => {
+        const updatedPeople = people.map(p =>
+            p.id === id ? { ...p, isArchived: !p.isArchived } : p
+        );
+        await dataService.savePeople(updatedPeople);
+        setPeople(updatedPeople);
+        setActiveMenuId(null);
     };
 
     const filteredPeople = people.filter(p => {
@@ -27,72 +54,59 @@ const PeopleModule = () => {
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 style={{ fontSize: '2rem', fontWeight: '800' }}>Directory</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                        Manage members, status, and engagement levels.
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Directory</h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+                        Manage {people.length} members across all categories.
                     </p>
                 </div>
                 <button
+                    onClick={() => { setEditingPerson(null); setIsFormOpen(true); }}
                     style={{
                         backgroundColor: 'var(--accent-cyan)',
                         color: 'black',
-                        padding: '10px 20px',
+                        padding: '12px 24px',
                         borderRadius: 'var(--radius-md)',
-                        fontWeight: '600',
+                        fontWeight: '700',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px',
-                        fontSize: '0.9rem'
+                        gap: '10px',
+                        fontSize: '0.95rem',
+                        boxShadow: '0 4px 15px rgba(0, 210, 255, 0.3)'
                     }}
                 >
-                    <UserPlus size={18} />
-                    Register Person
+                    <UserPlus size={20} />
+                    Add Member
                 </button>
             </header>
 
-            <div style={{
-                display: 'flex',
-                gap: '20px',
-                marginBottom: '30px',
-                alignItems: 'center'
-            }}>
-                <div style={{
-                    position: 'relative',
-                    flex: 1,
-                    backgroundColor: '#111',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '2px'
-                }}>
-                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+            {/* Search & Filters */}
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', alignItems: 'center' }}>
+                <div style={{ position: 'relative', flex: 1, backgroundColor: '#111', borderRadius: 'var(--radius-md)', border: '1px solid #222' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
                     <input
                         type="text"
                         placeholder="Search by name..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '12px 12px 12px 40px',
-                            border: 'none',
-                            background: 'transparent',
-                            fontSize: '0.9rem'
-                        }}
+                        style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', fontSize: '1rem', color: 'white' }}
                     />
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', backgroundColor: '#111', padding: '4px', borderRadius: '30px', border: '1px solid #222' }}>
                     {['active', 'jrs', 'archived'].map(f => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
                             style={{
-                                padding: '6px 16px',
-                                borderRadius: '20px',
-                                fontSize: '0.8rem',
-                                fontWeight: '600',
+                                padding: '8px 20px',
+                                borderRadius: '25px',
+                                fontSize: '0.75rem',
+                                fontWeight: '700',
                                 textTransform: 'uppercase',
-                                border: filter === f ? '1px solid var(--accent-cyan)' : '1px solid #222',
-                                color: filter === f ? 'var(--accent-cyan)' : '#666',
-                                backgroundColor: filter === f ? 'rgba(0, 210, 255, 0.05)' : 'transparent'
+                                letterSpacing: '1px',
+                                color: filter === f ? 'white' : '#555',
+                                backgroundColor: filter === f ? '#222' : 'transparent',
+                                transition: 'all 0.2s'
                             }}
                         >
                             {f}
@@ -101,68 +115,98 @@ const PeopleModule = () => {
                 </div>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '20px'
-            }}>
+            {/* Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
                 {filteredPeople.map(person => (
                     <div key={person.id} className="glass" style={{
                         padding: '24px',
                         borderRadius: 'var(--radius-lg)',
                         position: 'relative',
-                        transition: 'transform var(--transition-fast)'
+                        border: activeMenuId === person.id ? '1px solid var(--accent-cyan)' : '1px solid var(--glass-border)',
+                        transition: 'all 0.3s'
                     }}>
-                        <div style={{ display: 'flex', gap: '16px' }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
                             <div style={{
-                                width: '64px',
-                                height: '64px',
-                                borderRadius: 'var(--radius-md)',
-                                backgroundColor: '#1a1a1a',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                border: '1px solid var(--glass-border)'
+                                width: '72px', height: '72px', borderRadius: 'var(--radius-md)',
+                                backgroundColor: '#161616', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                border: '1px solid #333', overflow: 'hidden'
                             }}>
-                                <UserPlus size={24} color="#333" />
+                                {person.image ? (
+                                    <img src={person.image} alt={person.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <User size={32} color={person.isJRs ? 'var(--accent-green)' : '#333'} />
+                                )}
                             </div>
                             <div style={{ flex: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600' }}>{person.name || 'Unnamed Person'}</h3>
+                                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.5px' }}>{person.name}</h3>
                                     {person.isJRs && (
-                                        <span style={{
-                                            fontSize: '0.65rem',
-                                            backgroundColor: 'rgba(57, 255, 20, 0.1)',
-                                            color: 'var(--accent-green)',
-                                            padding: '2px 6px',
-                                            borderRadius: '4px',
-                                            fontWeight: '800',
-                                            border: '1px solid rgba(57, 255, 20, 0.2)'
-                                        }}>JRS</span>
+                                        <span style={{ fontSize: '0.6rem', background: 'rgba(57, 255, 20, 0.1)', color: 'var(--accent-green)', padding: '2px 8px', borderRadius: '4px', fontWeight: '900', border: '1px solid rgba(57, 255, 20, 0.2)' }}>JRS</span>
                                     )}
                                 </div>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                                    {person.phone || 'No phone'}
-                                </p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '8px' }}>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <Phone size={14} /> {person.phone || 'N/A'}
+                                    </p>
+                                    <p style={{ fontSize: '0.75rem', color: '#444' }}>
+                                        Joined: {person.dateIntegration || '---'}
+                                    </p>
+                                </div>
                             </div>
-                            <button style={{ color: '#444' }}><MoreVertical size={20} /></button>
+
+                            <div style={{ position: 'relative' }}>
+                                <button
+                                    onClick={() => setActiveMenuId(activeMenuId === person.id ? null : person.id)}
+                                    style={{ color: '#444', padding: '4px' }}
+                                >
+                                    <MoreVertical size={20} />
+                                </button>
+
+                                {activeMenuId === person.id && (
+                                    <div className="glass" style={{
+                                        position: 'absolute', right: 0, top: '30px', width: '160px',
+                                        borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 10,
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid #333'
+                                    }}>
+                                        <button
+                                            onClick={() => { setEditingPerson(person); setIsFormOpen(true); setActiveMenuId(null); }}
+                                            style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}
+                                        >
+                                            <Edit2 size={16} /> Edit Profile
+                                        </button>
+                                        <button
+                                            onClick={() => handleArchive(person.id)}
+                                            style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: person.isArchived ? 'var(--accent-cyan)' : '#888' }}
+                                        >
+                                            <Archive size={16} /> {person.isArchived ? 'Restore' : 'Archive'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
 
                 {filteredPeople.length === 0 && (
-                    <div style={{
-                        gridColumn: '1 / -1',
-                        padding: '100px 0',
-                        textAlign: 'center',
-                        color: '#333',
-                        border: '2px dashed #111',
-                        borderRadius: 'var(--radius-lg)'
-                    }}>
-                        <p>No persons found in this category.</p>
+                    <div style={{ gridColumn: '1 / -1', padding: '80px 0', textAlign: 'center', color: '#444', border: '1px dashed #222', borderRadius: 'var(--radius-lg)' }}>
+                        <p>No members match your criteria.</p>
                     </div>
                 )}
             </div>
+
+            {isFormOpen && (
+                <>
+                    <div
+                        onClick={() => setIsFormOpen(false)}
+                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 999, backdropFilter: 'blur(4px)' }}
+                    />
+                    <PersonForm
+                        person={editingPerson}
+                        onSave={handleSave}
+                        onCancel={() => setIsFormOpen(false)}
+                    />
+                </>
+            )}
 
             <style>{`
         @keyframes fadeIn {
