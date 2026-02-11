@@ -11,14 +11,14 @@ This document outlines the granular tasks required to build the LRC Stats deskto
     - [x] Update `package.json` with scripts for `dev` and `build`.
 - [x] **Folder Structure**: Scaffolding the directory tree as per `tech_stack.md`.
 
-## Phase 2: Architecture & Data Layer
-- [ ] **Database Setup**: Initialize `db/` folder with empty JSON templates (`people.json`, `activities.json`, `attendance.json`).
-- [ ] **IPC Infrastructure**:
-    - [ ] Implement `loadData` / `saveData` handlers in the Main process.
-    - [ ] Create API bridge for CRUD operations.
-- [ ] **Data Model Implementation**:
-    - [ ] **People**: Support for phone, status, dob, integration/departure dates, isJRs flag, image path, and `isArchived` flag.
-    - [ ] **Activities**: Support for types: *reunion mensuelle, conference, service jrs, activite ludique, autres, jpo*.
+## Phase 2: Architecture & Data Layer ✅
+- [x] **Database Setup**: Initialize `db/` folder with empty JSON templates (`people.json`, `activities.json`, `attendance.json`).
+- [x] **IPC Infrastructure**:
+    - [x] Implement `loadData` / `saveData` handlers in the Main process.
+    - [x] Create API bridge for CRUD operations.
+- [x] **Data Model Implementation**:
+    - [x] **People**: Support for phone, status, dob, integration/departure dates, isJRs flag, image path, and `isArchived` flag.
+    - [x] **Activities**: Support for types: *reunion mensuelle, conference, service jrs, activite ludique, autres, jpo*.
 
 ## Phase 3: Core UI Development
 - [ ] **Design Foundation**: Create `src/styles/design-tokens.css` (Glassmorphism, Charcoal palette, technical typography).
