@@ -7,6 +7,7 @@ import AttendanceModule from './modules/AttendanceModule';
 import StatsModule from './modules/StatsModule';
 import PersonDetailModule from './modules/PersonDetailModule';
 import ActivityDetailModule from './modules/ActivityDetailModule';
+import AssistantModule from './modules/AssistantModule';
 import HistoryModule from './modules/HistoryModule';
 import RecycleBinModule from './modules/RecycleBinModule';
 import SettingsModule from './modules/SettingsModule';
@@ -25,8 +26,13 @@ function App() {
         const initNotifications = async () => {
             const granted = await notificationService.init();
             if (granted) {
-                const people = await dataService.getPeople();
+                const [people, activities, attendance] = await Promise.all([
+                    dataService.getPeople(),
+                    dataService.getActivities(),
+                    dataService.getAttendance()
+                ]);
                 notificationService.checkBirthdays(people);
+                notificationService.checkUnlockedActivities(activities, attendance);
             }
         };
 
@@ -59,6 +65,10 @@ function App() {
 
         initNotifications();
         autoSync();
+
+        // Daily Cron: Re-run checks every 24 hours
+        const dailyCron = setInterval(initNotifications, 1000 * 60 * 60 * 24);
+        return () => clearInterval(dailyCron);
     }, []);
 
     useEffect(() => {
@@ -118,6 +128,8 @@ function App() {
                 />;
             case 'logs':
                 return <HistoryModule />;
+            case 'assistant':
+                return <AssistantModule />;
             case 'attendance':
                 return <AttendanceModule
                     activity={selectedActivity}

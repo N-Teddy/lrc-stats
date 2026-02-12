@@ -135,7 +135,7 @@ const Dashboard = () => {
     const { accent } = useTheme();
     const [stats, setStats] = useState({
         membres: 0, eleves: 0, jrs: 0, total: 0, activitiesCount: 0, avgAttendance: 0,
-        recentAttendance: [], birthdays: []
+        recentAttendance: [], birthdays: [], pendingAlerts: []
     });
     const [allData, setAllData] = useState({ people: [], activities: [], attendance: [] });
     const [trendFilter, setTrendFilter] = useState('all');
@@ -175,11 +175,21 @@ const Dashboard = () => {
         const currentMonth = new Date().getMonth();
         const monthlyBirthdays = activePeople.filter(p => p.dob && new Date(p.dob).getMonth() === currentMonth);
 
+        const today = new Date();
+        const pendingAlerts = activities.filter(a => {
+            if (a.isDeleted) return false;
+            const actDate = new Date(a.date);
+            const isPast = actDate < today;
+            const isLocked = attendance.some(att => att.activityId === a.id && att.isLocked);
+            return isPast && !isLocked;
+        });
+
         setStats({
             membres, eleves, jrs, total: activePeople.length,
             activitiesCount: activities.length, avgAttendance: avg,
             recentAttendance: attendance.sort((a, b) => new Date(a.date) - new Date(b.date)).slice(-7),
-            birthdays: monthlyBirthdays
+            birthdays: monthlyBirthdays,
+            pendingAlerts
         });
         setAllData({ people: activePeople, activities, attendance });
     };
@@ -220,6 +230,38 @@ const Dashboard = () => {
 
     return (
         <div style={{ animation: 'fadeIn 0.5s ease-out', paddingBottom: '40px' }}>
+            {stats.pendingAlerts.length > 0 && (
+                <div className="glass animate-in" style={{
+                    padding: '16px 24px',
+                    borderRadius: 'var(--radius-lg)',
+                    marginBottom: '32px',
+                    border: '1px solid #ff4d4d',
+                    backgroundColor: 'rgba(255, 77, 77, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ backgroundColor: '#ff4d4d', padding: '8px', borderRadius: '50%' }}>
+                            <Clock size={20} color="black" />
+                        </div>
+                        <div>
+                            <h4 style={{ color: '#ff4d4d', fontWeight: '800', fontSize: '0.9rem' }}>ACTION REQUIRED</h4>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                                {stats.pendingAlerts.length} past {stats.pendingAlerts.length === 1 ? 'activity has' : 'activities have'} unlocked attendance records.
+                            </p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        {stats.pendingAlerts.slice(0, 2).map((a, i) => (
+                            <span key={i} style={{ fontSize: '0.7rem', backgroundColor: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                {a.name}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>Command Center</h2>
@@ -239,8 +281,10 @@ const Dashboard = () => {
                     </button>
                     {!isEditMode && (
                         <div className="glass" style={{ padding: '8px 20px', borderRadius: '30px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-green)', boxShadow: '0 0 10px var(--accent-green)' }} />
-                            <span style={{ fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase' }}>System Nominal</span>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: stats.pendingAlerts.length > 0 ? '#ff4d4d' : 'var(--accent-green)', boxShadow: `0 0 10px ${stats.pendingAlerts.length > 0 ? '#ff4d4d' : 'var(--accent-green)'}` }} />
+                            <span style={{ fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase' }}>
+                                {stats.pendingAlerts.length > 0 ? 'Action Needed' : 'System Nominal'}
+                            </span>
                         </div>
                     )}
                 </div>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Check, Search, User, Filter, Save, Lock, Unlock } from 'lucide-react';
-import { dataService } from '../store/dataService';
+import { ArrowLeft, Check, Search, User, Filter, Save, Lock, LayoutGrid, List } from 'lucide-react';
+import { dataService, PERSON_STATUS_TYPES } from '../store/dataService';
 import { convertFileSrc } from '@tauri-apps/api/core';
+import CustomSelect from '../components/CustomSelect';
+import Pagination from '../components/Pagination';
 
 const AttendanceModule = ({ activity, onBack }) => {
     const [people, setPeople] = useState([]);
@@ -10,6 +12,10 @@ const AttendanceModule = ({ activity, onBack }) => {
     const [search, setSearch] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
+    const [viewMode, setViewMode] = useState('grid');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 12;
 
     useEffect(() => {
         loadData();
@@ -41,6 +47,10 @@ const AttendanceModule = ({ activity, onBack }) => {
         setSelectedIds(newSelected);
     };
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, statusFilter]);
+
     const handleSave = async (shouldLock = false) => {
         if (isLocked && !shouldLock) return; // Prevent saving if already locked unless unlocking (not implemented yet)
         setIsSaving(true);
@@ -68,7 +78,19 @@ const AttendanceModule = ({ activity, onBack }) => {
         }
     };
 
-    const filteredPeople = people.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+    const filteredPeople = people.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || (p.status || 'Membre') === statusFilter;
+        if (isLocked) {
+            return matchesSearch && selectedIds.has(p.id) && matchesStatus;
+        }
+        return matchesSearch && matchesStatus;
+    });
+
+    const paginated = filteredPeople.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
 
     return (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
@@ -95,59 +117,84 @@ const AttendanceModule = ({ activity, onBack }) => {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
                 <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
-                        placeholder="Search people..."
+                        placeholder="Search community database..."
                         value={search} onChange={(e) => setSearch(e.target.value)}
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
                 </div>
-                <button
-                    onClick={() => handleSave(false)}
-                    disabled={isSaving || isLocked}
-                    style={{
-                        backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', padding: '0 24px',
-                        borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem',
-                        display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid var(--border-color)',
-                        opacity: isLocked ? 0.5 : 1
-                    }}
-                >
-                    <Save size={18} /> Save Progress
-                </button>
-                <button
-                    onClick={() => {
-                        if (window.confirm('Are you sure? Locking attendance prevents further changes to this session.')) {
-                            handleSave(true);
-                        }
-                    }}
-                    disabled={isSaving || isLocked}
-                    style={{
-                        backgroundColor: isLocked ? 'var(--bg-tertiary)' : 'var(--accent-primary)', color: 'black', padding: '0 32px',
-                        borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.95rem',
-                        display: 'flex', alignItems: 'center', gap: '10px',
-                        opacity: isLocked ? 0.5 : 1
-                    }}
-                >
-                    {isSaving ? 'Processing...' : <><Lock size={18} /> Finalize & Lock</>}
-                </button>
+                <div style={{ width: '160px' }}>
+                    <CustomSelect
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                        searchable={false}
+                        options={['all', ...PERSON_STATUS_TYPES]}
+                    />
+                </div>
+                <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
+                    <button
+                        onClick={() => setViewMode('grid')}
+                        style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
+                    >
+                        <LayoutGrid size={18} />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('list')}
+                        style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'list' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'list' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
+                    >
+                        <List size={18} />
+                    </button>
+                </div>
+                {!isLocked && (
+                    <>
+                        <button
+                            onClick={() => handleSave(false)}
+                            disabled={isSaving}
+                            style={{
+                                backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', padding: '0 24px',
+                                borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem',
+                                display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid var(--border-color)'
+                            }}
+                        >
+                            <Save size={18} /> Save
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (window.confirm('Finalize this session? Locked records are preserved for the historic audit.')) {
+                                    handleSave(true);
+                                }
+                            }}
+                            disabled={isSaving}
+                            style={{
+                                backgroundColor: 'var(--accent-primary)', color: 'black', padding: '0 32px',
+                                borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.95rem',
+                                display: 'flex', alignItems: 'center', gap: '10px'
+                            }}
+                        >
+                            {isSaving ? 'Locking...' : <><Lock size={18} /> Finalize</>}
+                        </button>
+                    </>
+                )}
             </div>
 
             <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                display: viewMode === 'grid' ? 'grid' : 'flex',
+                flexDirection: viewMode === 'grid' ? 'unset' : 'column',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(260px, 1fr))' : 'unset',
                 gap: '12px'
             }}>
-                {filteredPeople.map(person => {
+                {paginated.map(person => {
                     const isSelected = selectedIds.has(person.id);
                     return (
                         <div
                             key={person.id}
                             onClick={() => togglePerson(person.id)}
-                            className="glass"
+                            className={`glass ${isLocked ? '' : 'hover-glow'}`}
                             style={{
-                                padding: '16px 20px',
+                                padding: viewMode === 'grid' ? '16px 20px' : '12px 20px',
                                 borderRadius: 'var(--radius-md)',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -171,12 +218,25 @@ const AttendanceModule = ({ activity, onBack }) => {
                             </div>
                             <div style={{ flex: 1 }}>
                                 <p style={{ fontSize: '0.95rem', fontWeight: '600', color: isSelected ? 'var(--accent-green)' : 'var(--text-primary)' }}>{person.name}</p>
-                                {person.isJRs && <span style={{ fontSize: '0.6rem', color: 'var(--accent-green)', fontWeight: 'bold' }}>JRs</span>}
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>{(person.status || 'Membre').toUpperCase()}</span>
+                                    {person.isJRs && <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: 'var(--accent-green)' }} />}
+                                    {person.isJRs && <span style={{ fontSize: '0.65rem', color: 'var(--accent-green)', fontWeight: 'bold' }}>JRs</span>}
+                                </div>
                             </div>
                             {isSelected && <Check size={20} color="var(--accent-green)" />}
                         </div>
                     );
                 })}
+            </div>
+
+            <div style={{ marginTop: '30px' }}>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredPeople.length}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                />
             </div>
 
             <style>{`

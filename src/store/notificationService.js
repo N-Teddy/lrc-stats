@@ -64,5 +64,26 @@ export const notificationService = {
                 `Today is the birthday of: ${names}. Don't forget to celebrate!`
             );
         }
+    },
+
+    /**
+     * Checks for unlocked past activities and notifies
+     */
+    checkUnlockedActivities: async (activities, attendance) => {
+        const today = new Date();
+        const pending = activities.filter(a => {
+            if (a.isDeleted) return false;
+            const actDate = new Date(a.date);
+            const isPast = actDate < today;
+            const isLocked = attendance.some(att => att.activityId === a.id && att.isLocked);
+            return isPast && !isLocked;
+        });
+
+        if (pending.length > 0) {
+            notificationService.notify(
+                '🔒 Attendance Audit Required',
+                `There are ${pending.length} past ${pending.length === 1 ? 'activity' : 'activities'} with unlocked attendance. Please finalize them.`
+            );
+        }
     }
 };

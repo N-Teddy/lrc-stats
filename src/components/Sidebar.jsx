@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History, Trash2 } from 'lucide-react';
+import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History, Trash2, Sparkles } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 
 import logo from '../assets/logo.jpg';
@@ -82,6 +82,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     label="Activities"
                     active={activeTab === 'activities'}
                     onClick={() => setActiveTab('activities')}
+                />
+                <SidebarItem
+                    icon={Sparkles}
+                    label="Assistant"
+                    active={activeTab === 'assistant'}
+                    onClick={() => setActiveTab('assistant')}
                 />
                 <SidebarItem
                     icon={BarChart2}
