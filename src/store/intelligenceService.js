@@ -29,10 +29,10 @@ export const intelligenceService = {
             }
 
             return people.map(person => {
-                // Count presence in recent activities
+                // Count presence in recent activities - correctly parsing the activity-based personIds array
                 const presenceCount = attendance.filter(record =>
-                    record.personId === person.id &&
-                    recentActivityIds.includes(record.activityId)
+                    recentActivityIds.includes(record.activityId) &&
+                    Array.isArray(record.personIds) && record.personIds.includes(person.id)
                 ).length;
 
                 const attendanceRate = (presenceCount / activityCount) * 100;
@@ -57,8 +57,8 @@ export const intelligenceService = {
 
                 let forecastStatus = 'Stable';
                 if (latestThree.length > 0 && previousThree.length > 0) {
-                    const latestCount = attendance.filter(r => r.personId === person.id && latestThree.includes(r.activityId)).length;
-                    const previousCount = attendance.filter(r => r.personId === person.id && previousThree.includes(r.activityId)).length;
+                    const latestCount = attendance.filter(r => latestThree.includes(r.activityId) && r.personIds?.includes(person.id)).length;
+                    const previousCount = attendance.filter(r => previousThree.includes(r.activityId) && r.personIds?.includes(person.id)).length;
 
                     const latestRate = latestCount / latestThree.length;
                     const previousRate = previousCount / previousThree.length;

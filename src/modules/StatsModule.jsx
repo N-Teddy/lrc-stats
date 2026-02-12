@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
-import { Download, FileText, Filter, Printer, Sliders } from 'lucide-react';
+import { Download, Filter, Sliders } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
-import ReportWizard from '../components/ReportWizard';
 
 const StatsModule = () => {
     const { accentColor } = useTheme();
     const [distribution, setDistribution] = useState([]);
     const [typeData, setTypeData] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isWizardOpen, setIsWizardOpen] = useState(false);
 
     useEffect(() => {
         const loadStats = async () => {
@@ -39,15 +37,6 @@ const StatsModule = () => {
         loadStats();
     }, []);
 
-    const handleGenerateReport = async () => {
-        setIsGenerating(true);
-        try {
-            await reportService.generateYearlyReport(new Date().getFullYear());
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
     const COLORS = [accentColor, '#39ff14', '#0070f3', '#7928ca', '#ff0080', '#f5a623'];
 
     return (
@@ -58,14 +47,15 @@ const StatsModule = () => {
                     <p style={{ color: 'var(--text-secondary)' }}>Advanced network distribution and participation metrics.</p>
                 </div>
                 <button
-                    onClick={() => setIsWizardOpen(true)}
+                    onClick={() => reportService.generateYearlyReport()}
+                    disabled={isGenerating}
                     style={{
                         backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px 24px',
                         borderRadius: 'var(--radius-md)', fontWeight: '800', display: 'flex',
                         alignItems: 'center', gap: '10px', boxShadow: '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)'
                     }}
                 >
-                    <Download size={18} /> Open Report Wizard
+                    <Download size={18} /> {isGenerating ? 'Compiling...' : 'Download Yearly Audit'}
                 </button>
             </header>
 
@@ -143,26 +133,6 @@ const StatsModule = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Yearly Report Preview Placeholder */}
-            <div className="glass" style={{ padding: '40px', borderRadius: 'var(--radius-lg)', textAlign: 'center', border: '1px dashed var(--border-color)' }}>
-                <FileText size={48} color="var(--border-color)" style={{ marginBottom: '20px' }} />
-                <h4 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px' }}>Ready for Yearly Audit?</h4>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '500px', margin: '0 auto 24px' }}>
-                    Compiling all attendance sheets, activity logs, and personnel status into a standardized PDF format for the current administrative year.
-                </p>
-                <button
-                    onClick={() => setIsWizardOpen(true)}
-                    style={{ padding: '12px 32px', borderRadius: '30px', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', background: 'transparent', fontSize: '0.85rem' }}
-                >
-                    Launch Tactical Export Sequence
-                </button>
-            </div>
-
-            <ReportWizard
-                isOpen={isWizardOpen}
-                onClose={() => setIsWizardOpen(false)}
-            />
 
             <style>{`
 @keyframes fadeIn {

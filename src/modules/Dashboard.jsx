@@ -301,14 +301,20 @@ const Dashboard = () => {
                             return (
                                 <div key="birthday-watch" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <BirthdayWatch people={stats.birthdays} onViewAll={() => setIsBirthdayModalOpen(true)} />
-                                    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-                                        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '16px' }}>Tactical Exports</h3>
-                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                            <button onClick={() => reportService.generateYearlyReport()} style={{ flex: 1, padding: '16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '700' }}>
-                                                <Download size={18} color="var(--accent-primary)" /> Audit Export
+                                    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', textAlign: 'center', color: 'var(--text-muted)', marginBottom: '4px' }}>TACTICAL AUDITS</h3>
+                                        <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                                            <button
+                                                onClick={() => reportService.generateYearlyReport()}
+                                                style={{ flex: 1, padding: '14px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', justifyContent: 'center', fontSize: '0.85rem' }}
+                                            >
+                                                <Download size={16} color="var(--accent-primary)" /> Yearly
                                             </button>
-                                            <button onClick={() => reportService.generateAllActivitiesReport()} style={{ flex: 1, padding: '16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '700' }}>
-                                                <Clock size={18} color="var(--accent-green)" /> Operational Log
+                                            <button
+                                                onClick={() => reportService.generateAllActivitiesReport()}
+                                                style={{ flex: 1, padding: '14px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', justifyContent: 'center', fontSize: '0.85rem' }}
+                                            >
+                                                <Clock size={16} color="var(--accent-green)" /> Master Log
                                             </button>
                                         </div>
                                     </div>

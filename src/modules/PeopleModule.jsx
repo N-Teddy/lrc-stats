@@ -140,10 +140,10 @@ const PeopleModule = ({ onViewPerson }) => {
                         />
                     </div>
                     <button
-                        onClick={() => reportService.generateDirectoryReport(people)}
+                        onClick={() => reportService.generateDirectoryReport(filteredPeople)}
                         className="glass"
                         style={{ padding: '14px', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        title="Export Intelligence Report"
+                        title="Export Personnel Directory"
                     >
                         <Download size={18} />
                     </button>
