@@ -2,6 +2,8 @@ import React from 'react';
 import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History, Trash2 } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 
+import logo from '../assets/logo.jpg';
+
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
     <button
         onClick={onClick}
@@ -38,16 +40,28 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            padding: '40px 16px 20px 16px',
+            padding: '24px 16px 20px 16px',
             borderRight: '1px solid var(--glass-border)'
         }}>
-            <div style={{ marginBottom: '40px', paddingLeft: '8px' }}>
-                <h1 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>
-                    LRC STATS
-                </h1>
-                <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '4px' }}>
-                    Command Center v3.0.0
-                </p>
+            <div style={{ marginBottom: '40px', paddingLeft: '8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--border-color)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+                }}>
+                    <img src={logo} alt="LRC Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div>
+                    <h1 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px', lineHeight: '1.2' }}>
+                        LRC STATS
+                    </h1>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '2px' }}>
+                        Command Center v4.0.0
+                    </p>
+                </div>
             </div>
 
             <nav style={{ flex: 1 }}>
