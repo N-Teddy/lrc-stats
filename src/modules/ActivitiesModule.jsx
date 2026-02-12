@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Calendar, BarChart3, ChevronRight, LayoutGrid, List } from 'lucide-react';
+import { Plus, Search, Calendar, BarChart3, ChevronRight, LayoutGrid, List, Trash2 } from 'lucide-react';
 import { dataService, createActivityModel, ACTIVITY_TYPES } from '../store/dataService';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
@@ -73,7 +73,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
                     />
                 </div>
                 <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-                    <button type="submit" style={{ flex: 1, backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px', borderRadius: 'var(--radius-md)', fontWeight: '700' }}>Save Activity</button>
+                    <button type="submit" style={{ flex: 1, backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px', borderRadius: 'var(--radius-md)', fontWeight: '700' }}>Save Activity</button>
                     <button type="button" onClick={onCancel} style={{ padding: '12px 20px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)' }}>Cancel</button>
                 </div>
             </form>
@@ -110,9 +110,19 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
         setIsFormOpen(false);
     };
 
+    const handleSoftDelete = async (id) => {
+        const currentActivities = await dataService.getActivities();
+        const updated = currentActivities.map(a =>
+            a.id === id ? { ...a, isDeleted: true, deletedAt: new Date().toISOString() } : a
+        );
+        await dataService.saveActivities(updated);
+        setActivities(updated.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    };
+
     const years = [...new Set(activities.map(a => new Date(a.date).getFullYear().toString()))].sort((a, b) => b - a);
 
     const filtered = activities.filter(a => {
+        if (a.isDeleted) return false;
         const matchesYear = selectedYear === 'all' || new Date(a.date).getFullYear().toString() === selectedYear;
         const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase());
         const matchesType = typeFilter === 'all' || a.type === typeFilter;
@@ -145,20 +155,20 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                     <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
                         <button
                             onClick={() => setViewMode('grid')}
-                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
                         >
                             <LayoutGrid size={18} />
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'list' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'list' ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'list' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'list' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
                         >
                             <List size={18} />
                         </button>
                     </div>
                     <button
                         onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
-                        style={{ backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}
+                        style={{ backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}
                     >
                         <Plus size={20} /> New Activity
                     </button>
@@ -211,19 +221,20 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                         <div key={activity.id} className="glass hover-glow animate-in" style={{ padding: '20px 24px', borderRadius: 'var(--radius-md)', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                                 <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                                    <Calendar size={20} color="var(--accent-cyan)" />
+                                    <Calendar size={20} color="var(--accent-primary)" />
                                 </div>
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{activity.name}</h3>
                                     <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{activity.date}</span>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: '600' }}>{activity.type.toUpperCase()}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: '600' }}>{activity.type.toUpperCase()}</span>
                                     </div>
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button onClick={() => onAnalyzeActivity(activity)} style={{ padding: '10px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', color: 'var(--text-muted)', backgroundColor: 'transparent' }}><BarChart3 size={16} /></button>
-                                <button onClick={() => onTrackAttendance(activity)} style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'transparent' }}>Track <ChevronRight size={16} /></button>
+                                <button onClick={() => handleSoftDelete(activity.id)} style={{ padding: '10px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255, 77, 77, 0.3)', color: '#ff4d4d', backgroundColor: 'transparent' }}><Trash2 size={16} /></button>
+                                <button onClick={() => onTrackAttendance(activity)} style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'transparent' }}>Track <ChevronRight size={16} /></button>
                             </div>
                         </div>
                     ))}
@@ -233,13 +244,13 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                     {paginated.map((activity) => (
                         <div key={activity.id} className="glass hover-glow animate-in" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                                <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}><Calendar size={24} color="var(--accent-cyan)" /></div>
-                                <span style={{ fontSize: '0.65rem', color: 'var(--accent-cyan)', fontWeight: '800' }}>{activity.type.toUpperCase()}</span>
+                                <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}><Calendar size={24} color="var(--accent-primary)" /></div>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--accent-primary)', fontWeight: '800' }}>{activity.type.toUpperCase()}</span>
                             </div>
                             <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px' }}>{activity.name}</h3>
                             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>{activity.date}</p>
                             <div style={{ display: 'flex', gap: '10px' }}>
-                                <button onClick={() => onTrackAttendance(activity)} style={{ flex: 1, padding: '10px', backgroundColor: 'var(--accent-cyan)', color: 'black', fontWeight: '800', borderRadius: 'var(--radius-sm)', border: 'none' }}>TRACK</button>
+                                <button onClick={() => onTrackAttendance(activity)} style={{ flex: 1, padding: '10px', backgroundColor: 'var(--accent-primary)', color: 'black', fontWeight: '800', borderRadius: 'var(--radius-sm)', border: 'none' }}>TRACK</button>
                                 <button onClick={() => onAnalyzeActivity(activity)} style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', backgroundColor: 'transparent' }}><BarChart3 size={18} /></button>
                             </div>
                         </div>

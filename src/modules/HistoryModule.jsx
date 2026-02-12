@@ -31,7 +31,7 @@ const HistoryModule = () => {
                 date: p.dateIntegration,
                 timestamp: new Date(p.dateIntegration).getTime(),
                 icon: UserPlus,
-                color: 'var(--accent-cyan)'
+                color: 'var(--accent-primary)'
             }));
 
         const activityLogs = activities.map(a => ({

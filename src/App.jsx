@@ -8,6 +8,7 @@ import StatsModule from './modules/StatsModule';
 import PersonDetailModule from './modules/PersonDetailModule';
 import ActivityDetailModule from './modules/ActivityDetailModule';
 import HistoryModule from './modules/HistoryModule';
+import RecycleBinModule from './modules/RecycleBinModule';
 import SettingsModule from './modules/SettingsModule';
 import { notificationService } from './store/notificationService';
 import { dataService } from './store/dataService';
@@ -28,7 +29,35 @@ function App() {
                 notificationService.checkBirthdays(people);
             }
         };
+
+        const autoSync = async () => {
+            const syncUrl = localStorage.getItem('lrc_sync_url');
+            const syncToken = localStorage.getItem('lrc_sync_token');
+            if (syncUrl && syncToken) {
+                console.log('Initiating Silent Background Sync...');
+                try {
+                    const [people, activities, attendance] = await Promise.all([
+                        dataService.getPeople(),
+                        dataService.getActivities(),
+                        dataService.getAttendance()
+                    ]);
+                    await fetch(syncUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${syncToken}`
+                        },
+                        body: JSON.stringify({ people, activities, attendance, timestamp: Date.now() })
+                    });
+                    localStorage.setItem('lrc_last_sync', new Date().toLocaleString());
+                } catch (err) {
+                    console.warn('Silent Sync deferred: check network connectivity.', err);
+                }
+            }
+        };
+
         initNotifications();
+        autoSync();
     }, []);
 
     useEffect(() => {
@@ -97,6 +126,8 @@ function App() {
                 return <StatsModule />;
             case 'settings':
                 return <SettingsModule />;
+            case 'trash':
+                return <RecycleBinModule />;
             default:
                 return <Dashboard />;
         }

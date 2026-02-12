@@ -110,7 +110,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                         </div>
                         <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>{person.name}</h2>
                         <div style={{ display: 'inline-flex', gap: '8px', marginBottom: '24px' }}>
-                            <span style={{ fontSize: '0.65rem', background: person.status === 'Eleve' ? 'rgba(255, 170, 0, 0.1)' : 'rgba(0, 210, 255, 0.1)', color: person.status === 'Eleve' ? '#ffaa00' : 'var(--accent-cyan)', padding: '4px 12px', borderRadius: '50px', fontWeight: '900', border: '1px solid currentColor' }}>
+                            <span style={{ fontSize: '0.65rem', background: person.status === 'Eleve' ? 'rgba(255, 170, 0, 0.1)' : 'rgba(var(--accent-primary-rgb), 0.1)', color: person.status === 'Eleve' ? '#ffaa00' : 'var(--accent-primary)', padding: '4px 12px', borderRadius: '50px', fontWeight: '900', border: '1px solid currentColor' }}>
                                 {person.status?.toUpperCase() || 'MEMBRE'}
                             </span>
                             {person.isJRs && <span style={{ fontSize: '0.65rem', background: 'rgba(57, 255, 20, 0.1)', color: 'var(--accent-green)', padding: '4px 12px', borderRadius: '50px', fontWeight: '900', border: '1px solid currentColor' }}>JRS</span>}
@@ -136,7 +136,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         <div className="glass" style={{ padding: '16px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
                             <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Engagement</p>
-                            <p style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--accent-cyan)' }}>{stats.rate}%</p>
+                            <p style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{stats.rate}%</p>
                         </div>
                         <div className="glass" style={{ padding: '16px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
                             <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Sessions</p>
@@ -150,7 +150,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     {/* Activity Pipeline Chart */}
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
                         <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <TrendingUp size={20} color="var(--accent-cyan)" /> Activity Pulse
+                            <TrendingUp size={20} color="var(--accent-primary)" /> Activity Pulse
                         </h3>
                         <div style={{ width: '100%', height: '200px' }}>
                             <ResponsiveContainer width="100%" height="100%">
@@ -161,7 +161,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                                         contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
                                         itemStyle={{ display: 'none' }}
                                     />
-                                    <Area type="monotone" dataKey="val" stroke="var(--accent-cyan)" fill="rgba(0, 210, 255, 0.1)" strokeWidth={3} />
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-primary)" fill="rgba(var(--accent-primary-rgb), 0.1)" strokeWidth={3} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>

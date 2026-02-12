@@ -79,10 +79,10 @@ const AttendanceModule = ({ activity, onBack }) => {
                 <ArrowLeft size={16} /> Back to Activities
             </button>
 
-            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '30px', border: isLocked ? '1px solid #ff4d4d' : '1px solid var(--accent-cyan)' }}>
+            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '30px', border: isLocked ? '1px solid #ff4d4d' : '1px solid var(--accent-primary)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <span style={{ fontSize: '0.7rem', color: isLocked ? '#ff4d4d' : 'var(--accent-cyan)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.7rem', color: isLocked ? '#ff4d4d' : 'var(--accent-primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {isLocked ? <><Lock size={12} /> Records Locked</> : <>Recording Attendance</>}
                         </span>
                         <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '4px' }}>{activity.name}</h2>
@@ -124,7 +124,7 @@ const AttendanceModule = ({ activity, onBack }) => {
                     }}
                     disabled={isSaving || isLocked}
                     style={{
-                        backgroundColor: isLocked ? 'var(--bg-tertiary)' : 'var(--accent-cyan)', color: 'black', padding: '0 32px',
+                        backgroundColor: isLocked ? 'var(--bg-tertiary)' : 'var(--accent-primary)', color: 'black', padding: '0 32px',
                         borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.95rem',
                         display: 'flex', alignItems: 'center', gap: '10px',
                         opacity: isLocked ? 0.5 : 1

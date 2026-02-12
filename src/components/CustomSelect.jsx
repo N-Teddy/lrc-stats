@@ -49,13 +49,13 @@ const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select o
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
-                    border: isOpen ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                    border: isOpen ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                     transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                     backgroundColor: 'var(--bg-tertiary)'
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {Icon && <Icon size={16} color={isOpen ? 'var(--accent-cyan)' : 'var(--text-muted)'} />}
+                    {Icon && <Icon size={16} color={isOpen ? 'var(--accent-primary)' : 'var(--text-muted)'} />}
                     <span style={{ fontSize: '0.9rem', color: displayValue ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                         {displayValue || placeholder}
                     </span>
@@ -114,8 +114,8 @@ const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select o
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
-                                        backgroundColor: isActive ? 'rgba(0, 210, 255, 0.1)' : 'transparent',
-                                        color: isActive ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                                        backgroundColor: isActive ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+                                        color: isActive ? 'var(--accent-primary)' : 'var(--text-primary)',
                                         transition: 'background 0.1s'
                                     }}
                                     onMouseOver={(e) => !isActive && (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History } from 'lucide-react';
+import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History, Trash2 } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
@@ -25,7 +25,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
         onMouseOver={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
         onMouseOut={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = active ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
     >
-        <Icon size={18} color={active ? 'var(--accent-cyan)' : 'currentColor'} />
+        <Icon size={18} color={active ? 'var(--accent-primary)' : 'currentColor'} />
         <span>{label}</span>
     </button>
 );
@@ -46,7 +46,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     LRC STATS
                 </h1>
                 <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '4px' }}>
-                    Command Center v2.0.0
+                    Command Center v3.0.0
                 </p>
             </div>
 
@@ -81,6 +81,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     active={activeTab === 'logs'}
                     onClick={() => setActiveTab('logs')}
                 />
+                <SidebarItem
+                    icon={Trash2}
+                    label="Recycle Bin"
+                    active={activeTab === 'trash'}
+                    onClick={() => setActiveTab('trash')}
+                />
             </nav>
 
             <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -96,7 +102,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                 >
-                    {theme === 'dark' ? <Sun size={18} color="var(--accent-cyan)" /> : <Moon size={18} color="var(--accent-cyan)" />}
+                    {theme === 'dark' ? <Sun size={18} color="var(--accent-primary)" /> : <Moon size={18} color="var(--accent-primary)" />}
                     <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
                 <SidebarItem

@@ -43,12 +43,12 @@ const ActivityDetailModule = ({ activity, onBack }) => {
     };
 
     const statusData = [
-        { name: 'Membres', value: stats.membres, color: 'var(--accent-cyan)' },
+        { name: 'Membres', value: stats.membres, color: 'var(--accent-primary)' },
         { name: 'Eleves', value: stats.eleves, color: '#ffaa00' }
     ].filter(d => d.value > 0);
 
     const ageData = [
-        { name: 'Adults', value: stats.adults, color: 'var(--accent-cyan)' },
+        { name: 'Adults', value: stats.adults, color: 'var(--accent-primary)' },
         { name: 'JRs', value: stats.jrs, color: 'var(--accent-green)' }
     ].filter(d => d.value > 0);
 
@@ -78,7 +78,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                 </button>
             </div>
 
-            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '32px', border: '1px solid var(--accent-cyan)' }}>
+            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '32px', border: '1px solid var(--accent-primary)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                         <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1px' }}>{activity.name}</h2>
@@ -93,7 +93,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' }}>Overall Presence</p>
-                        <p style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--accent-cyan)', lineHeight: 1 }}>{stats.total}</p>
+                        <p style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--accent-primary)', lineHeight: 1 }}>{stats.total}</p>
                     </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
                 <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <PieIcon size={20} color="var(--accent-cyan)" /> Status Breakdown
+                        <PieIcon size={20} color="var(--accent-primary)" /> Status Breakdown
                     </h3>
                     <div style={{ height: '240px' }}>
                         <ResponsiveContainer width="100%" height="100%">
@@ -153,7 +153,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
                     {attendanceList.map(p => (
                         <div key={p.id} style={{ padding: '12px 16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.status === 'Eleve' ? '#ffaa00' : 'var(--accent-cyan)' }} />
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: p.status === 'Eleve' ? '#ffaa00' : 'var(--accent-primary)' }} />
                             <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>{p.name}</span>
                         </div>
                     ))}

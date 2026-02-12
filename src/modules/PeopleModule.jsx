@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Search, MoreVertical, Archive, Edit2, User, Phone, LayoutGrid, List, Eye, Download, Filter, Activity as PulseIcon, AlertTriangle, TrendingUp } from 'lucide-react';
+import { UserPlus, Search, MoreVertical, Archive, Edit2, User, Phone, LayoutGrid, List, Eye, Download, Filter, Activity as PulseIcon, AlertTriangle, TrendingUp, Trash2 } from 'lucide-react';
 import { dataService } from '../store/dataService';
 import PersonForm from '../components/PersonForm';
 import { reportService } from '../store/reportService';
@@ -55,7 +55,18 @@ const PeopleModule = ({ onViewPerson }) => {
         setActiveMenuId(null);
     };
 
+    const handleSoftDelete = async (id) => {
+        const currentPeopleRaw = await dataService.getPeople();
+        const updatedPeople = currentPeopleRaw.map(p =>
+            p.id === id ? { ...p, isDeleted: true, deletedAt: new Date().toISOString() } : p
+        );
+        await dataService.savePeople(updatedPeople);
+        loadPeople();
+        setActiveMenuId(null);
+    };
+
     const filteredPeople = people.filter(p => {
+        if (p.isDeleted) return false;
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
         const matchesTab = filter === 'archived' ? p.isArchived : (filter === 'jrs' ? (!p.isArchived && p.isJRs) : !p.isArchived);
         const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
@@ -93,13 +104,13 @@ const PeopleModule = ({ onViewPerson }) => {
                     <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
                         <button
                             onClick={() => setViewMode('grid')}
-                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
                         >
                             <LayoutGrid size={18} />
                         </button>
                         <button
                             onClick={() => setViewMode('table')}
-                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'table' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'table' ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'table' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'table' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
                         >
                             <List size={18} />
                         </button>
@@ -107,8 +118,8 @@ const PeopleModule = ({ onViewPerson }) => {
                     <button
                         onClick={() => { setEditingPerson(null); setIsFormOpen(true); }}
                         style={{
-                            backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)',
-                            fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', boxShadow: '0 4px 15px rgba(0, 210, 255, 0.3)'
+                            backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)',
+                            fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', boxShadow: '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)'
                         }}
                     >
                         <UserPlus size={20} /> Add Member
@@ -191,7 +202,14 @@ const PeopleModule = ({ onViewPerson }) => {
             {viewMode === 'grid' ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
                     {paginatedPeople.map((person, index) => (
-                        <div key={person.id} className={`glass hover-glow animate-in stagger-${(index % 4) + 1}`} style={{ padding: '24px', borderRadius: 'var(--radius-lg)', position: 'relative' }}>
+                        <div
+                            key={person.id}
+                            className={`glass hover-glow animate-in stagger-${(index % 4) + 1}`}
+                            style={{
+                                padding: '24px', borderRadius: 'var(--radius-lg)', position: 'relative',
+                                zIndex: activeMenuId === person.id ? 50 : 1
+                            }}
+                        >
                             <div style={{ display: 'flex', gap: '20px' }}>
                                 <div style={{ position: 'relative' }}>
                                     <div style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -225,10 +243,11 @@ const PeopleModule = ({ onViewPerson }) => {
                                 <div style={{ position: 'relative' }}>
                                     <button onClick={() => setActiveMenuId(activeMenuId === person.id ? null : person.id)} style={{ color: 'var(--text-muted)' }}><MoreVertical size={20} /></button>
                                     {activeMenuId === person.id && (
-                                        <div className="glass" style={{ position: 'absolute', right: '0', top: '30px', width: '180px', borderRadius: 'var(--radius-md)', padding: '6px', zIndex: 10, border: '1px solid var(--border-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                                            <button onClick={() => { onViewPerson(person.id); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: 'var(--accent-cyan)' }}><Eye size={16} /> Analysis</button>
+                                        <div className="glass" style={{ position: 'absolute', right: '0', top: '30px', width: '180px', borderRadius: 'var(--radius-md)', padding: '6px', zIndex: 100, border: '1px solid var(--border-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+                                            <button onClick={() => { onViewPerson(person.id); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: 'var(--accent-primary)' }}><Eye size={16} /> Analysis</button>
                                             <button onClick={() => { setEditingPerson(person); setIsFormOpen(true); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}><Edit2 size={16} /> Edit Profile</button>
                                             <button onClick={() => handleArchive(person.id)} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}><Archive size={16} /> {person.isArchived ? 'Restore' : 'Archive'}</button>
+                                            <button onClick={() => handleSoftDelete(person.id)} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: '#ff4d4d' }}><Trash2 size={16} /> Move to Trash</button>
                                         </div>
                                     )}
                                 </div>
@@ -268,7 +287,7 @@ const PeopleModule = ({ onViewPerson }) => {
                                     <td style={{ padding: '12px 24px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{person.status}</td>
                                     <td style={{ padding: '12px 24px' }}>
                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button onClick={() => onViewPerson(person.id)} style={{ padding: '6px', color: 'var(--accent-cyan)' }}><Eye size={16} /></button>
+                                            <button onClick={() => onViewPerson(person.id)} style={{ padding: '6px', color: 'var(--accent-primary)' }}><Eye size={16} /></button>
                                             <button onClick={() => { setEditingPerson(person); setIsFormOpen(true); }} style={{ padding: '6px', color: 'var(--text-muted)' }}><Edit2 size={16} /></button>
                                         </div>
                                     </td>
@@ -306,7 +325,7 @@ const PeopleModule = ({ onViewPerson }) => {
                   50% { transform: scale(1.1); opacity: 0.8; }
                   100% { transform: scale(1); opacity: 1; }
                 }
-                .hover-cyan:hover { color: var(--accent-cyan); }
+                .hover-cyan:hover { color: var(--accent-primary); }
             `}</style>
         </div>
     );

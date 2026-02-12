@@ -39,9 +39,9 @@ const Pagination = ({ currentPage, totalItems, pageSize, onPageChange }) => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         fontSize: '0.85rem',
-                        border: isActive ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
-                        backgroundColor: isActive ? 'rgba(0, 210, 255, 0.1)' : 'transparent',
-                        color: isActive ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                        border: isActive ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                        backgroundColor: isActive ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+                        color: isActive ? 'var(--accent-primary)' : 'var(--text-primary)',
                         fontWeight: isActive ? '700' : '400',
                         transition: 'all 0.2s'
                     }}

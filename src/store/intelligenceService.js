@@ -45,7 +45,7 @@ export const intelligenceService = {
                     color = 'var(--accent-green)';
                 } else if (attendanceRate >= 40) {
                     vitality = 'Active';
-                    color = 'var(--accent-cyan)';
+                    color = 'var(--accent-primary)';
                 } else {
                     vitality = 'Inactive';
                     color = '#ff4d4d'; // Red for inactivity signals

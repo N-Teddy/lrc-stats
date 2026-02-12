@@ -2,10 +2,13 @@
 
 :root {
   /* Common Tokens */
+  --accent-primary: #00d2ff;
+  --accent-primary-rgb: 0, 210, 255;
   --accent-cyan: #00d2ff;
   --accent-green: #39ff14;
   --accent-blue: #0070f3;
   --accent-purple: #7928ca;
+  --accent-crimson: #ff4d4d;
   --sidebar-width: 240px;
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -63,15 +66,15 @@
 
 @keyframes pulseGlow {
   0% {
-    box-shadow: 0 0 0 rgba(0, 210, 255, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-primary-rgb), 0);
   }
 
   50% {
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    box-shadow: 0 0 15px rgba(var(--accent-primary-rgb), 0.2);
   }
 
   100% {
-    box-shadow: 0 0 0 rgba(0, 210, 255, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-primary-rgb), 0);
   }
 }
 
@@ -81,8 +84,8 @@
 }
 
 .hover-glow:hover {
-  border-color: var(--accent-cyan) !important;
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.1);
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 20px rgba(var(--accent-primary-rgb, 0, 210, 255), 0.1);
   background: var(--bg-secondary) !important;
 }
 
@@ -176,7 +179,7 @@ textarea {
 }
 
 .gradient-text {
-  background: linear-gradient(to right, var(--accent-cyan), var(--accent-green));
+  background: linear-gradient(to right, var(--accent-primary), var(--accent-green));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -194,15 +197,28 @@ textarea {
 .no-drag {
   -webkit-app-region: no-drag;
 }
+
 /* Command Palette Animations */
 @keyframes paletteIn {
-  from { opacity: 0; transform: scale(0.98) translateY(-10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 @keyframes overlayFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .palette-overlay {

@@ -277,7 +277,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                         disabled={isProcessing}
                         style={{
                             flex: 1,
-                            backgroundColor: isProcessing ? 'var(--bg-tertiary)' : 'var(--accent-cyan)',
+                            backgroundColor: isProcessing ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
                             color: 'var(--text-inverted)',
                             padding: '16px',
                             borderRadius: 'var(--radius-md)',

@@ -3,9 +3,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
 import { Download, FileText, Filter, Printer, Sliders } from 'lucide-react';
+import { useTheme } from '../store/ThemeContext';
 import ReportWizard from '../components/ReportWizard';
 
 const StatsModule = () => {
+    const { accentColor } = useTheme();
     const [distribution, setDistribution] = useState([]);
     const [typeData, setTypeData] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -46,7 +48,7 @@ const StatsModule = () => {
         }
     };
 
-    const COLORS = ['#00d2ff', '#39ff14', '#0070f3', '#7928ca', '#ff0080', '#f5a623'];
+    const COLORS = [accentColor, '#39ff14', '#0070f3', '#7928ca', '#ff0080', '#f5a623'];
 
     return (
         <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
@@ -58,9 +60,9 @@ const StatsModule = () => {
                 <button
                     onClick={() => setIsWizardOpen(true)}
                     style={{
-                        backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px 24px',
+                        backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px 24px',
                         borderRadius: 'var(--radius-md)', fontWeight: '800', display: 'flex',
-                        alignItems: 'center', gap: '10px', boxShadow: '0 4px 15px rgba(0,210,255,0.3)'
+                        alignItems: 'center', gap: '10px', boxShadow: '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)'
                     }}
                 >
                     <Download size={18} /> Open Report Wizard
@@ -109,7 +111,7 @@ const StatsModule = () => {
                 {/* Activity Load */}
                 <div className="glass animate-in stagger-2" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '4px', height: '16px', backgroundColor: 'var(--accent-cyan)' }} />
+                        <div style={{ width: '4px', height: '16px', backgroundColor: 'var(--accent-primary)' }} />
                         Operational Workload (by Type)
                     </h3>
                     <div style={{ width: '100%', height: '260px' }}>

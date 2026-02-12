@@ -66,7 +66,7 @@ const ReportWizard = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     const reportTypes = [
-        { id: 'yearly', title: 'Yearly Operational Audit', description: 'Comprehensive grid of attendance across the entire year.', icon: Calendar, color: 'var(--accent-cyan)' },
+        { id: 'yearly', title: 'Yearly Operational Audit', description: 'Comprehensive grid of attendance across the entire year.', icon: Calendar, color: 'var(--accent-primary)' },
         { id: 'directory', title: 'Personnel Directory', description: 'Official list of all active assets with contact and integration data.', icon: Users, color: 'var(--accent-green)' },
         { id: 'global_log', title: 'Global Activity Log', description: 'Master list of all interventions and operations since inception.', icon: FileText, color: 'var(--accent-blue)' },
         { id: 'custom', title: 'Tactical Custom Audit', description: 'Select specific assets and date ranges for a precision report.', icon: Settings, color: '#7928ca' }
@@ -119,7 +119,7 @@ const ReportWizard = ({ isOpen, onClose }) => {
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                <button onClick={() => setStep(1)} style={{ background: 'transparent', border: 'none', color: 'var(--accent-cyan)', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer' }}>← CHANGE PROTOCOL</button>
+                                <button onClick={() => setStep(1)} style={{ background: 'transparent', border: 'none', color: 'var(--accent-primary)', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer' }}>← CHANGE PROTOCOL</button>
                                 <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>/</span>
                                 <span style={{ color: 'var(--text-primary)', fontWeight: '800', fontSize: '0.8rem' }}>CONFIGURE EXPORT</span>
                             </div>
@@ -161,13 +161,13 @@ const ReportWizard = ({ isOpen, onClose }) => {
                                         }}
                                     >
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <ImageIcon size={18} color={config.includeImages ? 'var(--accent-cyan)' : 'var(--text-muted)'} />
+                                            <ImageIcon size={18} color={config.includeImages ? 'var(--accent-primary)' : 'var(--text-muted)'} />
                                             <div>
                                                 <p style={{ fontSize: '0.9rem', fontWeight: '700' }}>Incorporate Personnel Visualization</p>
                                                 <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Include high-resolution headshots in the final document.</p>
                                             </div>
                                         </div>
-                                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: config.includeImages ? 'var(--accent-cyan)' : 'transparent', borderColor: config.includeImages ? 'var(--accent-cyan)' : 'var(--border-color)' }}>
+                                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: config.includeImages ? 'var(--accent-primary)' : 'transparent', borderColor: config.includeImages ? 'var(--accent-primary)' : 'var(--border-color)' }}>
                                             {config.includeImages && <Check size={14} color="black" />}
                                         </div>
                                     </div>
@@ -190,7 +190,7 @@ const ReportWizard = ({ isOpen, onClose }) => {
                             onClick={handleGenerate}
                             disabled={isGenerating}
                             style={{
-                                padding: '10px 24px', borderRadius: '8px', backgroundColor: 'var(--accent-cyan)', color: 'black',
+                                padding: '10px 24px', borderRadius: '8px', backgroundColor: 'var(--accent-primary)', color: 'black',
                                 border: 'none', fontWeight: '900', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
                             }}
                         >

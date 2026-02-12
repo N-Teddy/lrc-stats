@@ -82,7 +82,7 @@ const CommandPalette = ({ isOpen, onClose, onNavigate }) => {
                 animation: 'paletteIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
-                    <Search size={22} color="var(--accent-cyan)" style={{ marginRight: '16px' }} />
+                    <Search size={22} color="var(--accent-primary)" style={{ marginRight: '16px' }} />
                     <input
                         ref={inputRef}
                         value={search}
@@ -106,8 +106,8 @@ const CommandPalette = ({ isOpen, onClose, onNavigate }) => {
                                             onClick={() => { onNavigate('person-detail', p.id); onClose(); }}
                                             style={{
                                                 padding: '12px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer',
-                                                backgroundColor: selectedIndex === i ? 'rgba(0, 210, 255, 0.1)' : 'transparent',
-                                                border: selectedIndex === i ? '1px solid var(--accent-cyan)' : '1px solid transparent'
+                                                backgroundColor: selectedIndex === i ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+                                                border: selectedIndex === i ? '1px solid var(--accent-primary)' : '1px solid transparent'
                                             }}
                                             onMouseEnter={() => setSelectedIndex(i)}
                                         >
@@ -118,7 +118,7 @@ const CommandPalette = ({ isOpen, onClose, onNavigate }) => {
                                                 <p style={{ fontWeight: '700', fontSize: '0.95rem' }}>{p.name}</p>
                                                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.status} • Tactical Profile</p>
                                             </div>
-                                            {selectedIndex === i && <Command size={14} color="var(--accent-cyan)" />}
+                                            {selectedIndex === i && <Command size={14} color="var(--accent-primary)" />}
                                         </div>
                                     ))}
                                 </div>
@@ -135,19 +135,19 @@ const CommandPalette = ({ isOpen, onClose, onNavigate }) => {
                                                 onClick={() => { onNavigate('activity-detail', a); onClose(); }}
                                                 style={{
                                                     padding: '12px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer',
-                                                    backgroundColor: selectedIndex === idx ? 'rgba(0, 210, 255, 0.1)' : 'transparent',
-                                                    border: selectedIndex === idx ? '1px solid var(--accent-cyan)' : '1px solid transparent'
+                                                    backgroundColor: selectedIndex === idx ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+                                                    border: selectedIndex === idx ? '1px solid var(--accent-primary)' : '1px solid transparent'
                                                 }}
                                                 onMouseEnter={() => setSelectedIndex(idx)}
                                             >
                                                 <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Calendar size={18} color="var(--accent-cyan)" />
+                                                    <Calendar size={18} color="var(--accent-primary)" />
                                                 </div>
                                                 <div style={{ flex: 1 }}>
                                                     <p style={{ fontWeight: '700', fontSize: '0.95rem' }}>{a.name}</p>
                                                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{a.date} • Operation Log</p>
                                                 </div>
-                                                {selectedIndex === idx && <Command size={14} color="var(--accent-cyan)" />}
+                                                {selectedIndex === idx && <Command size={14} color="var(--accent-primary)" />}
                                             </div>
                                         );
                                     })}

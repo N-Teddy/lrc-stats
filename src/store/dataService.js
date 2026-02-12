@@ -163,6 +163,8 @@ export const createPersonModel = (data = {}) => ({
     isJRs: false,
     image: '',
     isArchived: false,
+    isDeleted: false,
+    deletedAt: null,
     ...data
 });
 
@@ -172,5 +174,7 @@ export const createActivityModel = (data = {}) => ({
     date: new Date().toISOString().split('T')[0],
     type: ACTIVITY_TYPES[0],
     notes: '',
+    isDeleted: false,
+    deletedAt: null,
     ...data
 });

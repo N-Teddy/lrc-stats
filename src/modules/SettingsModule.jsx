@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, Shield, Cloud, Save, Download, Upload, Trash2, Bell, Eye, EyeOff } from 'lucide-react';
+import React, { useState } from 'react';
+import { Settings, Shield, Cloud, Save, Download, Upload, Trash2, Bell, Eye, EyeOff, Palette, Check } from 'lucide-react';
+import { useTheme, ACCENTS } from '../store/ThemeContext';
 import { dataService } from '../store/dataService';
 import { notificationService } from '../store/notificationService';
 
 const SettingsModule = () => {
+    const { theme, toggleTheme, accent, setAccent } = useTheme();
     const [syncUrl, setSyncUrl] = useState(localStorage.getItem('lrc_sync_url') || '');
     const [syncToken, setSyncToken] = useState(localStorage.getItem('lrc_sync_token') || '');
     const [showToken, setShowToken] = useState(false);
@@ -59,7 +61,7 @@ const SettingsModule = () => {
             dataService.getActivities(),
             dataService.getAttendance()
         ]);
-        const backup = { people, activities, attendance, version: '2.0.0' };
+        const backup = { people, activities, attendance, version: '3.0.0' };
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -81,7 +83,7 @@ const SettingsModule = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Cloud size={22} color="var(--accent-cyan)" /> Cloud Synchronisation
+                            <Cloud size={22} color="var(--accent-primary)" /> Cloud Synchronisation
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
@@ -119,7 +121,7 @@ const SettingsModule = () => {
                                 <button
                                     onClick={handleCloudSync}
                                     disabled={isSyncing}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', backgroundColor: 'var(--accent-cyan)', color: 'black', fontWeight: '800', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', backgroundColor: 'var(--accent-primary)', color: 'black', fontWeight: '800', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
                                     {isSyncing ? 'Syncing...' : <><Cloud size={16} /> Sync Now</>}
                                 </button>
@@ -148,8 +150,8 @@ const SettingsModule = () => {
                             <button
                                 style={{ width: '100%', padding: '16px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-primary)', fontWeight: '700', opacity: 0.6 }}
                             >
-                                <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: 'rgba(0, 210, 255, 0.1)' }}>
-                                    <Upload size={18} color="var(--accent-cyan)" />
+                                <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: 'rgba(var(--accent-primary-rgb), 0.1)' }}>
+                                    <Upload size={18} color="var(--accent-primary)" />
                                 </div>
                                 <div>
                                     <p style={{ textAlign: 'left' }}>Restore from File</p>
@@ -164,7 +166,7 @@ const SettingsModule = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Bell size={22} color="var(--accent-cyan)" /> System Notifications
+                            <Bell size={22} color="var(--accent-primary)" /> System Notifications
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -172,7 +174,7 @@ const SettingsModule = () => {
                                     <p style={{ fontWeight: '700' }}>Birthday Alerts</p>
                                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Notify on app launch if there is a birthday.</p>
                                 </div>
-                                <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--accent-cyan)', borderRadius: '20px', position: 'relative' }}>
+                                <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--accent-primary)', borderRadius: '20px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', right: '2px', top: '2px', width: '16px', height: '16px', backgroundColor: 'white', borderRadius: '50%' }} />
                                 </div>
                             </div>
@@ -184,6 +186,50 @@ const SettingsModule = () => {
                                 <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
                                     <div style={{ position: 'absolute', left: '2px', top: '2px', width: '16px', height: '16px', backgroundColor: 'var(--text-muted)', borderRadius: '50%' }} />
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Palette size={22} color="var(--accent-primary)" /> Personalization
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase' }}>Tactical Accent Overlays</label>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                                    {Object.entries(ACCENTS).map(([key, data]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => setAccent(key)}
+                                            style={{
+                                                padding: '16px 8px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg-tertiary)',
+                                                border: `1px solid ${accent === key ? data.color : 'var(--border-color)'}`,
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
+                                                transition: 'all 0.2s ease', position: 'relative'
+                                            }}
+                                        >
+                                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: data.color, boxShadow: accent === key ? `0 0 15px ${data.color}88` : 'none' }} />
+                                            <span style={{ fontSize: '0.65rem', fontWeight: '800', color: accent === key ? 'var(--text-primary)' : 'var(--text-muted)' }}>{data.name.toUpperCase()}</span>
+                                            {accent === key && <Check size={12} style={{ position: 'absolute', top: '8px', right: '8px', color: data.color }} />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)' }}>
+                                <div>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>Light Mode Alpha</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Enable high-contrast laboratory theme.</p>
+                                </div>
+                                <button
+                                    onClick={toggleTheme}
+                                    style={{
+                                        padding: '6px 16px', borderRadius: '20px', backgroundColor: theme === 'light' ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                                        color: theme === 'light' ? 'black' : 'var(--text-primary)', fontSize: '0.75rem', fontWeight: '800', border: '1px solid var(--border-color)'
+                                    }}
+                                >
+                                    {theme === 'light' ? 'ENABLED' : 'DISABLED'}
+                                </button>
                             </div>
                         </div>
                     </div>
