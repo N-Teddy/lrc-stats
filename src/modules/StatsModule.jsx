@@ -19,12 +19,13 @@ const StatsModule = () => {
                 dataService.getAttendance()
             ]);
 
-            // 1. Membership Distribution (Active vs JRs)
+            // 1. Membership Status Distribution (Membre vs Eleve)
             const activePeople = people.filter(p => !p.isArchived);
-            const jrs = activePeople.filter(p => p.isJRs).length;
+            const membres = activePeople.filter(p => (p.status || 'Membre') === 'Membre').length;
+            const eleves = activePeople.filter(p => p.status === 'Eleve').length;
             setDistribution([
-                { name: 'Regular Personnel', value: activePeople.length - jrs },
-                { name: 'Junior Core', value: jrs }
+                { name: 'Membres', value: membres },
+                { name: 'Eleves', value: eleves }
             ]);
 
             // 2. Activity Type Distribution

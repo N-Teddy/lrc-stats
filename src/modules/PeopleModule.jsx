@@ -101,20 +101,16 @@ const PeopleModule = ({ onViewPerson }) => {
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
-                        <button
-                            onClick={() => setViewMode('grid')}
-                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
-                        >
-                            <LayoutGrid size={18} />
-                        </button>
-                        <button
-                            onClick={() => setViewMode('table')}
-                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'table' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'table' ? 'var(--accent-primary)' : 'var(--text-muted)' }}
-                        >
-                            <List size={18} />
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => reportService.generateDirectoryReport(filteredPeople)}
+                        style={{
+                            backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', padding: '12px', borderRadius: 'var(--radius-md)',
+                            border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}
+                        title="Export Personnel Directory"
+                    >
+                        <Download size={18} />
+                    </button>
                     <button
                         onClick={() => { setEditingPerson(null); setIsFormOpen(true); }}
                         style={{
@@ -139,14 +135,20 @@ const PeopleModule = ({ onViewPerson }) => {
                             style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', fontSize: '1rem', color: 'var(--text-primary)' }}
                         />
                     </div>
-                    <button
-                        onClick={() => reportService.generateDirectoryReport(filteredPeople)}
-                        className="glass"
-                        style={{ padding: '14px', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        title="Export Personnel Directory"
-                    >
-                        <Download size={18} />
-                    </button>
+                    <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            style={{ padding: '10px', borderRadius: 'var(--radius-sm)', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-primary)' : 'var(--text-muted)', border: 'none', cursor: 'pointer' }}
+                        >
+                            <LayoutGrid size={18} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('table')}
+                            style={{ padding: '10px', borderRadius: 'var(--radius-sm)', backgroundColor: viewMode === 'table' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'table' ? 'var(--accent-primary)' : 'var(--text-muted)', border: 'none', cursor: 'pointer' }}
+                        >
+                            <List size={18} />
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -156,7 +158,7 @@ const PeopleModule = ({ onViewPerson }) => {
                             onChange={setFilter}
                             options={[
                                 { label: 'VIEW ALL ACTIVE', value: 'active' },
-                                { label: 'VIEW YOUTH (JRs)', value: 'jrs' },
+                                { label: 'VIEW JRs GROUP', value: 'jrs' },
                                 { label: 'VIEW ARCHIVED', value: 'archived' }
                             ]}
                         />

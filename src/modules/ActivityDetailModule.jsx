@@ -8,9 +8,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
     const [stats, setStats] = useState({
         total: 0,
         membres: 0,
-        eleves: 0,
-        jrs: 0,
-        adults: 0
+        eleves: 0
     });
     const [attendanceList, setAttendanceList] = useState([]);
     const [isExporting, setIsExporting] = useState(false);
@@ -34,9 +32,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
         const counts = {
             total: attendees.length,
             membres: attendees.filter(p => (p.status || 'Membre') === 'Membre').length,
-            eleves: attendees.filter(p => p.status === 'Eleve').length,
-            jrs: attendees.filter(p => p.isJRs).length,
-            adults: attendees.filter(p => !p.isJRs).length
+            eleves: attendees.filter(p => p.status === 'Eleve').length
         };
 
         setStats(counts);
@@ -45,11 +41,6 @@ const ActivityDetailModule = ({ activity, onBack }) => {
     const statusData = [
         { name: 'Membres', value: stats.membres, color: 'var(--accent-primary)' },
         { name: 'Eleves', value: stats.eleves, color: '#ffaa00' }
-    ].filter(d => d.value > 0);
-
-    const ageData = [
-        { name: 'Adults', value: stats.adults, color: 'var(--accent-primary)' },
-        { name: 'JRs', value: stats.jrs, color: 'var(--accent-green)' }
     ].filter(d => d.value > 0);
 
     return (
@@ -98,11 +89,11 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <PieIcon size={20} color="var(--accent-primary)" /> Status Breakdown
-                    </h3>
+            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <PieIcon size={20} color="var(--accent-primary)" /> Organizational Status Breakdown
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
                     <div style={{ height: '240px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -113,35 +104,14 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {statusData.map((d, i) => (
-                            <div key={i} style={{ textAlign: 'center' }}>
-                                <p style={{ fontSize: '1.25rem', fontWeight: '900', color: d.color }}>{d.value}</p>
-                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{d.name}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <BarChart3 size={20} color="var(--accent-green)" /> Demographic Balance
-                    </h3>
-                    <div style={{ height: '240px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie data={ageData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
-                                    {ageData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                                </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '16px' }}>
-                        {ageData.map((d, i) => (
-                            <div key={i} style={{ textAlign: 'center' }}>
-                                <p style={{ fontSize: '1.25rem', fontWeight: '900', color: d.color }}>{d.value}</p>
-                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{d.name}</p>
+                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: d.color }} />
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>{d.name}</p>
+                                </div>
+                                <p style={{ fontSize: '1.5rem', fontWeight: '900', color: d.color }}>{d.value}</p>
                             </div>
                         ))}
                     </div>

@@ -94,14 +94,13 @@ export const reportService = {
             doc.setFontSize(22);
             doc.text('LRC MISSION - PERSONNEL DIRECTORY', 14, 22);
 
-            const tableHeaders = [['Name', 'Status', 'Segment', 'Phone', 'Integration']];
+            const tableHeaders = [['Name', 'Status', 'Phone', 'Integration']];
             const tableData = people
                 .filter(p => !p.isArchived)
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map(p => [
                     p.name,
                     p.status || 'Membre',
-                    p.isJRs ? 'JRs' : 'Adult',
                     p.phone || '---',
                     p.dateIntegration || '---'
                 ]);
@@ -124,31 +123,67 @@ export const reportService = {
     },
 
     /**
-     * Generates a basic individual attendance report
+     * Generates a high-precision individual attendance report
+     * Matches the design specification from Pasted image.png
      */
     generatePersonReport: async (person, history, stats) => {
         try {
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-            doc.setFontSize(22);
-            doc.text('PERSONNEL ATTENDANCE AUDIT', 14, 22);
 
-            doc.setFontSize(14);
-            doc.text(person.name.toUpperCase(), 14, 32);
+            // 1. Header Section
+            doc.setFontSize(24);
+            doc.setTextColor(0, 0, 0);
+            doc.text('PERSONNEL PERFORMANCE AUDIT', 14, 25);
+
+            // Title Cyan Accent Line
+            doc.setDrawColor(0, 210, 255);
+            doc.setLineWidth(1);
+            doc.line(14, 30, 70, 30);
+
+            // 2. Member Identity (Left)
+            doc.setFontSize(18);
+            doc.setTextColor(40, 40, 40);
+            doc.text(person.name.toUpperCase(), 14, 45);
+
             doc.setFontSize(10);
-            doc.text(`Status: ${person.status || 'Membre'} | Engagement: ${stats.rate}%`, 14, 38);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`STATUS: ${person.status || 'Membre'}`, 14, 52);
+            doc.text(`INTEGRATION: ${person.dateIntegration || '---'}`, 14, 57);
+            doc.text(`PHONE: ${person.phone || '---'}`, 14, 62);
+
+            // 3. Engagement Rate Box (Right)
+            doc.setFillColor(245, 245, 245);
+            doc.rect(140, 35, 56, 30, 'F');
+
+            doc.setFontSize(9);
+            doc.setTextColor(150, 150, 150);
+            doc.text('ENGAGEMENT RATE', 145, 45);
+
+            doc.setFontSize(18);
+            doc.setTextColor(0, 210, 255);
+            doc.text(`${stats.rate}%`, 145, 55);
+
+            // 4. History Table
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text('OPERATIONAL PARTICIPATION HISTORY', 14, 85);
 
             const tableHeaders = [['Date', 'Activity Name', 'Status']];
             const tableData = history.map(h => [h.date, h.name, 'PRESENT']);
 
             autoTable(doc, {
-                startY: 45,
+                startY: 90,
                 head: tableHeaders,
                 body: tableData,
                 theme: 'striped',
-                headStyles: { fillColor: [0, 0, 0] }
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 10 },
+                styles: { fontSize: 9, cellPadding: 4 },
+                columnStyles: {
+                    2: { fontStyle: 'bold', textColor: [0, 150, 0] } // Green PRESENT
+                }
             });
 
-            doc.save(`Audit_${person.name.replace(/\s+/g, '_')}.pdf`);
+            doc.save(`Personnel_Audit_${person.name.replace(/\s+/g, '_')}.pdf`);
             return true;
         } catch (err) {
             console.error(err);
@@ -170,8 +205,8 @@ export const reportService = {
             doc.setFontSize(10);
             doc.text(`Date: ${activity.date} | Total: ${attendees.length}`, 105, 38, { align: 'center' });
 
-            const tableHeaders = [['#', 'Name', 'Status', 'Signature']];
-            const tableData = attendees.map((p, i) => [i + 1, p.name, p.status || 'Membre', '_________________']);
+            const tableHeaders = [['#', 'Name', 'Status']];
+            const tableData = attendees.map((p, i) => [i + 1, p.name, p.status || 'Membre']);
 
             autoTable(doc, {
                 startY: 45,

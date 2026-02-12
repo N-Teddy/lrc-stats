@@ -279,9 +279,9 @@ const Dashboard = () => {
                         case 'stats-grid':
                             return (
                                 <div key="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-                                    <StatCard icon={Users} label="Membres" value={stats.membres} color="0, 210, 255" subtext="Permanent Members" />
+                                    <StatCard icon={Users} label="Membres" value={stats.membres} color="0, 210, 255" subtext="Permanent Assets" />
                                     <StatCard icon={Users} label="Eleves" value={stats.eleves} color="121, 40, 202" subtext="Probationary" />
-                                    <StatCard icon={Activity} label="Youth" value={stats.jrs} color="57, 255, 20" subtext="JRs Segment" />
+                                    <StatCard icon={Activity} label="JRs Group" value={stats.jrs} color="57, 255, 20" subtext="Active Segment" />
                                     <StatCard icon={Calendar} label="Operations" value={stats.activitiesCount} color="0, 112, 243" subtext={`Average: ${stats.avgAttendance}`} />
                                 </div>
                             );
