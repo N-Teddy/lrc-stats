@@ -1,5 +1,5 @@
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { dataService } from './dataService';
 import { notificationService } from './notificationService';
 
@@ -62,7 +62,7 @@ export const reportService = {
                 return row;
             });
 
-            autoTable(doc, {
+            doc.autoTable({
                 startY: 45,
                 head: tableHeaders,
                 body: tableData,
@@ -137,7 +137,7 @@ export const reportService = {
             const tableHeaders = [['Date', 'Activity Name', 'Status']];
             const tableData = history.map(h => [h.date, h.name, 'PRESENT']);
 
-            autoTable(doc, {
+            doc.autoTable({
                 startY: 85,
                 head: tableHeaders,
                 body: tableData,
@@ -200,7 +200,7 @@ export const reportService = {
             const tableHeaders = [['#', 'Name', 'Status', 'Signature']];
             const tableData = attendees.map((p, i) => [i + 1, p.name, p.status || 'Membre', '_________________']);
 
-            autoTable(doc, {
+            doc.autoTable({
                 startY: 95,
                 head: tableHeaders,
                 body: tableData,
@@ -250,7 +250,7 @@ export const reportService = {
                     p.dateIntegration || '---'
                 ]);
 
-            autoTable(doc, {
+            doc.autoTable({
                 startY: 45,
                 head: tableHeaders,
                 body: tableData,
@@ -264,6 +264,77 @@ export const reportService = {
             return true;
         } catch (err) {
             console.error(err);
+            return false;
+        }
+    },
+
+    /**
+     * Generates a custom report for selected people and date range
+     */
+    generateCustomReport: async (selectedPeople, startDate, endDate) => {
+        try {
+            const [activities, attendance] = await Promise.all([
+                dataService.getActivities(),
+                dataService.getAttendance()
+            ]);
+
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Filter activities by date range
+            const filteredActivities = activities
+                .filter(a => {
+                    const activityDate = new Date(a.date);
+                    return activityDate >= new Date(startDate) && activityDate <= new Date(endDate);
+                })
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (filteredActivities.length === 0) {
+                alert('No activities found in the selected date range.');
+                return false;
+            }
+
+            // Header
+            doc.setFontSize(22);
+            doc.text('LRC - CUSTOM OPERATIONAL AUDIT', 14, 22);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Period: ${startDate} to ${endDate}`, 14, 30);
+            doc.text(`Personnel Assets: ${selectedPeople.length}`, 14, 35);
+
+            // Table
+            const tableHeaders = [['Asset Name', ...filteredActivities.map(a => a.name.substring(0, 10)), 'Count']];
+            const tableData = selectedPeople.map(person => {
+                let row = [person.name];
+                let count = 0;
+                filteredActivities.forEach(act => {
+                    const actAttendance = attendance.find(attr => attr.activityId === act.id);
+                    const isPresent = actAttendance && actAttendance.personIds.includes(person.id);
+                    row.push(isPresent ? 'X' : '-');
+                    if (isPresent) count++;
+                });
+                row.push(count.toString());
+                return row;
+            });
+
+            doc.autoTable({
+                startY: 45,
+                head: tableHeaders,
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 7 },
+                styles: { fontSize: 7, cellPadding: 2 },
+                margin: { top: 45 }
+            });
+
+            doc.save(`LRC_Custom_Audit_${Date.now()}.pdf`);
+            notificationService.notify('Custom Report Exported', 'The requested operational audit has been generated.');
+            return true;
+        } catch (err) {
+            console.error('Custom PDF Error:', err);
             return false;
         }
     }

@@ -30,7 +30,7 @@ export const notificationService = {
             if (hasPermission) {
                 // Using a unique ID and sound helps persistence on some Linux/Windows environments
                 sendNotification({
-                    id: `lrc_notification_${Date.now()}`,
+                    id: Math.floor(Date.now() / 1000) % 2147483647, // Ensure it is a valid i32
                     title,
                     body,
                     sound: 'default'

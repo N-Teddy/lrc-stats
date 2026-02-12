@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Calendar, ChevronRight, Edit2, Trash2, Eye, BarChart3, ChevronLeft } from 'lucide-react';
+import { Plus, Search, Calendar, BarChart3, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import { dataService, createActivityModel, ACTIVITY_TYPES } from '../store/dataService';
+import CustomSelect from '../components/CustomSelect';
+import Pagination from '../components/Pagination';
 
 const ActivityForm = ({ activity, onSave, onCancel }) => {
     const [formData, setFormData] = useState(activity || createActivityModel());
@@ -45,7 +47,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
                             type="date"
                             value={formData.date}
                             onChange={handleChange}
-                            style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', colorScheme: 'inherit' }}
+                            style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', colorScheme: 'dark' }}
                         />
                     </div>
                     <div>
@@ -84,21 +86,18 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingActivity, setEditingActivity] = useState(null);
     const [search, setSearch] = useState('');
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+    const [selectedYear, setSelectedYear] = useState('all');
+    const [typeFilter, setTypeFilter] = useState('all');
+    const [timelineFilter, setTimelineFilter] = useState('all');
+    const [viewMode, setViewMode] = useState('list');
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
 
     useEffect(() => { loadActivities(); }, []);
 
     const loadActivities = async () => {
         const data = await dataService.getActivities();
-        const sorted = data.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setActivities(sorted);
-
-        // If current year has no activities, default to the most recent year available
-        const years = [...new Set(sorted.map(a => new Date(a.date).getFullYear().toString()))];
-        const currentYear = new Date().getFullYear().toString();
-        if (sorted.length > 0 && !years.includes(currentYear)) {
-            setSelectedYear(years[0]);
-        }
+        setActivities(data.sort((a, b) => new Date(b.date) - new Date(a.date)));
     };
 
     const handleSave = async (formData) => {
@@ -114,10 +113,26 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
     const years = [...new Set(activities.map(a => new Date(a.date).getFullYear().toString()))].sort((a, b) => b - a);
 
     const filtered = activities.filter(a => {
-        const matchesYear = new Date(a.date).getFullYear().toString() === selectedYear;
+        const matchesYear = selectedYear === 'all' || new Date(a.date).getFullYear().toString() === selectedYear;
         const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase());
-        return matchesYear && matchesSearch;
+        const matchesType = typeFilter === 'all' || a.type === typeFilter;
+
+        const isFuture = new Date(a.date) > new Date();
+        const matchesTimeline = timelineFilter === 'all' ||
+            (timelineFilter === 'past' && !isFuture) ||
+            (timelineFilter === 'scheduled' && isFuture);
+
+        return matchesYear && matchesSearch && matchesType && matchesTimeline;
     });
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, selectedYear, typeFilter, timelineFilter]);
+
+    const paginated = filtered.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
 
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
@@ -126,97 +141,113 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                     <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Operations</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Log events and track participation history.</p>
                 </div>
-                <button
-                    onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
-                    style={{ backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                    <Plus size={20} /> New Activity
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'grid' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'grid' ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                        >
+                            <LayoutGrid size={18} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            style={{ padding: '8px', borderRadius: '4px', backgroundColor: viewMode === 'list' ? 'var(--bg-secondary)' : 'transparent', color: viewMode === 'list' ? 'var(--accent-cyan)' : 'var(--text-muted)' }}
+                        >
+                            <List size={18} />
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
+                        style={{ backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}
+                    >
+                        <Plus size={20} /> New Activity
+                    </button>
+                </div>
             </header>
 
             <div style={{ display: 'flex', gap: '16px', marginBottom: '30px' }}>
                 <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
-                        placeholder="Search activities in selected year..."
-                        value={search} onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search high-precision operational database..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
                 </div>
 
-                <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
-                    {years.map(year => (
-                        <button
-                            key={year}
-                            onClick={() => setSelectedYear(year)}
-                            style={{
-                                padding: '8px 16px',
-                                borderRadius: '4px',
-                                backgroundColor: selectedYear === year ? 'var(--bg-secondary)' : 'transparent',
-                                color: selectedYear === year ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                                fontWeight: '700',
-                                fontSize: '0.85rem'
-                            }}
-                        >
-                            {year}
-                        </button>
-                    ))}
-                    {years.length === 0 && (
-                        <span style={{ padding: '8px 16px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date().getFullYear()}</span>
-                    )}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ width: '140px' }}>
+                        <CustomSelect
+                            value={selectedYear}
+                            onChange={setSelectedYear}
+                            options={['all', ...years]}
+                        />
+                    </div>
+                    <div style={{ width: '160px' }}>
+                        <CustomSelect
+                            value={typeFilter}
+                            onChange={setTypeFilter}
+                            options={['all', ...ACTIVITY_TYPES]}
+                        />
+                    </div>
+                    <div style={{ width: '160px' }}>
+                        <CustomSelect
+                            value={timelineFilter}
+                            onChange={setTimelineFilter}
+                            options={[
+                                { label: 'ALL LOGS', value: 'all' },
+                                { label: 'PAST ONLY', value: 'past' },
+                                { label: 'SCHEDULED', value: 'scheduled' }
+                            ]}
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {filtered.map((activity, index) => (
-                    <div
-                        key={activity.id}
-                        className={`glass hover-glow animate-in stagger-${(index % 4) + 1}`}
-                        style={{
-                            padding: '20px 24px',
-                            borderRadius: 'var(--radius-md)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            border: '1px solid var(--glass-border)',
-                            transition: 'all 0.3s'
-                        }}
-                    >
-                        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                            <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                                <Calendar size={20} color="var(--accent-cyan)" />
-                            </div>
-                            <div>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{activity.name}</h3>
-                                <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <Calendar size={12} /> {activity.date}
-                                    </span>
-                                    <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                        {activity.type}
-                                    </span>
+            {viewMode === 'list' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {paginated.map((activity, index) => (
+                        <div key={activity.id} className="glass hover-glow animate-in" style={{ padding: '20px 24px', borderRadius: 'var(--radius-md)', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                                <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                                    <Calendar size={20} color="var(--accent-cyan)" />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{activity.name}</h3>
+                                    <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{activity.date}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: '600' }}>{activity.type.toUpperCase()}</span>
+                                    </div>
                                 </div>
                             </div>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button onClick={() => onAnalyzeActivity(activity)} style={{ padding: '10px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', color: 'var(--text-muted)', backgroundColor: 'transparent' }}><BarChart3 size={16} /></button>
+                                <button onClick={() => onTrackAttendance(activity)} style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'transparent' }}>Track <ChevronRight size={16} /></button>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button
-                                onClick={() => onAnalyzeActivity(activity)}
-                                style={{ padding: '10px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--bg-tertiary)' }}
-                                title="Insights"
-                            >
-                                <BarChart3 size={16} />
-                            </button>
-                            <button
-                                onClick={() => onTrackAttendance(activity)}
-                                style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                            >
-                                Track Attendance <ChevronRight size={16} />
-                            </button>
+                    ))}
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                    {paginated.map((activity) => (
+                        <div key={activity.id} className="glass hover-glow animate-in" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                <div style={{ padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}><Calendar size={24} color="var(--accent-cyan)" /></div>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--accent-cyan)', fontWeight: '800' }}>{activity.type.toUpperCase()}</span>
+                            </div>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px' }}>{activity.name}</h3>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>{activity.date}</p>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={() => onTrackAttendance(activity)} style={{ flex: 1, padding: '10px', backgroundColor: 'var(--accent-cyan)', color: 'black', fontWeight: '800', borderRadius: 'var(--radius-sm)', border: 'none' }}>TRACK</button>
+                                <button onClick={() => onAnalyzeActivity(activity)} style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', backgroundColor: 'transparent' }}><BarChart3 size={18} /></button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-                {filtered.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>No activities found.</p>}
-            </div>
+                    ))}
+                </div>
+            )}
+
+            <Pagination currentPage={currentPage} totalItems={filtered.length} pageSize={pageSize} onPageChange={setCurrentPage} />
 
             {isFormOpen && (
                 <>

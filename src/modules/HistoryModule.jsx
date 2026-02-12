@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, UserPlus, Calendar, ArrowRight, Filter, Search } from 'lucide-react';
 import { dataService } from '../store/dataService';
+import CustomSelect from '../components/CustomSelect';
+import Pagination from '../components/Pagination';
 
 const HistoryModule = () => {
     const [logs, setLogs] = useState([]);
-    const [filter, setFilter] = useState('all'); // all, people, activities
+    const [filter, setFilter] = useState('all'); // all, person, activity
     const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 15;
 
     useEffect(() => {
         loadLogs();
@@ -52,6 +56,15 @@ const HistoryModule = () => {
         return matchesType && matchesSearch;
     });
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filter]);
+
+    const paginated = filteredLogs.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ marginBottom: '40px' }}>
@@ -68,21 +81,17 @@ const HistoryModule = () => {
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
                 </div>
-                <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
-                    {['all', 'person', 'activity'].map(t => (
-                        <button
-                            key={t}
-                            onClick={() => setFilter(t)}
-                            style={{
-                                padding: '8px 16px', borderRadius: '4px',
-                                backgroundColor: filter === t ? 'var(--bg-secondary)' : 'transparent',
-                                color: filter === t ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                                fontWeight: '700', textTransform: 'capitalize', fontSize: '0.85rem'
-                            }}
-                        >
-                            {t === 'person' ? 'Members' : t === 'activity' ? 'Activities' : 'All Logs'}
-                        </button>
-                    ))}
+                <div style={{ width: '200px' }}>
+                    <CustomSelect
+                        value={filter}
+                        onChange={setFilter}
+                        icon={Filter}
+                        options={[
+                            { label: 'ALL LOG ENTRIES', value: 'all' },
+                            { label: 'MEMBER GROWTH', value: 'person' },
+                            { label: 'ACTIVITY HISTORY', value: 'activity' }
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -94,8 +103,8 @@ const HistoryModule = () => {
                 }} />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {filteredLogs.map((log, index) => (
-                        <div key={log.id} style={{ position: 'relative', animation: `fadeIn 0.3s ease-out ${index * 0.05}s both` }}>
+                    {paginated.map((log, index) => (
+                        <div key={log.id} style={{ position: 'relative', animation: `fadeIn 0.3s ease-out ${index % 10 * 0.05}s both` }}>
                             {/* Dot */}
                             <div style={{
                                 position: 'absolute', left: '-25px', top: '4px',
@@ -127,6 +136,13 @@ const HistoryModule = () => {
                         </div>
                     ))}
                 </div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredLogs.length}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                />
 
                 {filteredLogs.length === 0 && (
                     <div className="glass" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', borderRadius: 'var(--radius-md)' }}>
