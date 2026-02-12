@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 
-const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select option...', icon: Icon }) => {
+const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select option...', icon: Icon, searchable = true }) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
     const [search, setSearch] = useState('');
@@ -83,7 +83,7 @@ const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select o
                         animation: 'paletteIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)'
                     }}
                 >
-                    {options.length > 8 && (
+                    {searchable && options.length > 8 && (
                         <div style={{ padding: '8px', borderBottom: '1px solid var(--border-color)', marginBottom: '4px' }}>
                             <input
                                 autoFocus
