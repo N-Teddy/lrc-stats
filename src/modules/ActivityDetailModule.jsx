@@ -65,7 +65,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                         display: 'flex', alignItems: 'center', gap: '8px'
                     }}
                 >
-                    <Download size={16} /> {isExporting ? 'Generating...' : 'Download Token'}
+                    <Download size={16} /> {isExporting ? 'Generating...' : 'Download Session Audit'}
                 </button>
             </div>
 

@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
 import CustomSelect from '../components/CustomSelect';
+import ReportModal from '../components/ReportModal';
 import { Download, Filter, Sliders, Heart, TrendingUp, Users, AlertCircle, Award } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 
@@ -11,6 +12,7 @@ const StatsModule = () => {
     const [rawStats, setRawStats] = useState({ people: [], activities: [], attendance: [] });
     const [selectedCurveYear, setSelectedCurveYear] = useState('all');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     useEffect(() => {
         const loadBaseData = async () => {
@@ -126,7 +128,7 @@ const StatsModule = () => {
                     <p style={{ color: 'var(--text-secondary)' }}>Advanced metrics for group harmony and congregational care.</p>
                 </div>
                 <button
-                    onClick={() => reportService.generateYearlyReport()}
+                    onClick={() => setIsReportModalOpen(true)}
                     disabled={isGenerating || distribution[0]?.value === 0}
                     style={{
                         backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px 24px',
@@ -138,6 +140,27 @@ const StatsModule = () => {
                     <Download size={18} /> {isGenerating ? 'Compiling...' : 'Download Yearly Audit'}
                 </button>
             </header>
+
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                title="YEARLY ATTENDANCE AUDIT"
+                type="yearly"
+                options={{
+                    availableYears: availableYears.filter(y => y !== 'all'),
+                    initialConfig: { years: selectedCurveYear === 'all' ? [] : [selectedCurveYear] }
+                }}
+                onGenerate={async (config) => {
+                    if (config.years.length === 0) {
+                        alert('Please select at least one tactical year for the audit.');
+                        return;
+                    }
+                    setIsGenerating(true);
+                    setIsReportModalOpen(false);
+                    await reportService.generateYearlyReport(config);
+                    setIsGenerating(false);
+                }}
+            />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', marginBottom: '40px' }}>
                 {/* Participation Trend */}

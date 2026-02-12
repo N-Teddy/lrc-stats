@@ -6,6 +6,7 @@ import { reportService } from '../store/reportService';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
+import ReportModal from '../components/ReportModal';
 import { intelligenceService } from '../store/intelligenceService';
 
 const PeopleModule = ({ onViewPerson }) => {
@@ -20,6 +21,7 @@ const PeopleModule = ({ onViewPerson }) => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [vitalityFilter, setVitalityFilter] = useState('all');
     const [sortOrder, setSortOrder] = useState('name');
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const pageSize = 10;
 
     useEffect(() => {
@@ -102,7 +104,7 @@ const PeopleModule = ({ onViewPerson }) => {
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
-                        onClick={() => reportService.generateDirectoryReport(filteredPeople)}
+                        onClick={() => setIsReportModalOpen(true)}
                         style={{
                             backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', padding: '12px', borderRadius: 'var(--radius-md)',
                             border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center'
@@ -122,6 +124,24 @@ const PeopleModule = ({ onViewPerson }) => {
                     </button>
                 </div>
             </header>
+
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                title="PERSONNEL DIRECTORY AUDIT"
+                type="people"
+                options={{
+                    sortOptions: [
+                        { label: 'Name', value: 'name' },
+                        { label: 'Total Attendance', value: 'attendance' },
+                        { label: 'Engagement Status', value: 'status' }
+                    ]
+                }}
+                onGenerate={async (config) => {
+                    setIsReportModalOpen(false);
+                    await reportService.generateDirectoryReport(config);
+                }}
+            />
 
             <div style={{ marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>

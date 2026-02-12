@@ -4,6 +4,9 @@ import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { convertFileSrc } from '@tauri-apps/api/core';
+import ReportModal from '../components/ReportModal';
+import { ACTIVITY_TYPES } from '../store/dataService';
+import { notificationService } from '../store/notificationService';
 
 const PersonDetailModule = ({ personId, onBack }) => {
     const [person, setPerson] = useState(null);
@@ -15,6 +18,8 @@ const PersonDetailModule = ({ personId, onBack }) => {
         joinedDate: '---'
     });
     const [isExporting, setIsExporting] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [availableYears, setAvailableYears] = useState([]);
 
     useEffect(() => {
         loadData();
@@ -57,6 +62,9 @@ const PersonDetailModule = ({ personId, onBack }) => {
             lastSeen: history[0]?.date || 'Never',
             joinedDate: currentPerson.dateIntegration || '---'
         });
+
+        const years = [...new Set(activities.map(a => new Date(a.date).getFullYear().toString()))].sort((a, b) => b - a);
+        setAvailableYears(years);
     };
 
     if (!person) return <div className="glass" style={{ padding: '40px', textAlign: 'center' }}>Loading profile...</div>;
@@ -76,11 +84,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     <ArrowLeft size={18} /> Back to Directory
                 </button>
                 <button
-                    onClick={async () => {
-                        setIsExporting(true);
-                        await reportService.generatePersonReport(person, attendanceHistory, stats);
-                        setIsExporting(false);
-                    }}
+                    onClick={() => setIsReportModalOpen(true)}
                     disabled={isExporting}
                     style={{
                         backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)',
@@ -91,6 +95,28 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     <Download size={16} /> {isExporting ? 'Generating...' : 'Export Audit'}
                 </button>
             </div>
+
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                title="INDIVIDUAL PERFORMANCE AUDIT"
+                type="personal"
+                options={{
+                    availableYears: availableYears,
+                    activityTypes: ACTIVITY_TYPES,
+                    sortOptions: [
+                        { label: 'Date', value: 'date' },
+                        { label: 'Presence Status', value: 'status' }
+                    ]
+                }}
+                onGenerate={async (config) => {
+                    setIsExporting(true);
+                    setIsReportModalOpen(false);
+                    await reportService.generatePersonReport(person, config);
+                    setIsExporting(false);
+                    notificationService.notify('Report Exported', `Individual audit for ${person.name} generated.`);
+                }}
+            />
 
             <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '32px' }}>
                 {/* Left Column: Profile Card */}
