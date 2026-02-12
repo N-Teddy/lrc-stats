@@ -6,20 +6,20 @@ import { notificationService } from '../store/notificationService';
 
 const SettingsModule = () => {
     const { theme, toggleTheme, accent, setAccent } = useTheme();
-    const [syncUrl, setSyncUrl] = useState(localStorage.getItem('lrc_sync_url') || '');
-    const [syncToken, setSyncToken] = useState(localStorage.getItem('lrc_sync_token') || '');
+    const [binId, setBinId] = useState(localStorage.getItem('lrc_bin_id') || '');
+    const [masterKey, setMasterKey] = useState(localStorage.getItem('lrc_master_key') || '');
     const [showToken, setShowToken] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState(localStorage.getItem('lrc_last_sync') || 'Never');
 
     const handleSaveCloudConfig = () => {
-        localStorage.setItem('lrc_sync_url', syncUrl);
-        localStorage.setItem('lrc_sync_token', syncToken);
-        alert('Cloud Configuration saved.');
+        localStorage.setItem('lrc_bin_id', binId);
+        localStorage.setItem('lrc_master_key', masterKey);
+        alert('Community Sync Configuration saved.');
     };
 
     const handleCloudSync = async () => {
-        if (!syncUrl) return alert('Please provide a Sync URL first.');
+        if (!binId) return alert('Please provide a Bin ID first.');
         setIsSyncing(true);
         try {
             const [people, activities, attendance] = await Promise.all([
@@ -30,11 +30,12 @@ const SettingsModule = () => {
 
             const payload = { people, activities, attendance, timestamp: Date.now() };
 
-            const response = await fetch(syncUrl, {
-                method: 'POST',
+            const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${syncToken}`
+                    'X-Master-Key': masterKey,
+                    'X-Bin-Versioning': 'false'
                 },
                 body: JSON.stringify(payload)
             });
@@ -43,13 +44,14 @@ const SettingsModule = () => {
                 const now = new Date().toLocaleString();
                 setLastSync(now);
                 localStorage.setItem('lrc_last_sync', now);
-                alert('Cloud Sync successful!');
+                notificationService.notify('Sync Successful', 'Community records have been updated.');
             } else {
-                throw new Error(`Server responded with ${response.status}`);
+                const errData = await response.json();
+                throw new Error(errData.message || `Server responded with ${response.status}`);
             }
         } catch (err) {
             console.error(err);
-            alert(`Sync Failed: ${err.message}. Ensure your private storage endpoint is active.`);
+            alert(`Sync Failed: ${err.message}. Ensure your Bin ID and Master Key are correct.`);
         } finally {
             setIsSyncing(false);
         }
@@ -61,45 +63,81 @@ const SettingsModule = () => {
             dataService.getActivities(),
             dataService.getAttendance()
         ]);
-        const backup = { people, activities, attendance, version: '3.0.0' };
+        const backup = { people, activities, attendance, version: '4.0.0' };
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `LRC_Stats_Backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `LRC_Community_Backup_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
-        notificationService.notify('Backup Created', 'Local system backup has been exported successfully.');
+        notificationService.notify('Backup Created', 'Community records have been exported successfully.');
+    };
+
+    const handleRestoreBackup = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!window.confirm('WARNING: This will overwrite ALL current local records with data from the backup file. This cannot be undone. Proceed?')) {
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                if (!data.people || !data.activities || !data.attendance) {
+                    throw new Error('Invalid backup format. Missing required data segments.');
+                }
+
+                // Overwrite local databases
+                await Promise.all([
+                    dataService.savePeople(data.people),
+                    dataService.saveActivities(data.activities),
+                    dataService.saveAttendance(data.attendance)
+                ]);
+
+                notificationService.notify('Restore Successful', 'Community records have been restored.');
+                alert('Database Restored Successfully. The application will now reload.');
+                window.location.reload();
+            } catch (err) {
+                console.error('Extraction Error:', err);
+                alert(`Restore Failed: ${err.message}`);
+            }
+        };
+        reader.readAsText(file);
     };
 
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ marginBottom: '40px' }}>
                 <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>System Settings</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Configuration, precision audits, and data synchronization.</p>
+                <p style={{ color: 'var(--text-secondary)' }}>Configuration, community sync, and record preservation.</p>
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-                {/* Cloud & Data */}
+                {/* Community & Data */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Cloud size={22} color="var(--accent-primary)" /> Cloud Synchronisation
+                            <Cloud size={22} color="var(--accent-primary)" /> Community Synchronisation
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Private Sync EndPoint (URL)</label>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Community Bin ID</label>
                                 <input
-                                    value={syncUrl} onChange={(e) => setSyncUrl(e.target.value)}
-                                    placeholder="https://your-storage.com/api/sync"
+                                    value={binId} onChange={(e) => setBinId(e.target.value)}
+                                    placeholder="e.g. 64e..."
                                     style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                                 />
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Security Access Token</label>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>X-Master-Key (Secret)</label>
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         type={showToken ? 'text' : 'password'}
-                                        value={syncToken} onChange={(e) => setSyncToken(e.target.value)}
+                                        value={masterKey} onChange={(e) => setMasterKey(e.target.value)}
                                         placeholder="Your secret key"
                                         style={{ width: '100%', padding: '12px 40px 12px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                                     />
@@ -142,27 +180,31 @@ const SettingsModule = () => {
                                 <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: 'rgba(57, 255, 20, 0.1)' }}>
                                     <Download size={18} color="var(--accent-green)" />
                                 </div>
-                                <div>
-                                    <p style={{ textAlign: 'left' }}>Export Local Backup</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>Save a snapshot of all data as JSON</p>
+                                <div style={{ flex: 1 }}>
+                                    <p style={{ textAlign: 'left' }}>Export Group Backup</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>Save a snapshot of all community data</p>
                                 </div>
                             </button>
-                            <button
-                                style={{ width: '100%', padding: '16px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-primary)', fontWeight: '700', opacity: 0.6 }}
-                            >
+
+                            <label style={{ width: '100%', padding: '16px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-primary)', fontWeight: '700', cursor: 'pointer' }}>
                                 <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: 'rgba(var(--accent-primary-rgb), 0.1)' }}>
                                     <Upload size={18} color="var(--accent-primary)" />
                                 </div>
-                                <div>
+                                <div style={{ flex: 1 }}>
                                     <p style={{ textAlign: 'left' }}>Restore from File</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>Coming soon in build 2.1.0</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>Import records from a backup JSON</p>
                                 </div>
-                            </button>
+                                <input
+                                    type="file"
+                                    accept=".json"
+                                    onChange={handleRestoreBackup}
+                                    style={{ display: 'none' }}
+                                />
+                            </label>
                         </div>
                     </div>
                 </div>
 
-                {/* System & Polish */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -172,19 +214,10 @@ const SettingsModule = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
                                     <p style={{ fontWeight: '700' }}>Birthday Alerts</p>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Notify on app launch if there is a birthday.</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Notify on app launch for birthdays.</p>
                                 </div>
                                 <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--accent-primary)', borderRadius: '20px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', right: '2px', top: '2px', width: '16px', height: '16px', backgroundColor: 'white', borderRadius: '50%' }} />
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <p style={{ fontWeight: '700' }}>Activity Reminders</p>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Scheduled alerts for periodic operations.</p>
-                                </div>
-                                <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
-                                    <div style={{ position: 'absolute', left: '2px', top: '2px', width: '16px', height: '16px', backgroundColor: 'var(--text-muted)', borderRadius: '50%' }} />
                                 </div>
                             </div>
                         </div>
@@ -196,7 +229,7 @@ const SettingsModule = () => {
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase' }}>Tactical Accent Overlays</label>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase' }}>Community Accent Theme</label>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                                     {Object.entries(ACCENTS).map(([key, data]) => (
                                         <button
@@ -218,8 +251,8 @@ const SettingsModule = () => {
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)' }}>
                                 <div>
-                                    <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>Light Mode Alpha</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Enable high-contrast laboratory theme.</p>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>Laboratory Mode</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Switch to the light community theme.</p>
                                 </div>
                                 <button
                                     onClick={toggleTheme}
@@ -238,11 +271,9 @@ const SettingsModule = () => {
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#ff4d4d' }}>
                             <Shield size={22} /> Advanced Maintenance
                         </h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>Resetting the system database is an IRREVERSIBLE action. Ensure you have a backup.</p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>Resetting the community system is IRREVERSIBLE.</p>
                         <button
                             style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #ff4d4d', color: '#ff4d4d', backgroundColor: 'transparent', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
-                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 77, 77, 0.05)'}
-                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
                             <Trash2 size={16} /> FACTORY SYSTEM RESET
                         </button>

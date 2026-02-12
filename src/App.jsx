@@ -31,27 +31,28 @@ function App() {
         };
 
         const autoSync = async () => {
-            const syncUrl = localStorage.getItem('lrc_sync_url');
-            const syncToken = localStorage.getItem('lrc_sync_token');
-            if (syncUrl && syncToken) {
-                console.log('Initiating Silent Background Sync...');
+            const binId = localStorage.getItem('lrc_bin_id');
+            const masterKey = localStorage.getItem('lrc_master_key');
+            if (binId && masterKey) {
+                console.log('Initiating Communal Silent Sync...');
                 try {
                     const [people, activities, attendance] = await Promise.all([
                         dataService.getPeople(),
                         dataService.getActivities(),
                         dataService.getAttendance()
                     ]);
-                    await fetch(syncUrl, {
-                        method: 'POST',
+                    await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${syncToken}`
+                            'X-Master-Key': masterKey,
+                            'X-Bin-Versioning': 'false'
                         },
                         body: JSON.stringify({ people, activities, attendance, timestamp: Date.now() })
                     });
                     localStorage.setItem('lrc_last_sync', new Date().toLocaleString());
                 } catch (err) {
-                    console.warn('Silent Sync deferred: check network connectivity.', err);
+                    console.warn('Communal Sync deferred: check network connectivity.', err);
                 }
             }
         };
