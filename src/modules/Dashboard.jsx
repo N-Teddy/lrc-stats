@@ -8,29 +8,19 @@ import {
 import { convertFileSrc } from '@tauri-apps/api/core';
 
 const StatCard = ({ icon: Icon, label, value, trend, color, subtext }) => (
-    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', position: 'relative', overflow: 'hidden' }}>
+    <div className="glass hover-glow" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', position: 'relative', overflow: 'hidden', transition: 'transform 0.2s ease' }}>
         <div style={{
-            position: 'absolute', top: '-10px', right: '-10px', width: '60px', height: '60px',
-            background: `radial-gradient(circle, rgba(${color}, 0.1) 0%, transparent 70%)`, zIndex: 0
+            position: 'absolute', top: '-10px', right: '-10px', width: '80px', height: '80px',
+            background: `radial-gradient(circle, rgba(${color}, 0.15) 0%, transparent 70%)`, zIndex: 0
         }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', position: 'relative' }}>
-            <div style={{
-                padding: '10px',
-                backgroundColor: `rgba(${color}, 0.1)`,
-                borderRadius: 'var(--radius-md)',
-                color: `rgb(${color})`
-            }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ padding: '10px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', width: 'fit-content', marginBottom: '16px', border: '1px solid var(--border-color)', color: `rgb(${color})` }}>
                 <Icon size={20} />
             </div>
-            {trend !== undefined && (
-                <span style={{ fontSize: '0.75rem', color: trend >= 0 ? 'var(--accent-green)' : '#ff4d4d', fontWeight: '800' }}>
-                    {trend >= 0 ? '+' : ''}{trend}%
-                </span>
-            )}
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700' }}>{label}</p>
+            <p style={{ fontSize: '2.2rem', fontWeight: '900', marginTop: '4px', letterSpacing: '-1px' }}>{value}</p>
+            {subtext && <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>{subtext}</p>}
         </div>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700' }}>{label}</p>
-        <p style={{ fontSize: '2.2rem', fontWeight: '900', marginTop: '4px', letterSpacing: '-1px' }}>{value}</p>
-        {subtext && <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>{subtext}</p>}
     </div>
 );
 
@@ -140,11 +130,16 @@ const Dashboard = () => {
             <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>Command Center</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>LRC Mission Statistics & Network Analysis</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Pulse of Operations • {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
-                <div style={{ padding: '8px 16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '30px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-green)', boxShadow: '0 0 10px var(--accent-green)' }} />
-                    <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-muted)' }}>System Active</span>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <div className="glass" style={{ padding: '8px 20px', borderRadius: '30px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-green)', boxShadow: '0 0 10px var(--accent-green)' }} />
+                        <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--text-primary)' }}>System Nominal</span>
+                    </div>
+                    <div className="glass" style={{ padding: '8px 20px', borderRadius: '30px', border: '1px solid var(--accent-cyan)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', color: 'var(--accent-cyan)' }}>Network Strength: {Math.min(100, (stats.total / 100) * 100).toFixed(0)}%</span>
+                    </div>
                 </div>
             </header>
 

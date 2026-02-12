@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { dataService } from './dataService';
+import { notificationService } from './notificationService';
 
 /**
  * Service for generating PDF reports for LRC Stats
@@ -78,6 +79,7 @@ export const reportService = {
             // In some Tauri versions, doc.save() triggers a download,
             // but we can also use writeFile to AppData if preferred.
             doc.save(`LRC_Yearly_Audit_${year}.pdf`);
+            notificationService.notify('Report Exported', `Yearly Audit for ${year} has been generated.`);
             console.log('PDF generated successfully');
             return true;
         } catch (err) {
@@ -146,6 +148,7 @@ export const reportService = {
             });
 
             doc.save(`Personnel_Audit_${person.name.replace(/\s+/g, '_')}.pdf`);
+            notificationService.notify('Audit Exported', `Individual report for ${person.name} is ready.`);
             return true;
         } catch (err) {
             console.error(err);
@@ -207,6 +210,7 @@ export const reportService = {
             });
 
             doc.save(`Activity_Token_${activity.name.replace(/\s+/g, '_')}.pdf`);
+            notificationService.notify('Token Generated', `Attendance token for ${activity.name} has been created.`);
             return true;
         } catch (err) {
             console.error(err);
@@ -256,6 +260,7 @@ export const reportService = {
             });
 
             doc.save('LRC_Personnel_Directory.pdf');
+            notificationService.notify('Directory Exported', 'The global personnel directory has been saved.');
             return true;
         } catch (err) {
             console.error(err);

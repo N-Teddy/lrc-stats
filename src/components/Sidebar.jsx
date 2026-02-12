@@ -46,7 +46,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     LRC STATS
                 </h1>
                 <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '4px' }}>
-                    Management v1.0
+                    Command Center v2.0.0
                 </p>
             </div>
 

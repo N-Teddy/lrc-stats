@@ -8,12 +8,27 @@ import StatsModule from './modules/StatsModule';
 import PersonDetailModule from './modules/PersonDetailModule';
 import ActivityDetailModule from './modules/ActivityDetailModule';
 import HistoryModule from './modules/HistoryModule';
+import SettingsModule from './modules/SettingsModule';
+import { useEffect } from 'react';
+import { notificationService } from './store/notificationService';
+import { dataService } from './store/dataService';
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [selectedPersonId, setSelectedPersonId] = useState(null);
     const [analyzingActivity, setAnalyzingActivity] = useState(null);
+
+    useEffect(() => {
+        const initNotifications = async () => {
+            const granted = await notificationService.init();
+            if (granted) {
+                const people = await dataService.getPeople();
+                notificationService.checkBirthdays(people);
+            }
+        };
+        initNotifications();
+    }, []);
 
     const handleTrackAttendance = (activity) => {
         setSelectedActivity(activity);
@@ -60,6 +75,8 @@ function App() {
                 />;
             case 'stats':
                 return <StatsModule />;
+            case 'settings':
+                return <SettingsModule />;
             default:
                 return <Dashboard />;
         }
