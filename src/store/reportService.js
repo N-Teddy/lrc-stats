@@ -1,7 +1,45 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import * as autoTableModule from 'jspdf-autotable';
+const autoTable = autoTableModule.default || autoTableModule;
 import { dataService } from './dataService';
 import { notificationService } from './notificationService';
+import { exists, readFile, BaseDirectory } from '@tauri-apps/plugin-fs';
+import { convertFileSrc } from '@tauri-apps/api/core';
+
+/**
+ * Helper to convert local profile images to Base64 for PDF embedding
+ */
+const getImageAsBase64 = async (filePath) => {
+    try {
+        if (!filePath) return null;
+
+        // If it's already a data URL, return it
+        if (filePath.startsWith('data:')) return filePath;
+
+        // For Tauri local files, we need to read the raw bytes
+        // We need to extract the relative path from the full path if necessary,
+        // but often the DB stores the relative path or full path.
+        // Let's assume the path might need cleaning for the FS plugin.
+
+        // Attempt to read directly. If it's a full path, we might need to handle it.
+        // For simplicity, let's assume relative path works with BaseDirectory.AppData
+        // If it's a full path, we use the raw string.
+
+        let bytes;
+        if (filePath.includes('AppData') || filePath.includes('/')) {
+            // Full path - requires special handling or raw read
+            bytes = await readFile(filePath);
+        } else {
+            bytes = await readFile(filePath, { baseDir: BaseDirectory.AppData });
+        }
+
+        const binary = Array.from(bytes).map(b => String.fromCharCode(b)).join('');
+        return `data:image/png;base64,${btoa(binary)}`;
+    } catch (err) {
+        console.warn('Image processing failed for PDF:', err);
+        return null;
+    }
+};
 
 /**
  * Service for generating PDF reports for LRC Stats
@@ -10,7 +48,8 @@ export const reportService = {
     /**
      * Generates a comprehensive yearly attendance report
      */
-    generateYearlyReport: async (year = new Date().getFullYear()) => {
+    generateYearlyReport: async (options = {}) => {
+        const { year = new Date().getFullYear(), includeImages = false } = options;
         try {
             const [people, activities, attendance] = await Promise.all([
                 dataService.getPeople(),
@@ -18,7 +57,6 @@ export const reportService = {
                 dataService.getAttendance()
             ]);
 
-            // Optimization: If there are too many activities, we might want landscape
             const doc = new jsPDF({
                 orientation: 'landscape',
                 unit: 'mm',
@@ -38,49 +76,45 @@ export const reportService = {
             // Header
             doc.setFontSize(22);
             doc.setTextColor(0, 0, 0);
-            doc.text('LRC MISSION - YEARLY ATTENDANCE AUDIT', 14, 22);
+            doc.text(`LRC MISSION - ${year} OPERATIONAL AUDIT`, 14, 22);
 
-            doc.setFontSize(12);
+            doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
-            doc.text(`Report Period: January ${year} - December ${year}`, 14, 30);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 36);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 28);
 
             // Detailed Table
-            const tableHeaders = [['Person Name', ...filteredActivities.map(a => a.date.substring(5, 10)), 'Total']];
-            const tableData = activePeople.map(person => {
-                let row = [person.name];
-                let personTotal = 0;
+            const columns = [
+                { header: 'ASSET NAME', dataKey: 'name' },
+                ...filteredActivities.map(a => ({ header: a.date.substring(5, 10), dataKey: a.id })),
+                { header: 'TOTAL', dataKey: 'total' }
+            ];
 
+            const tableData = activePeople.map(person => {
+                let row = { name: person.name };
+                let total = 0;
                 filteredActivities.forEach(act => {
                     const actAttendance = attendance.find(attr => attr.activityId === act.id);
                     const isPresent = actAttendance && actAttendance.personIds.includes(person.id);
-                    row.push(isPresent ? 'X' : '-');
-                    if (isPresent) personTotal++;
+                    row[act.id] = isPresent ? 'X' : '-';
+                    if (isPresent) total++;
                 });
-
-                row.push(personTotal.toString());
+                row.total = total.toString();
                 return row;
             });
 
-            doc.autoTable({
-                startY: 45,
-                head: tableHeaders,
+            autoTable(doc, {
+                startY: 40,
+                columns: columns,
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontSize: 6 },
-                styles: { fontSize: 6, cellPadding: 1 },
-                columnStyles: { 0: { fontStyle: 'bold', fontSize: 7, cellWidth: 'wrap' } },
-                margin: { top: 45 }
+                styles: { fontSize: 6, cellPadding: 1.5 },
+                columnStyles: { name: { fontStyle: 'bold', fontSize: 7, cellWidth: 'wrap' } },
+                margin: { top: 40 }
             });
 
-            const finalY = (doc.lastAutoTable?.finalY || 50) + 10;
-
-            // Success! Save the file.
-            // In some Tauri versions, doc.save() triggers a download,
-            // but we can also use writeFile to AppData if preferred.
             doc.save(`LRC_Yearly_Audit_${year}.pdf`);
             notificationService.notify('Report Exported', `Yearly Audit for ${year} has been generated.`);
-            console.log('PDF generated successfully');
             return true;
         } catch (err) {
             console.error('PDF Generation Error:', err);
@@ -92,12 +126,23 @@ export const reportService = {
     /**
      * Generates an individual member's attendance deep-dive
      */
-    generatePersonReport: async (person, history, stats) => {
+    generatePersonReport: async (person, history, stats, options = {}) => {
+        const { includeImage = true } = options;
         try {
             const doc = new jsPDF({
                 unit: 'mm',
                 format: 'a4'
             });
+
+            // Headshot handling
+            if (includeImage && person.image) {
+                const imgData = await getImageAsBase64(person.image);
+                if (imgData) {
+                    doc.addImage(imgData, 'PNG', 150, 25, 40, 40);
+                    doc.setDrawColor(200, 200, 200);
+                    doc.rect(150, 25, 40, 40);
+                }
+            }
 
             // Technical Header
             doc.setFontSize(24);
@@ -119,26 +164,26 @@ export const reportService = {
             doc.text(`INTEGRATION: ${person.dateIntegration || '---'}`, 14, 57);
             doc.text(`PHONE: ${person.phone || 'N/A'}`, 14, 62);
 
-            // High-Precision Stats
+            // High-Precision Stats Box
             doc.setFillColor(245, 245, 245);
-            doc.rect(130, 40, 65, 30, 'F');
+            doc.rect(14, 70, 60, 25, 'F');
             doc.setFontSize(9);
             doc.setTextColor(150, 150, 150);
-            doc.text('ENGAGEMENT RATE', 135, 48);
-            doc.setFontSize(18);
+            doc.text('ENGAGEMENT RATE', 18, 78);
+            doc.setFontSize(16);
             doc.setTextColor(0, 210, 255);
-            doc.text(`${stats.rate}%`, 135, 58);
+            doc.text(`${stats.rate}%`, 18, 88);
 
             // Timeline Header
             doc.setFontSize(12);
             doc.setTextColor(0, 0, 0);
-            doc.text('OPERATIONAL PARTICIPATION HISTORY', 14, 80);
+            doc.text('OPERATIONAL PARTICIPATION HISTORY', 14, 105);
 
             const tableHeaders = [['Date', 'Activity Name', 'Status']];
             const tableData = history.map(h => [h.date, h.name, 'PRESENT']);
 
-            doc.autoTable({
-                startY: 85,
+            autoTable(doc, {
+                startY: 110,
                 head: tableHeaders,
                 body: tableData,
                 theme: 'striped',
@@ -200,7 +245,7 @@ export const reportService = {
             const tableHeaders = [['#', 'Name', 'Status', 'Signature']];
             const tableData = attendees.map((p, i) => [i + 1, p.name, p.status || 'Membre', '_________________']);
 
-            doc.autoTable({
+            autoTable(doc, {
                 startY: 95,
                 head: tableHeaders,
                 body: tableData,
@@ -221,7 +266,8 @@ export const reportService = {
     /**
      * Generates a full personnel directory export
      */
-    generateDirectoryReport: async (people) => {
+    generateDirectoryReport: async (people, options = {}) => {
+        const { includeImages = false } = options;
         try {
             const doc = new jsPDF({
                 unit: 'mm',
@@ -250,7 +296,7 @@ export const reportService = {
                     p.dateIntegration || '---'
                 ]);
 
-            doc.autoTable({
+            autoTable(doc, {
                 startY: 45,
                 head: tableHeaders,
                 body: tableData,
@@ -261,6 +307,50 @@ export const reportService = {
 
             doc.save('LRC_Personnel_Directory.pdf');
             notificationService.notify('Directory Exported', 'The global personnel directory has been saved.');
+            return true;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    },
+
+    /**
+     * Generates a global activity report across all years
+     */
+    generateAllActivitiesReport: async () => {
+        try {
+            const activities = await dataService.getActivities();
+            const attendance = await dataService.getAttendance();
+
+            const doc = new jsPDF({
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            doc.setFontSize(22);
+            doc.text('GLOBAL OPERATIONAL MASTER LOG', 14, 22);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Total Interventions Recorded: ${activities.length}`, 14, 30);
+
+            const tableHeaders = [['Date', 'Name', 'Type', 'Attendees']];
+            const tableData = activities
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(a => {
+                    const rec = attendance.find(at => at.activityId === a.id);
+                    return [a.date, a.name, a.type, rec ? rec.count : 0];
+                });
+
+            autoTable(doc, {
+                startY: 40,
+                head: tableHeaders,
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 112, 243], textColor: [255, 255, 255] }
+            });
+
+            doc.save('LRC_Global_Activity_Log.pdf');
+            notificationService.notify('Global Log Exported', 'The complete activity history has been generated.');
             return true;
         } catch (err) {
             console.error(err);
@@ -320,7 +410,7 @@ export const reportService = {
                 return row;
             });
 
-            doc.autoTable({
+            autoTable(doc, {
                 startY: 45,
                 head: tableHeaders,
                 body: tableData,

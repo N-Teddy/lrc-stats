@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
-import { Download, FileText, Filter, Printer } from 'lucide-react';
+import { Download, FileText, Filter, Printer, Sliders } from 'lucide-react';
+import ReportWizard from '../components/ReportWizard';
 
 const StatsModule = () => {
     const [distribution, setDistribution] = useState([]);
     const [typeData, setTypeData] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isWizardOpen, setIsWizardOpen] = useState(false);
 
     useEffect(() => {
         const loadStats = async () => {
@@ -54,15 +56,14 @@ const StatsModule = () => {
                     <p style={{ color: 'var(--text-secondary)' }}>Advanced network distribution and participation metrics.</p>
                 </div>
                 <button
-                    onClick={handleGenerateReport}
-                    disabled={isGenerating}
+                    onClick={() => setIsWizardOpen(true)}
                     style={{
                         backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '12px 24px',
                         borderRadius: 'var(--radius-md)', fontWeight: '800', display: 'flex',
                         alignItems: 'center', gap: '10px', boxShadow: '0 4px 15px rgba(0,210,255,0.3)'
                     }}
                 >
-                    {isGenerating ? 'Processing...' : <><Download size={18} /> Export Yearly Audit</>}
+                    <Download size={18} /> Open Report Wizard
                 </button>
             </header>
 
@@ -149,13 +150,17 @@ const StatsModule = () => {
                     Compiling all attendance sheets, activity logs, and personnel status into a standardized PDF format for the current administrative year.
                 </p>
                 <button
-                    onClick={handleGenerateReport}
-                    disabled={isGenerating}
+                    onClick={() => setIsWizardOpen(true)}
                     style={{ padding: '12px 32px', borderRadius: '30px', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', background: 'transparent', fontSize: '0.85rem' }}
                 >
-                    {isGenerating ? 'Compiling PDF...' : 'Initiate Audit Sequence'}
+                    Launch Tactical Export Sequence
                 </button>
             </div>
+
+            <ReportWizard
+                isOpen={isWizardOpen}
+                onClose={() => setIsWizardOpen(false)}
+            />
 
             <style>{`
 @keyframes fadeIn {
