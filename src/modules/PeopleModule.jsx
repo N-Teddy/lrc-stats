@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Search, MoreVertical, Shield, Archive, Edit2, Trash2, User, Phone, LayoutGrid, List } from 'lucide-react';
+import { UserPlus, Search, MoreVertical, Shield, Archive, Edit2, Trash2, User, Phone, LayoutGrid, List, Eye, Download } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
 import PersonForm from '../components/PersonForm';
+import { reportService } from '../store/reportService';
 import { convertFileSrc } from '@tauri-apps/api/core';
 
-const PeopleModule = () => {
+const PeopleModule = ({ onViewPerson }) => {
     const [people, setPeople] = useState([]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('active');
@@ -135,6 +136,18 @@ const PeopleModule = () => {
                         </button>
                     ))}
                 </div>
+
+                <button
+                    onClick={() => reportService.generateDirectoryReport(people)}
+                    style={{
+                        padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)',
+                        backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: '8px'
+                    }}
+                    title="Export Directory"
+                >
+                    <Download size={18} />
+                </button>
             </div>
 
             {/* Content View */}
@@ -170,7 +183,13 @@ const PeopleModule = () => {
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.5px' }}>{person.name}</h3>
+                                        <h3
+                                            onClick={() => onViewPerson(person.id)}
+                                            style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.5px', cursor: 'pointer', transition: 'color 0.2s' }}
+                                            className="hover-cyan"
+                                        >
+                                            {person.name}
+                                        </h3>
                                         <span style={{
                                             fontSize: '0.6rem',
                                             background: person.status === 'Eleve' ? 'rgba(255, 170, 0, 0.1)' : 'rgba(0, 210, 255, 0.1)',
@@ -210,6 +229,12 @@ const PeopleModule = () => {
                                             borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 10,
                                             boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid var(--border-color)'
                                         }}>
+                                            <button
+                                                onClick={() => { onViewPerson(person.id); setActiveMenuId(null); }}
+                                                style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: 'var(--accent-cyan)' }}
+                                            >
+                                                <Eye size={16} /> View Details
+                                            </button>
                                             <button
                                                 onClick={() => { setEditingPerson(person); setIsFormOpen(true); setActiveMenuId(null); }}
                                                 style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}
@@ -268,6 +293,13 @@ const PeopleModule = () => {
                                     <td style={{ padding: '12px 24px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{person.dateIntegration || '---'}</td>
                                     <td style={{ padding: '12px 24px' }}>
                                         <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button
+                                                onClick={() => onViewPerson(person.id)}
+                                                title="View Details"
+                                                style={{ padding: '6px', color: 'var(--accent-cyan)' }}
+                                            >
+                                                <Eye size={16} />
+                                            </button>
                                             <button onClick={() => { setEditingPerson(person); setIsFormOpen(true); }} style={{ padding: '6px', color: 'var(--text-muted)' }}><Edit2 size={16} /></button>
                                             <button onClick={() => handleArchive(person.id)} style={{ padding: '6px', color: person.isArchived ? 'var(--accent-cyan)' : 'var(--text-muted)' }}><Archive size={16} /></button>
                                         </div>

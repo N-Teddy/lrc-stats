@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Calendar, Activity, TrendingUp, Download, CheckCircle, Clock } from 'lucide-react';
+import { Users, Calendar, Activity, TrendingUp, Download, CheckCircle, Clock, Cake, Gift } from 'lucide-react';
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
 const StatCard = ({ icon: Icon, label, value, trend, color, subtext }) => (
     <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', position: 'relative', overflow: 'hidden' }}>
@@ -41,8 +42,12 @@ const Dashboard = () => {
         total: 0,
         activitiesCount: 0,
         avgAttendance: 0,
-        recentAttendance: []
+        recentAttendance: [],
+        birthdays: []
     });
+    const [isBirthdayModalOpen, setIsBirthdayModalOpen] = useState(false);
+    const [trendFilter, setTrendFilter] = useState('all'); // all, membres, eleves, jrs
+    const [allData, setAllData] = useState({ people: [], activities: [], attendance: [] });
 
     useEffect(() => {
         async function loadStats() {
@@ -71,18 +76,51 @@ const Dashboard = () => {
                     date: a.date
                 }));
 
+            // 4. Calculate Birthdays this month
+            const currentMonth = new Date().getMonth();
+            const monthlyBirthdays = activePeople.filter(p => {
+                if (!p.dob) return false;
+                const dob = new Date(p.dob);
+                return dob.getMonth() === currentMonth;
+            });
+
             setStats({
-                membres,
-                eleves,
-                jrs,
+                membres, eleves, jrs,
                 total: activePeople.length,
                 activitiesCount: activities.length,
                 avgAttendance: avg,
-                recentAttendance: chartData
+                recentAttendance: chartData,
+                birthdays: monthlyBirthdays
             });
+
+            setAllData({ people: activePeople, activities, attendance });
         }
         loadStats();
     }, []);
+
+    // Memoized filtered chart data
+    const filteredChartData = React.useMemo(() => {
+        if (!allData.attendance.length) return [];
+
+        return allData.attendance
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .slice(-7)
+            .map(a => {
+                let count = a.count;
+                if (trendFilter !== 'all') {
+                    const attendees = allData.people.filter(p => a.personIds.includes(p.id));
+                    if (trendFilter === 'membres') count = attendees.filter(p => (p.status || 'Membre') === 'Membre').length;
+                    if (trendFilter === 'eleves') count = attendees.filter(p => p.status === 'Eleve').length;
+                    if (trendFilter === 'jrs') count = attendees.filter(p => p.isJRs).length;
+                }
+
+                return {
+                    name: a.activityName.length > 10 ? a.activityName.substring(0, 8) + '...' : a.activityName,
+                    count,
+                    date: a.date
+                };
+            });
+    }, [allData, trendFilter]);
 
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
@@ -157,12 +195,28 @@ const Dashboard = () => {
                             <h3 style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.5px' }}>Engagement Dynamics</h3>
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Attendance volume over recent activities</p>
                         </div>
+                        <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                            {['all', 'membres', 'eleves', 'jrs'].map(f => (
+                                <button
+                                    key={f}
+                                    onClick={() => setTrendFilter(f)}
+                                    style={{
+                                        padding: '6px 12px', borderRadius: '4px', border: 'none',
+                                        backgroundColor: trendFilter === f ? 'var(--bg-secondary)' : 'transparent',
+                                        color: trendFilter === f ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                                        fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', cursor: 'pointer'
+                                    }}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div style={{ width: '100%', height: '300px', minHeight: '300px' }}>
-                        {stats.recentAttendance.length > 0 ? (
+                        {filteredChartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                                <AreaChart data={stats.recentAttendance}>
+                                <AreaChart data={filteredChartData}>
                                     <defs>
                                         <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="var(--accent-cyan)" stopOpacity={0.3} />
@@ -222,6 +276,40 @@ const Dashboard = () => {
                         </div>
                     </div>
 
+                    {/* Birthday Watch Widget */}
+                    <div className="glass animate-in stagger-3" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.05) 0%, transparent 100%)', border: '1px solid rgba(255, 170, 0, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: '#ffaa00' }}>
+                                Birthday Watch
+                            </h3>
+                            <Cake size={16} color="#ffaa00" />
+                        </div>
+
+                        {stats.birthdays.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {stats.birthdays.slice(0, 3).map((p, idx) => (
+                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                            {p.image ? <img src={p.image.startsWith('http') || p.image.startsWith('data:') ? p.image : convertFileSrc(p.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Gift size={16} color="var(--text-muted)" />}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{p.name}</p>
+                                            <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{p.dob?.substring(5)}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={() => setIsBirthdayModalOpen(true)}
+                                    style={{ width: '100%', padding: '8px', marginTop: '4px', backgroundColor: 'rgba(255, 170, 0, 0.1)', color: '#ffaa00', borderRadius: '6px', border: 'none', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer' }}
+                                >
+                                    View All Celebrations
+                                </button>
+                            </div>
+                        ) : (
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No birthdays this month.</p>
+                        )}
+                    </div>
+
                     <div className="glass animate-in stagger-4" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.05) 0%, transparent 100%)' }}>
                         <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '16px' }}>Network Utilities</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -246,6 +334,48 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {isBirthdayModalOpen && (
+                <div
+                    onClick={() => setIsBirthdayModalOpen(false)}
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)' }}
+                >
+                    <div
+                        onClick={e => e.stopPropagation()}
+                        className="glass"
+                        style={{ width: '600px', maxHeight: '80vh', padding: '40px', borderRadius: 'var(--radius-lg)', position: 'relative', overflowY: 'auto' }}
+                    >
+                        <header style={{ textAlign: 'center', marginBottom: '32px' }}>
+                            <Cake size={48} color="#ffaa00" style={{ marginBottom: '16px' }} />
+                            <h2 style={{ fontSize: '2rem', fontWeight: '900' }}>Month of Celebration</h2>
+                            <p style={{ color: 'var(--text-secondary)' }}>Happy Birthday to our distinguished members!</p>
+                        </header>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            {stats.birthdays.map((p, idx) => (
+                                <div key={idx} className="glass" style={{ padding: '20px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
+                                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #ffaa00' }}>
+                                        {p.image ? (
+                                            <img src={p.image.startsWith('http') || p.image.startsWith('data:') ? p.image : convertFileSrc(p.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : <Users size={24} color="var(--text-muted)" />}
+                                    </div>
+                                    <div>
+                                        <p style={{ fontWeight: '800', fontSize: '1rem' }}>{p.name}</p>
+                                        <p style={{ fontSize: '0.8rem', color: '#ffaa00', fontWeight: '700' }}>{p.dob}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={() => setIsBirthdayModalOpen(false)}
+                            style={{ width: '100%', padding: '14px', marginTop: '32px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)', fontWeight: '700' }}
+                        >
+                            Close Spotlight
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 @keyframes fadeIn {

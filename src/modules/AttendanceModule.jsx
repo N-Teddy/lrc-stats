@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Check, Search, User, Filter, Save } from 'lucide-react';
+import { ArrowLeft, Check, Search, User, Filter, Save, Lock, Unlock } from 'lucide-react';
 import { dataService } from '../store/dataService';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
 const AttendanceModule = ({ activity, onBack }) => {
     const [people, setPeople] = useState([]);
@@ -8,6 +9,7 @@ const AttendanceModule = ({ activity, onBack }) => {
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [search, setSearch] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -27,17 +29,20 @@ const AttendanceModule = ({ activity, onBack }) => {
         const currentActivityAttendance = allAttendance.find(a => a.activityId === activity.id);
         if (currentActivityAttendance) {
             setSelectedIds(new Set(currentActivityAttendance.personIds));
+            setIsLocked(!!currentActivityAttendance.isLocked);
         }
     };
 
     const togglePerson = (id) => {
+        if (isLocked) return;
         const newSelected = new Set(selectedIds);
         if (newSelected.has(id)) newSelected.delete(id);
         else newSelected.add(id);
         setSelectedIds(newSelected);
     };
 
-    const handleSave = async () => {
+    const handleSave = async (shouldLock = false) => {
+        if (isLocked && !shouldLock) return; // Prevent saving if already locked unless unlocking (not implemented yet)
         setIsSaving(true);
         try {
             const allAttendance = await dataService.getAttendance();
@@ -48,11 +53,12 @@ const AttendanceModule = ({ activity, onBack }) => {
                 activityName: activity.name,
                 date: activity.date,
                 personIds: Array.from(selectedIds),
-                count: selectedIds.size
+                count: selectedIds.size,
+                isLocked: shouldLock || isLocked
             };
 
             await dataService.saveAttendance([...otherAttendance, newEntry]);
-            alert('Attendance saved successfully!');
+            alert(shouldLock ? 'Attendance finalized and locked.' : 'Attendance saved successfully!');
             onBack();
         } catch (err) {
             console.error(err);
@@ -73,18 +79,18 @@ const AttendanceModule = ({ activity, onBack }) => {
                 <ArrowLeft size={16} /> Back to Activities
             </button>
 
-            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '30px', border: '1px solid var(--accent-cyan)' }}>
+            <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '30px', border: isLocked ? '1px solid #ff4d4d' : '1px solid var(--accent-cyan)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px' }}>
-                            Recording Attendance
+                        <span style={{ fontSize: '0.7rem', color: isLocked ? '#ff4d4d' : 'var(--accent-cyan)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {isLocked ? <><Lock size={12} /> Records Locked</> : <>Recording Attendance</>}
                         </span>
                         <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '4px' }}>{activity.name}</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>{activity.date} • {activity.type}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Present</p>
-                        <p style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--accent-green)' }}>{selectedIds.size}</p>
+                        <p style={{ fontSize: '2.5rem', fontWeight: '800', color: isLocked ? 'var(--text-muted)' : 'var(--accent-green)' }}>{selectedIds.size}</p>
                     </div>
                 </div>
             </div>
@@ -99,15 +105,32 @@ const AttendanceModule = ({ activity, onBack }) => {
                     />
                 </div>
                 <button
-                    onClick={handleSave}
-                    disabled={isSaving}
+                    onClick={() => handleSave(false)}
+                    disabled={isSaving || isLocked}
                     style={{
-                        backgroundColor: 'var(--accent-cyan)', color: 'black', padding: '0 32px',
-                        borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.95rem',
-                        display: 'flex', alignItems: 'center', gap: '10px'
+                        backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', padding: '0 24px',
+                        borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem',
+                        display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid var(--border-color)',
+                        opacity: isLocked ? 0.5 : 1
                     }}
                 >
-                    {isSaving ? 'Saving...' : <><Save size={18} /> Save Records</>}
+                    <Save size={18} /> Save Progress
+                </button>
+                <button
+                    onClick={() => {
+                        if (window.confirm('Are you sure? Locking attendance prevents further changes to this session.')) {
+                            handleSave(true);
+                        }
+                    }}
+                    disabled={isSaving || isLocked}
+                    style={{
+                        backgroundColor: isLocked ? 'var(--bg-tertiary)' : 'var(--accent-cyan)', color: 'black', padding: '0 32px',
+                        borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.95rem',
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        opacity: isLocked ? 0.5 : 1
+                    }}
+                >
+                    {isSaving ? 'Processing...' : <><Lock size={18} /> Finalize & Lock</>}
                 </button>
             </div>
 
@@ -129,10 +152,11 @@ const AttendanceModule = ({ activity, onBack }) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '16px',
-                                cursor: 'pointer',
+                                cursor: isLocked ? 'default' : 'pointer',
                                 border: isSelected ? '1px solid var(--accent-green)' : '1px solid var(--border-color)',
                                 backgroundColor: isSelected ? 'rgba(57, 255, 20, 0.05)' : 'transparent',
-                                transition: 'all 0.2s'
+                                transition: 'all 0.2s',
+                                opacity: isLocked && !isSelected ? 0.4 : 1
                             }}
                         >
                             <div style={{
@@ -140,7 +164,7 @@ const AttendanceModule = ({ activity, onBack }) => {
                                 display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
                                 {person.image ? (
-                                    <img src={person.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <img src={person.image.startsWith('http') || person.image.startsWith('data:') ? person.image : convertFileSrc(person.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
                                     <User size={20} color="var(--text-muted)" />
                                 )}

@@ -1,3 +1,0 @@
-node node_modules/electron/install.js
-ls -l node_modules/electron/dist/electron
-pnpm dev

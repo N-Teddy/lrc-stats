@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Calendar, Tag, ChevronRight, Activity as ActivityIcon } from 'lucide-react';
+import { Plus, Search, Calendar, ChevronRight, Edit2, Trash2, Eye, BarChart3, ChevronLeft } from 'lucide-react';
 import { dataService, createActivityModel, ACTIVITY_TYPES } from '../store/dataService';
 
 const ActivityForm = ({ activity, onSave, onCancel }) => {
@@ -79,7 +79,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
     );
 };
 
-const ActivitiesModule = ({ onTrackAttendance }) => {
+const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
     const [activities, setActivities] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingActivity, setEditingActivity] = useState(null);
@@ -198,12 +198,21 @@ const ActivitiesModule = ({ onTrackAttendance }) => {
                                 </div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => onTrackAttendance(activity)}
-                            style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
-                        >
-                            Track Attendance <ChevronRight size={16} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={() => onAnalyzeActivity(activity)}
+                                style={{ padding: '10px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--bg-tertiary)' }}
+                                title="Insights"
+                            >
+                                <BarChart3 size={16} />
+                            </button>
+                            <button
+                                onClick={() => onTrackAttendance(activity)}
+                                style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}
+                            >
+                                Track Attendance <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
                 ))}
                 {filtered.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>No activities found.</p>}

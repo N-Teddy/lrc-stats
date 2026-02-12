@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
@@ -74,6 +74,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     label="Statistics"
                     active={activeTab === 'stats'}
                     onClick={() => setActiveTab('stats')}
+                />
+                <SidebarItem
+                    icon={History}
+                    label="Logs"
+                    active={activeTab === 'logs'}
+                    onClick={() => setActiveTab('logs')}
                 />
             </nav>
 
