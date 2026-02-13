@@ -296,7 +296,11 @@
         "restore_success": "Restauration Réussie",
         "restore_success_msg": "Les dossiers communautaires ont été restaurés.",
         "restore_reload": "Base de données restaurée avec succès. L'application va maintenant redémarrer.",
-        "restore_failed": "Échec de la restauration : {{error}}"
+        "restore_failed": "Échec de la restauration : {{error}}",
+        "decrypt_prompt": "Ce fichier est crypté. Entrez la Clé Maîtresse pour déverrouiller :",
+        "decrypt_failed": "Échec du décryptage. Clé incorrecte ou manquante.",
+        "restore_legacy_confirm": "Sauvegarde ancienne détectée (non cryptée). Procéder à la restauration ?",
+        "encryption_error": "Échec du traitement du coffre-fort système."
     },
     "assistant": {
         "title": "Intelligence Tactique",

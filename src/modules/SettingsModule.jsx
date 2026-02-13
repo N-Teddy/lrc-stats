@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import CryptoJS from 'crypto-js';
+import pako from 'pako';
 import { Settings, Shield, Cloud, Save, Download, Upload, Trash2, Bell, Eye, EyeOff, Palette, Check, Languages } from 'lucide-react';
 import { useTheme, ACCENTS } from '../store/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -60,40 +62,91 @@ const SettingsModule = () => {
     };
 
     const handleExportBackup = async () => {
-        const [people, activities, attendance] = await Promise.all([
-            dataService.getPeople(),
-            dataService.getActivities(),
-            dataService.getAttendance()
-        ]);
-        const backup = { people, activities, attendance, version: '4.0.0' };
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `LRC_Community_Backup_${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        notificationService.notify(t('settings.backup_created'), t('settings.backup_created_msg'));
+        try {
+            const [people, activities, attendance] = await Promise.all([
+                dataService.getPeople(),
+                dataService.getActivities(),
+                dataService.getAttendance()
+            ]);
+
+            const encryptionKey = masterKey || window.prompt(t('settings.decrypt_prompt'));
+            if (!encryptionKey) return;
+
+            const backup = { people, activities, attendance, version: '4.6.0', exportedAt: new Date().toISOString() };
+            const jsonString = JSON.stringify(backup);
+
+            // 1. Compress
+            const compressed = pako.deflate(jsonString);
+            const base64Compressed = btoa(String.fromCharCode.apply(null, compressed));
+
+            // 2. Encrypt
+            const encrypted = CryptoJS.AES.encrypt(base64Compressed, encryptionKey).toString();
+
+            // 3. Add Header
+            const finalPayload = `LRCV2_${encrypted}`;
+
+            const blob = new Blob([finalPayload], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `LRC_Secure_Vault_${new Date().toISOString().split('T')[0]}.lrc`;
+            a.click();
+
+            notificationService.notify(t('settings.backup_created'), t('settings.backup_created_msg'));
+        } catch (err) {
+            console.error('Vault Export Error:', err);
+            alert(t('settings.encryption_error'));
+        }
     };
 
     const handleRestoreBackup = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
-        if (!window.confirm(t('settings.restore_confirm'))) {
-            event.target.value = '';
-            return;
-        }
-
         const reader = new FileReader();
         reader.onload = async (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
+            const rawContent = e.target.result;
+            let data;
 
-                if (!data.people || !data.activities || !data.attendance) {
-                    throw new Error('Invalid backup format. Missing required data segments.');
+            try {
+                if (rawContent.startsWith('LRCV2_')) {
+                    // SECURE DECRYPT FLOW
+                    const encryptedData = rawContent.replace('LRCV2_', '');
+                    const encryptionKey = masterKey || window.prompt(t('settings.decrypt_prompt'));
+
+                    if (!encryptionKey) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    const bytes = CryptoJS.AES.decrypt(encryptedData, encryptionKey);
+                    const base64Compressed = bytes.toString(CryptoJS.enc.Utf8);
+
+                    if (!base64Compressed) throw new Error(t('settings.decrypt_failed'));
+
+                    // Decompress
+                    const compressed = new Uint8Array(atob(base64Compressed).split("").map(c => c.charCodeAt(0)));
+                    const jsonString = pako.inflate(compressed, { to: 'string' });
+                    data = JSON.parse(jsonString);
+                } else {
+                    // LEGACY JSON FLOW
+                    if (!window.confirm(t('settings.restore_legacy_confirm'))) {
+                        event.target.value = '';
+                        return;
+                    }
+                    data = JSON.parse(rawContent);
                 }
 
-                // Overwrite local databases
+                if (!data.people || !data.activities || !data.attendance) {
+                    throw new Error('Invalid vault structure. Missing core segments.');
+                }
+
+                // Final confirmation
+                if (!window.confirm(t('settings.restore_confirm'))) {
+                    event.target.value = '';
+                    return;
+                }
+
                 await Promise.all([
                     dataService.savePeople(data.people),
                     dataService.saveActivities(data.activities),
@@ -104,7 +157,7 @@ const SettingsModule = () => {
                 alert(t('settings.restore_reload'));
                 window.location.reload();
             } catch (err) {
-                console.error('Extraction Error:', err);
+                console.error('Vault Extraction Error:', err);
                 alert(t('settings.restore_failed', { error: err.message }));
             }
         };
@@ -198,7 +251,7 @@ const SettingsModule = () => {
                                 </div>
                                 <input
                                     type="file"
-                                    accept=".json"
+                                    accept=".json,.lrc"
                                     onChange={handleRestoreBackup}
                                     style={{ display: 'none' }}
                                 />

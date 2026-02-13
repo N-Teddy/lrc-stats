@@ -296,7 +296,11 @@
         "restore_success": "Restore Successful",
         "restore_success_msg": "Community records have been restored.",
         "restore_reload": "Database Restored Successfully. The application will now reload.",
-        "restore_failed": "Restore Failed: {{error}}"
+        "restore_failed": "Restore Failed: {{error}}",
+        "decrypt_prompt": "This file is encrypted. Enter the Master Key to unlock:",
+        "decrypt_failed": "Decryption failed. Incorrect or missing master key.",
+        "restore_legacy_confirm": "Legacy backup detected (unencrypted). Proceed with restore?",
+        "encryption_error": "System Vault processing failed."
     },
     "assistant": {
         "title": "Tactical Intelligence",
