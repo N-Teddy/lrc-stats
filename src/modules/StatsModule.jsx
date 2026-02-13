@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { dataService, getActivityTypeKey } from '../store/dataService';
+import { notificationService } from '../store/notificationService';
 import { reportService } from '../store/reportService';
 import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
@@ -154,7 +155,7 @@ const StatsModule = () => {
                 }}
                 onGenerate={async (config) => {
                     if (config.years.length === 0) {
-                        alert(t('stats.select_year_error'));
+                        notificationService.notify(t('common.error'), t('stats.select_year_error'), 'error');
                         return;
                     }
                     setIsGenerating(true);

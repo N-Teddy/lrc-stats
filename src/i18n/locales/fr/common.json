@@ -269,6 +269,8 @@
         "notifications": "Notifications système",
         "birthday_alerts": "Alertes d'Anniversaire",
         "birthday_alerts_desc": "Notifier au lancement pour les anniversaires.",
+        "test_notification": "Notification de Test",
+        "test_notification_desc": "Déclencher une alerte système manuelle.",
         "personalization": "Personnalisation",
         "accent_theme": "Thème Chromatique Communautaire",
         "lab_mode": "Mode Laboratoire",

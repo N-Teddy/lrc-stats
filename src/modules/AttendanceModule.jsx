@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Search, User, Filter, Save, Lock, LayoutGrid, List } from 'lucide-react';
 import { dataService, PERSON_STATUS_TYPES, getActivityTypeKey } from '../store/dataService';
+import { notificationService } from '../store/notificationService';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
@@ -70,11 +71,11 @@ const AttendanceModule = ({ activity, onBack }) => {
             };
 
             await dataService.saveAttendance([...otherAttendance, newEntry]);
-            alert(shouldLock ? t('attendance.finalized_msg') : t('attendance.saved_msg'));
+            notificationService.notify(shouldLock ? t('attendance.locked') : t('attendance.recording'), shouldLock ? t('attendance.finalized_msg') : t('attendance.saved_msg'), 'success');
             onBack();
         } catch (err) {
             console.error(err);
-            alert('Failed to save attendance.');
+            notificationService.notify(t('common.error'), 'Failed to save attendance.', 'error');
         } finally {
             setIsSaving(false);
         }
@@ -168,8 +169,12 @@ const AttendanceModule = ({ activity, onBack }) => {
                             <Save size={18} /> {t('attendance.save')}
                         </button>
                         <button
-                            onClick={() => {
-                                if (window.confirm(t('attendance.finalize_confirm'))) {
+                            onClick={async () => {
+                                const confirmed = await notificationService.confirm(
+                                    t('attendance.finalize'),
+                                    t('attendance.finalize_confirm')
+                                );
+                                if (confirmed) {
                                     handleSave(true);
                                 }
                             }}

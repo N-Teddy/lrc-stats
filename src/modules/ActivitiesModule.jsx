@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Calendar, BarChart3, ChevronRight, LayoutGrid, List, Trash2, Users, Mic2, HeartPulse, Gamepad2, Home, MoreHorizontal, Lock, Unlock, CheckCircle2 } from 'lucide-react';
 import { dataService, createActivityModel, ACTIVITY_TYPES, getActivityTypeKey } from '../store/dataService';
+import { notificationService } from '../store/notificationService';
 import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
@@ -25,7 +26,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.name) return alert(t('activities.name_required'));
+        if (!formData.name) return notificationService.notify(t('common.error'), t('activities.name_required'), 'error');
         onSave(formData);
     };
 

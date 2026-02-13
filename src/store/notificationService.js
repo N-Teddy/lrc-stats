@@ -1,46 +1,48 @@
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
-
 /**
- * Service for handling system-level push notifications
+ * Service for handling in-app tactical notifications and confirmations
  */
 export const notificationService = {
     /**
-     * Checks and requests permission for notifications
+     * Sends an in-app tactical notification
      */
-    init: async () => {
-        try {
-            let permissionGranted = await isPermissionGranted();
-            if (!permissionGranted) {
-                const permission = await requestPermission();
-                permissionGranted = permission === 'granted';
-            }
-            return permissionGranted;
-        } catch (err) {
-            console.error('Notification Init Error:', err);
-            return false;
-        }
+    notify: (title, body, type = 'info') => {
+        const event = new CustomEvent('lrc-notify', {
+            detail: { title, body, type }
+        });
+        window.dispatchEvent(event);
     },
 
     /**
-     * Sends a persistent notification
+     * Triggers a tactical confirmation modal
+     * Returns a Promise that resolves to true (Confirm) or false (Cancel)
      */
-    notify: async (title, body) => {
-        try {
-            const hasPermission = await isPermissionGranted();
-            if (hasPermission) {
-                // Using a unique ID and sound helps persistence on some Linux/Windows environments
-                sendNotification({
-                    id: Math.floor(Date.now() / 1000) % 2147483647, // Ensure it is a valid i32
-                    title,
-                    body,
-                    sound: 'default'
-                });
-            } else {
-                console.warn('Notification permission not granted.');
-            }
-        } catch (err) {
-            console.error('Notification Send Error:', err);
-        }
+    confirm: (title, body, confirmText = 'Confirm', cancelText = 'Cancel') => {
+        return new Promise((resolve) => {
+            const event = new CustomEvent('lrc-confirm', {
+                detail: { title, body, confirmText, cancelText, resolve }
+            });
+            window.dispatchEvent(event);
+        });
+    },
+
+    /**
+     * Triggers a tactical input prompt modal
+     * Returns a Promise that resolves to the input value (string) or null (Cancel)
+     */
+    prompt: (title, body, placeholder = '', defaultValue = '', inputType = 'text') => {
+        return new Promise((resolve) => {
+            const event = new CustomEvent('lrc-prompt', {
+                detail: { title, body, placeholder, defaultValue, inputType, resolve }
+            });
+            window.dispatchEvent(event);
+        });
+    },
+
+    /**
+     * Initialization (Legacy - check for permissions if needed, but not for in-app)
+     */
+    init: async () => {
+        return true;
     },
 
     /**

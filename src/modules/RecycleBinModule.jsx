@@ -47,7 +47,11 @@ const RecycleBinModule = () => {
     };
 
     const handlePermanentDelete = async (asset) => {
-        if (!confirm(t('recycle_bin.delete_permanent_confirm', { name: asset.name }))) return;
+        const confirmed = await notificationService.confirm(
+            t('recycle_bin.delete_permanently'),
+            t('recycle_bin.delete_permanent_confirm', { name: asset.name })
+        );
+        if (!confirmed) return;
 
         if (asset.assetType === 'person') {
             const people = await dataService.getPeople();
@@ -63,7 +67,11 @@ const RecycleBinModule = () => {
     };
 
     const handleEmptyBin = async () => {
-        if (!confirm(t('recycle_bin.empty_bin_confirm'))) return;
+        const confirmed = await notificationService.confirm(
+            t('recycle_bin.empty_bin'),
+            t('recycle_bin.empty_bin_confirm')
+        );
+        if (!confirmed) return;
 
         const people = await dataService.getPeople();
         const activities = await dataService.getActivities();

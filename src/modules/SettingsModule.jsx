@@ -27,7 +27,7 @@ const SettingsModule = () => {
             }
         } catch (err) {
             console.error(err);
-            alert(t('settings.sync_failed', { error: err.message }));
+            notificationService.notify(t('settings.sync_failed_title'), t('settings.sync_failed', { error: err.message }), 'error');
         } finally {
             setIsSyncing(false);
         }
@@ -41,7 +41,9 @@ const SettingsModule = () => {
                 dataService.getAttendance()
             ]);
 
-            const encryptionKey = localStorage.getItem('lrc_master_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || window.prompt(t('settings.decrypt_prompt'));
+            const encryptionKey = localStorage.getItem('lrc_master_key') ||
+                import.meta.env.VITE_SUPABASE_ANON_KEY ||
+                await notificationService.prompt(t('settings.personalization'), t('settings.decrypt_prompt'), '********', '', 'password');
             if (!encryptionKey) return;
 
             const backup = { people, activities, attendance, version: '4.6.0', exportedAt: new Date().toISOString() };
@@ -67,7 +69,7 @@ const SettingsModule = () => {
             notificationService.notify(t('settings.backup_created'), t('settings.backup_created_msg'));
         } catch (err) {
             console.error('Vault Export Error:', err);
-            alert(t('settings.encryption_error'));
+            notificationService.notify(t('common.error'), t('settings.encryption_error'), 'error');
         }
     };
 
@@ -84,7 +86,9 @@ const SettingsModule = () => {
                 if (rawContent.startsWith('LRCV2_')) {
                     // SECURE DECRYPT FLOW
                     const encryptedData = rawContent.replace('LRCV2_', '');
-                    const encryptionKey = localStorage.getItem('lrc_master_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || window.prompt(t('settings.decrypt_prompt'));
+                    const encryptionKey = localStorage.getItem('lrc_master_key') ||
+                        import.meta.env.VITE_SUPABASE_ANON_KEY ||
+                        await notificationService.prompt(t('settings.personalization'), t('settings.decrypt_prompt'), '********', '', 'password');
 
                     if (!encryptionKey) {
                         event.target.value = '';
@@ -102,7 +106,7 @@ const SettingsModule = () => {
                     data = JSON.parse(jsonString);
                 } else {
                     // LEGACY JSON FLOW
-                    if (!window.confirm(t('settings.restore_legacy_confirm'))) {
+                    if (!await notificationService.confirm(t('settings.restore_backup'), t('settings.restore_legacy_confirm'))) {
                         event.target.value = '';
                         return;
                     }
@@ -114,7 +118,7 @@ const SettingsModule = () => {
                 }
 
                 // Final confirmation
-                if (!window.confirm(t('settings.restore_confirm'))) {
+                if (!await notificationService.confirm(t('settings.restore_backup'), t('settings.restore_confirm'))) {
                     event.target.value = '';
                     return;
                 }
@@ -126,27 +130,27 @@ const SettingsModule = () => {
                 ]);
 
                 notificationService.notify(t('settings.restore_success'), t('settings.restore_success_msg'));
-                alert(t('settings.restore_reload'));
-                window.location.reload();
+                notificationService.notify(t('settings.restore_success'), t('settings.restore_reload'));
+                setTimeout(() => window.location.reload(), 2000);
             } catch (err) {
                 console.error('Vault Extraction Error:', err);
-                alert(t('settings.restore_failed', { error: err.message }));
+                notificationService.notify(t('common.error'), t('settings.restore_failed', { error: err.message }), 'error');
             }
         };
         reader.readAsText(file);
     };
 
     const handleFactoryReset = async () => {
-        if (window.confirm(t('settings.restore_confirm'))) {
-            const secondConfirm = window.confirm(t('recycle_bin.empty_bin_confirm'));
+        if (await notificationService.confirm(t('settings.factory_reset'), t('settings.restore_confirm'))) {
+            const secondConfirm = await notificationService.confirm(t('settings.factory_reset'), t('recycle_bin.empty_bin_confirm'));
             if (secondConfirm) {
                 const result = await dataService.factoryReset();
                 if (result.success) {
                     localStorage.removeItem('lrc_operation_mode');
-                    alert(t('settings.restore_reload'));
-                    window.location.reload();
+                    notificationService.notify(t('settings.restore_success'), t('settings.restore_reload'));
+                    setTimeout(() => window.location.reload(), 2000);
                 } else {
-                    alert(t('settings.restore_failed', { error: result.error }));
+                    notificationService.notify(t('common.error'), t('settings.restore_failed', { error: result.error }), 'error');
                 }
             }
         }
@@ -157,11 +161,11 @@ const SettingsModule = () => {
             ? "Passer en PRODUCTION ? Toutes vos données de test seront effacées localement pour laisser place à vos vraies données du vault Supabase. Continuer ?"
             : "Switch to PRODUCTION? All test data will be wiped locally to make room for your real Supabase vault data. Continue?";
 
-        if (window.confirm(text)) {
+        if (await notificationService.confirm(t('settings.maintenance'), text)) {
             await devService.clearData();
             devService.setMode('PRODUCTION');
-            alert(t('settings.restore_reload'));
-            window.location.reload();
+            notificationService.notify(t('settings.mode_updated'), t('settings.restore_reload'));
+            setTimeout(() => window.location.reload(), 2000);
         }
     };
 
@@ -170,12 +174,12 @@ const SettingsModule = () => {
             ? "Activer le Mode BAC À SABLE ? Vos données locales actuelles (si non synchronisées) seront remplacées par le dataset de simulation. Supabase ne sera pas affecté. Continuer ?"
             : "Activate SANDBOX Mode? Your current local data (if not synced) will be replaced by the simulation dataset. Supabase will not be affected. Continue?";
 
-        if (window.confirm(text)) {
+        if (await notificationService.confirm(t('settings.maintenance'), text)) {
             await devService.clearData();
             devService.setMode('SANDBOX');
             await devService.generateSeed();
-            alert(t('settings.restore_reload'));
-            window.location.reload();
+            notificationService.notify(t('settings.mode_updated'), t('settings.restore_reload'));
+            setTimeout(() => window.location.reload(), 2000);
         }
     };
 
@@ -275,6 +279,18 @@ const SettingsModule = () => {
                                 <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--accent-primary)', borderRadius: '20px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', right: '2px', top: '2px', width: '16px', height: '16px', backgroundColor: 'white', borderRadius: '50%' }} />
                                 </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <p style={{ fontWeight: '700' }}>{t('settings.test_notification')}</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('settings.test_notification_desc')}</p>
+                                </div>
+                                <button
+                                    onClick={() => notificationService.notify('Test LRC Stats', 'Ceci est une notification de test.')}
+                                    style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)', backgroundColor: 'transparent', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer' }}
+                                >
+                                    TEST
+                                </button>
                             </div>
                         </div>
                     </div>

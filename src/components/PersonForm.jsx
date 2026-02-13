@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, User, Phone, Calendar, Shield, Save, Upload, Camera } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
+import { notificationService } from '../store/notificationService';
 import { useTranslation } from 'react-i18next';
 import { convertFileSrc } from '@tauri-apps/api/core';
 
@@ -34,7 +35,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name) return alert(t('person_form.name_required'));
+        if (!formData.name) return notificationService.notify(t('common.error'), t('person_form.name_required'), 'error');
 
         setIsProcessing(true);
         console.log('[DEBUG] Form submission started. Name:', formData.name);
@@ -52,7 +53,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     finalData.image = result.url;
                 } else {
                     console.error('[DEBUG] Image saving failed:', result.error);
-                    alert(t('person_form.image_save_error') + ': ' + result.error);
+                    notificationService.notify(t('common.error'), t('person_form.image_save_error') + ': ' + result.error, 'error');
                 }
             } else {
                 console.log('[DEBUG] No new image to save or image already in path format.');
@@ -62,7 +63,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
             await onSave(finalData);
         } catch (err) {
             console.error('[DEBUG] handleSubmit Exception:', err);
-            alert(t('common.error'));
+            notificationService.notify(t('common.error'), t('common.error'), 'error');
         } finally {
             setIsProcessing(false);
         }

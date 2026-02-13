@@ -268,6 +268,8 @@
         "notifications": "System Notifications",
         "birthday_alerts": "Birthday Alerts",
         "birthday_alerts_desc": "Notify on app launch for birthdays.",
+        "test_notification": "Test Notification",
+        "test_notification_desc": "Trigger a manual system alert.",
         "personalization": "Personalization",
         "accent_theme": "Community Accent Theme",
         "lab_mode": "Light Protocol",
