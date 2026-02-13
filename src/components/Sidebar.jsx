@@ -37,6 +37,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
     const { t } = useTranslation();
+    const isSandbox = localStorage.getItem('lrc_operation_mode') === 'SANDBOX';
 
     return (
         <div className="glass" style={{
@@ -117,6 +118,21 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             </nav>
 
             <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {isSandbox && (
+                    <div style={{
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(255, 170, 0, 0.1)',
+                        border: '1px solid rgba(255, 170, 0, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '8px'
+                    }}>
+                        <Sparkles size={14} color="#ffaa00" />
+                        <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#ffaa00', letterSpacing: '0.5px' }}>SANDBOX MODE</span>
+                    </div>
+                )}
                 <button
                     onClick={toggleTheme}
                     className="w-full transition-all no-drag"

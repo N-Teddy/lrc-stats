@@ -33,7 +33,8 @@ create table people (
   status text,
   phone text,
   dob date,
-  integration_date date,
+  date_integration date,
+  date_departure date,
   vitality text,
   vitality_color text,
   image text,
@@ -41,7 +42,8 @@ create table people (
   is_archived boolean default false,
   is_deleted boolean default false,
   deleted_at timestamp with time zone,
-  updated_at timestamp with time zone default now()
+  updated_at timestamp with time zone default now(),
+  synced_at timestamp with time zone
 );
 
 -- ACTIVITIES TABLE
@@ -53,7 +55,8 @@ create table activities (
   notes text,
   is_deleted boolean default false,
   deleted_at timestamp with time zone,
-  updated_at timestamp with time zone default now()
+  updated_at timestamp with time zone default now(),
+  synced_at timestamp with time zone
 );
 
 -- ATTENDANCE TABLE
@@ -65,7 +68,8 @@ create table attendance (
   person_ids jsonb default '[]'::jsonb,
   count integer default 0,
   is_locked boolean default false,
-  updated_at timestamp with time zone default now()
+  updated_at timestamp with time zone default now(),
+  synced_at timestamp with time zone
 );
 
 -- AUDIT LOGS TABLE

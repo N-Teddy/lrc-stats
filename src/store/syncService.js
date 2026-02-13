@@ -10,8 +10,12 @@ class SyncService {
     }
 
     init() {
-        const url = localStorage.getItem('lrc_bin_id'); // We'll repurpose this for Supabase URL
-        const key = localStorage.getItem('lrc_master_key'); // We'll repurpose this for Anon Key
+        // Priority: Build-time secrets -> LocalStorage overrides
+        const envUrl = import.meta.env.VITE_SUPABASE_URL;
+        const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        const url = envUrl || localStorage.getItem('lrc_bin_id');
+        const key = envKey || localStorage.getItem('lrc_master_key');
 
         if (url && key && url.includes('supabase.co')) {
             this.supabase = createClient(url, key);
@@ -19,6 +23,13 @@ class SyncService {
     }
 
     async sync() {
+        // BLOCKER: Prevent syncing if in Sandbox mode
+        const mode = localStorage.getItem('lrc_operation_mode');
+        if (mode === 'SANDBOX') {
+            console.log('[SYNC] Protected Mode: Cloud Sync is disabled in Sandbox.');
+            return { success: false, error: 'Sandbox Protection Active' };
+        }
+
         if (!this.supabase) {
             this.init();
             if (!this.supabase) return { success: false, error: 'Supabase not configured' };
@@ -145,7 +156,9 @@ class SyncService {
     toCamelCase(obj) {
         const newObj = {};
         for (let key in obj) {
-            const camelKey = key.replace(/(_\w)/g, m => m[1].toUpperCase());
+            let camelKey = key.replace(/(_\w)/g, m => m[1].toUpperCase());
+            // Community Override: maps is_jrs to isJRs
+            if (camelKey === 'isJrs') camelKey = 'isJRs';
             newObj[camelKey] = obj[key];
         }
         return newObj;
@@ -154,9 +167,16 @@ class SyncService {
     toSnakeCase(obj) {
         const newObj = {};
         for (let key in obj) {
-            if (key === 'syncedAt') continue; // Don't push this to DB
-            const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-            newObj[snakeKey] = obj[key];
+            if (key === 'syncedAt') continue;
+            let snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+            // Community Override: maps is_j_rs to is_jrs
+            if (snakeKey === 'is_j_rs') snakeKey = 'is_jrs';
+
+            // Sanitization: Convert empty strings to null
+            let value = obj[key];
+            if (value === '') value = null;
+
+            newObj[snakeKey] = value;
         }
         return newObj;
     }

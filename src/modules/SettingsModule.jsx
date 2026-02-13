@@ -7,25 +7,15 @@ import { useTranslation } from 'react-i18next';
 import { dataService } from '../store/dataService';
 import { notificationService } from '../store/notificationService';
 import { syncService } from '../store/syncService';
+import { devService } from '../store/devService';
 
 const SettingsModule = () => {
     const { theme, toggleTheme, accent, setAccent } = useTheme();
     const { t, i18n } = useTranslation();
-    const [binId, setBinId] = useState(localStorage.getItem('lrc_bin_id') || '');
-    const [masterKey, setMasterKey] = useState(localStorage.getItem('lrc_master_key') || '');
-    const [showToken, setShowToken] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState(localStorage.getItem('lrc_last_sync') || 'Never');
 
-    const handleSaveCloudConfig = () => {
-        localStorage.setItem('lrc_bin_id', binId);
-        localStorage.setItem('lrc_master_key', masterKey);
-        syncService.init(); // Re-init with new credentials
-        alert(t('settings.sync_config_saved'));
-    };
-
     const handleCloudSync = async () => {
-        if (!binId) return alert(t('settings.sync_no_bin'));
         setIsSyncing(true);
         try {
             const result = await syncService.sync();
@@ -51,7 +41,7 @@ const SettingsModule = () => {
                 dataService.getAttendance()
             ]);
 
-            const encryptionKey = masterKey || window.prompt(t('settings.decrypt_prompt'));
+            const encryptionKey = localStorage.getItem('lrc_master_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || window.prompt(t('settings.decrypt_prompt'));
             if (!encryptionKey) return;
 
             const backup = { people, activities, attendance, version: '4.6.0', exportedAt: new Date().toISOString() };
@@ -94,7 +84,7 @@ const SettingsModule = () => {
                 if (rawContent.startsWith('LRCV2_')) {
                     // SECURE DECRYPT FLOW
                     const encryptedData = rawContent.replace('LRCV2_', '');
-                    const encryptionKey = masterKey || window.prompt(t('settings.decrypt_prompt'));
+                    const encryptionKey = localStorage.getItem('lrc_master_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || window.prompt(t('settings.decrypt_prompt'));
 
                     if (!encryptionKey) {
                         event.target.value = '';
@@ -152,6 +142,7 @@ const SettingsModule = () => {
             if (secondConfirm) {
                 const result = await dataService.factoryReset();
                 if (result.success) {
+                    localStorage.removeItem('lrc_operation_mode');
                     alert(t('settings.restore_reload'));
                     window.location.reload();
                 } else {
@@ -160,6 +151,35 @@ const SettingsModule = () => {
             }
         }
     };
+
+    const handleSwitchToProduction = async () => {
+        const text = i18n.language.startsWith('fr')
+            ? "Passer en PRODUCTION ? Toutes vos données de test seront effacées localement pour laisser place à vos vraies données du vault Supabase. Continuer ?"
+            : "Switch to PRODUCTION? All test data will be wiped locally to make room for your real Supabase vault data. Continue?";
+
+        if (window.confirm(text)) {
+            await devService.clearData();
+            devService.setMode('PRODUCTION');
+            alert(t('settings.restore_reload'));
+            window.location.reload();
+        }
+    };
+
+    const handleSwitchToSandbox = async () => {
+        const text = i18n.language.startsWith('fr')
+            ? "Activer le Mode BAC À SABLE ? Vos données locales actuelles (si non synchronisées) seront remplacées par le dataset de simulation. Supabase ne sera pas affecté. Continuer ?"
+            : "Activate SANDBOX Mode? Your current local data (if not synced) will be replaced by the simulation dataset. Supabase will not be affected. Continue?";
+
+        if (window.confirm(text)) {
+            await devService.clearData();
+            devService.setMode('SANDBOX');
+            await devService.generateSeed();
+            alert(t('settings.restore_reload'));
+            window.location.reload();
+        }
+    };
+
+    const isSandbox = localStorage.getItem('lrc_operation_mode') === 'SANDBOX';
 
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
@@ -176,46 +196,30 @@ const SettingsModule = () => {
                             <Cloud size={22} color="var(--accent-primary)" /> {t('settings.community_sync')}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>{t('settings.community_bin_id')}</label>
-                                <input
-                                    value={binId} onChange={(e) => setBinId(e.target.value)}
-                                    placeholder="e.g. 64e..."
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                                />
+                            <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}>
+                                <p style={{ fontSize: '0.8rem', fontWeight: '700', marginBottom: '4px' }}>
+                                    {i18n.language.startsWith('fr') ? 'Statut du Communal Vault' : 'Communal Vault Status'}
+                                </p>
+                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                    {i18n.language.startsWith('fr')
+                                        ? 'Votre appareil est configuré pour se synchroniser avec le vault central sécurisé de la communauté.'
+                                        : 'Your device is configured to synchronize with the community\'s secure central vault.'}
+                                </p>
                             </div>
-                            <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>{t('settings.master_key')}</label>
-                                <div style={{ position: 'relative' }}>
-                                    <input
-                                        type={showToken ? 'text' : 'password'}
-                                        value={masterKey} onChange={(e) => setMasterKey(e.target.value)}
-                                        placeholder={t('settings.master_key_placeholder')}
-                                        style={{ width: '100%', padding: '12px 40px 12px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                                    />
-                                    <button
-                                        onClick={() => setShowToken(!showToken)}
-                                        style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--text-muted)' }}
-                                    >
-                                        {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
-                                    </button>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                                <button
-                                    onClick={handleSaveCloudConfig}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', fontWeight: '700', fontSize: '0.85rem' }}
-                                >
-                                    {t('settings.save_config')}
-                                </button>
-                                <button
-                                    onClick={handleCloudSync}
-                                    disabled={isSyncing}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', backgroundColor: 'var(--accent-primary)', color: 'black', fontWeight: '800', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                >
-                                    {isSyncing ? t('settings.syncing') : <><Cloud size={16} /> {t('settings.sync_now')}</>}
-                                </button>
-                            </div>
+
+                            <button
+                                onClick={handleCloudSync}
+                                disabled={isSyncing}
+                                style={{
+                                    width: '100%', padding: '16px', borderRadius: '8px',
+                                    backgroundColor: 'var(--accent-primary)', color: 'black',
+                                    fontWeight: '800', fontSize: '0.9rem',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                                }}
+                            >
+                                {isSyncing ? t('settings.syncing') : <><Cloud size={20} /> {t('settings.sync_now')}</>}
+                            </button>
+
                             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>{t('settings.last_sync')}: {lastSync}</p>
                         </div>
                     </div>
@@ -352,9 +356,38 @@ const SettingsModule = () => {
                     </div>
 
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 77, 77, 0.2)' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#ff4d4d' }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px', color: '#ff4d4d' }}>
                             <Shield size={22} color="#ff4d4d" /> {t('settings.maintenance')}
                         </h3>
+
+                        {/* Operational Mode Switcher */}
+                        <div style={{ marginBottom: '24px', padding: '16px', borderRadius: '12px', backgroundColor: isSandbox ? 'rgba(255, 170, 0, 0.05)' : 'rgba(57, 255, 20, 0.05)', border: `1px dashed ${isSandbox ? '#ffaa00' : 'var(--accent-green)'}` }}>
+                            <p style={{ fontSize: '0.75rem', fontWeight: '800', color: isSandbox ? '#ffaa00' : 'var(--accent-green)', marginBottom: '4px' }}>
+                                {isSandbox ? 'ACTUEL: MODE BAC À SABLE' : 'ACTUEL: MODE PRODUCTION'}
+                            </p>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                                {isSandbox
+                                    ? (i18n.language.startsWith('fr') ? "Vous utilisez des données de simulation. La synchro cloud est désactivée." : "Using simulated data. Cloud sync is disabled.")
+                                    : (i18n.language.startsWith('fr') ? "Connecté au Vault Supabase. Synchro cloud active." : "Connected to Supabase Vault. Cloud sync active.")
+                                }
+                            </p>
+                            <button
+                                onClick={isSandbox ? handleSwitchToProduction : handleSwitchToSandbox}
+                                style={{
+                                    width: '100%', padding: '10px', borderRadius: '8px',
+                                    backgroundColor: isSandbox ? 'var(--accent-primary)' : 'rgba(255, 170, 0, 0.1)',
+                                    color: isSandbox ? 'black' : '#ffaa00',
+                                    border: isSandbox ? 'none' : '1px solid #ffaa00',
+                                    fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer'
+                                }}
+                            >
+                                {isSandbox
+                                    ? (i18n.language.startsWith('fr') ? "PASSER EN PRODUCTION" : "SWITCH TO PRODUCTION")
+                                    : (i18n.language.startsWith('fr') ? "REPASSER EN BAC À SABLE" : "BACK TO SANDBOX")
+                                }
+                            </button>
+                        </div>
+
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>{t('settings.maintenance_desc')}</p>
                         <button
                             onClick={handleFactoryReset}

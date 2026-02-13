@@ -40,9 +40,12 @@ function App() {
         };
 
         const autoSync = async () => {
+            const envUrl = import.meta.env.VITE_SUPABASE_URL;
+            const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
             const binId = localStorage.getItem('lrc_bin_id');
             const masterKey = localStorage.getItem('lrc_master_key');
-            if (binId && masterKey) {
+
+            if (envUrl || (binId && masterKey)) {
                 console.log('Initiating Tactical Cloud Sync...');
                 try {
                     await syncService.sync();
