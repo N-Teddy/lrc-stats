@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History, Trash2, Sparkles } from 'lucide-react';
+import { Home, Users, Calendar, BarChart2, Settings, Sun, Moon, Shield, Trash2, Sparkles } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -20,13 +20,14 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
             textAlign: 'left',
             fontSize: '0.9rem',
             fontWeight: '500',
-            backgroundColor: active ? 'var(--bg-secondary)' : 'transparent',
-            color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-            boxShadow: active ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
-            cursor: 'pointer'
+            backgroundColor: active ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+            color: active ? 'var(--accent-primary)' : 'var(--text-secondary)',
+            border: active ? '1px solid var(--accent-primary)' : '1px solid transparent',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
         }}
-        onMouseOver={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-        onMouseOut={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = active ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+        onMouseOver={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
+        onMouseOut={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; }}
     >
         <Icon size={18} color={active ? 'var(--accent-primary)' : 'currentColor'} />
         <span>{label}</span>
@@ -36,6 +37,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
     const { t } = useTranslation();
+
     return (
         <div className="glass" style={{
             width: 'var(--sidebar-width)',
@@ -43,7 +45,10 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             display: 'flex',
             flexDirection: 'column',
             padding: '24px 16px 20px 16px',
-            borderRight: '1px solid var(--glass-border)'
+            borderRight: '1px solid var(--glass-border)',
+            backgroundColor: 'var(--bg-secondary)',
+            position: 'relative',
+            zIndex: 10
         }}>
             <div style={{ marginBottom: '40px', paddingLeft: '8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{
@@ -61,7 +66,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                         LRC STATS
                     </h1>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '2px' }}>
-                        Command Center v4.0.0
+                        Command Center v4.6.0
                     </p>
                 </div>
             </div>
@@ -98,7 +103,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     onClick={() => setActiveTab('stats')}
                 />
                 <SidebarItem
-                    icon={History}
+                    icon={Shield}
                     label={t('sidebar.history')}
                     active={activeTab === 'logs'}
                     onClick={() => setActiveTab('logs')}

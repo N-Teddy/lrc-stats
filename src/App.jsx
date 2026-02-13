@@ -8,11 +8,14 @@ import StatsModule from './modules/StatsModule';
 import PersonDetailModule from './modules/PersonDetailModule';
 import ActivityDetailModule from './modules/ActivityDetailModule';
 import AssistantModule from './modules/AssistantModule';
-import HistoryModule from './modules/HistoryModule';
+import AuditModule from './modules/AuditModule';
 import RecycleBinModule from './modules/RecycleBinModule';
 import SettingsModule from './modules/SettingsModule';
+import IdentityModal from './components/IdentityModal';
+import { ThemeProvider } from './store/ThemeContext';
 import { notificationService } from './store/notificationService';
 import { dataService } from './store/dataService';
+import { syncService } from './store/syncService';
 import CommandPalette from './components/CommandPalette';
 
 function App() {
@@ -40,25 +43,11 @@ function App() {
             const binId = localStorage.getItem('lrc_bin_id');
             const masterKey = localStorage.getItem('lrc_master_key');
             if (binId && masterKey) {
-                console.log('Initiating Communal Silent Sync...');
+                console.log('Initiating Tactical Cloud Sync...');
                 try {
-                    const [people, activities, attendance] = await Promise.all([
-                        dataService.getPeople(),
-                        dataService.getActivities(),
-                        dataService.getAttendance()
-                    ]);
-                    await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': masterKey,
-                            'X-Bin-Versioning': 'false'
-                        },
-                        body: JSON.stringify({ people, activities, attendance, timestamp: Date.now() })
-                    });
-                    localStorage.setItem('lrc_last_sync', new Date().toLocaleString());
+                    await syncService.sync();
                 } catch (err) {
-                    console.warn('Communal Sync deferred: check network connectivity.', err);
+                    console.warn('Silent Sync deferred: check network connectivity.', err);
                 }
             }
         };
@@ -127,7 +116,7 @@ function App() {
                     onBack={() => setActiveTab('activities')}
                 />;
             case 'logs':
-                return <HistoryModule />;
+                return <AuditModule />;
             case 'assistant':
                 return <AssistantModule />;
             case 'attendance':
@@ -148,6 +137,7 @@ function App() {
 
     return (
         <Layout activeTab={activeTab === 'attendance' ? 'activities' : activeTab} setActiveTab={setActiveTab}>
+            <IdentityModal />
             {renderContent()}
             <CommandPalette
                 isOpen={isPaletteOpen}

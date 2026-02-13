@@ -48,8 +48,6 @@
   --text-muted: #64748b;
   --text-inverted: #ffffff;
   --border-color: #e2e8f0;
-  --scrollbar-thumb: #cbd5e0;
-  --scrollbar-hover: #94a3b8;
 }
 
 @keyframes slideUpFade {

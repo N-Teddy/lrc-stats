@@ -6,6 +6,7 @@ import { useTheme, ACCENTS } from '../store/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { dataService } from '../store/dataService';
 import { notificationService } from '../store/notificationService';
+import { syncService } from '../store/syncService';
 
 const SettingsModule = () => {
     const { theme, toggleTheme, accent, setAccent } = useTheme();
@@ -19,6 +20,7 @@ const SettingsModule = () => {
     const handleSaveCloudConfig = () => {
         localStorage.setItem('lrc_bin_id', binId);
         localStorage.setItem('lrc_master_key', masterKey);
+        syncService.init(); // Re-init with new credentials
         alert(t('settings.sync_config_saved'));
     };
 
@@ -26,32 +28,12 @@ const SettingsModule = () => {
         if (!binId) return alert(t('settings.sync_no_bin'));
         setIsSyncing(true);
         try {
-            const [people, activities, attendance] = await Promise.all([
-                dataService.getPeople(),
-                dataService.getActivities(),
-                dataService.getAttendance()
-            ]);
-
-            const payload = { people, activities, attendance, timestamp: Date.now() };
-
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': masterKey,
-                    'X-Bin-Versioning': 'false'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                const now = new Date().toLocaleString();
-                setLastSync(now);
-                localStorage.setItem('lrc_last_sync', now);
+            const result = await syncService.sync();
+            if (result.success) {
+                setLastSync(localStorage.getItem('lrc_last_sync'));
                 notificationService.notify(t('settings.sync_success'), t('settings.sync_success_msg'));
             } else {
-                const errData = await response.json();
-                throw new Error(errData.message || `Server responded with ${response.status}`);
+                throw new Error(result.error);
             }
         } catch (err) {
             console.error(err);
@@ -162,6 +144,21 @@ const SettingsModule = () => {
             }
         };
         reader.readAsText(file);
+    };
+
+    const handleFactoryReset = async () => {
+        if (window.confirm(t('settings.restore_confirm'))) {
+            const secondConfirm = window.confirm(t('recycle_bin.empty_bin_confirm'));
+            if (secondConfirm) {
+                const result = await dataService.factoryReset();
+                if (result.success) {
+                    alert(t('settings.restore_reload'));
+                    window.location.reload();
+                } else {
+                    alert(t('settings.restore_failed', { error: result.error }));
+                }
+            }
+        }
     };
 
     return (
@@ -360,6 +357,7 @@ const SettingsModule = () => {
                         </h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>{t('settings.maintenance_desc')}</p>
                         <button
+                            onClick={handleFactoryReset}
                             style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #ff4d4d', color: '#ff4d4d', backgroundColor: 'transparent', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                         >
                             <Trash2 size={16} /> {t('settings.factory_reset')}
