@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { X, Download, Filter, Settings, FileText, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { getActivityTypeKey } from '../store/dataService';
 import CustomSelect from './CustomSelect';
 
 const ReportModal = ({ isOpen, onClose, onGenerate, title, type, options = {} }) => {
+    const { t } = useTranslation();
     const [config, setConfig] = useState({
         years: [],
         sortBy: 'name',
@@ -57,7 +60,7 @@ const ReportModal = ({ isOpen, onClose, onGenerate, title, type, options = {} })
                     {/* Year Selection */}
                     {options.availableYears && (
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '12px' }}>Temporal Scope (Select Years)</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '12px' }}>{t('report_modal.temporal_scope')}</label>
                             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                                 {options.availableYears.map(y => (
                                     <button
@@ -80,7 +83,7 @@ const ReportModal = ({ isOpen, onClose, onGenerate, title, type, options = {} })
                     {/* Field Toggles */}
                     {type === 'people' && (
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '16px' }}>Tactical Fields to Include</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '16px' }}>{t('report_modal.tactical_fields')}</label>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 {Object.keys(config.fields).map(field => (
                                     <div
@@ -94,7 +97,7 @@ const ReportModal = ({ isOpen, onClose, onGenerate, title, type, options = {} })
                                         <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: '2px solid var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: config.fields[field] ? 'var(--accent-primary)' : 'transparent' }}>
                                             {config.fields[field] && <CheckCircle2 size={14} color="black" />}
                                         </div>
-                                        <span style={{ fontSize: '0.85rem', fontWeight: '600', textTransform: 'capitalize' }}>{field.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                        <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{t(`report_modal.field_${field}`)}</span>
                                     </div>
                                 ))}
                             </div>
@@ -104,26 +107,26 @@ const ReportModal = ({ isOpen, onClose, onGenerate, title, type, options = {} })
                     {/* Sorting Engine */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px' }}>
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>Sort By</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>{t('report_modal.sort_by')}</label>
                             <CustomSelect
                                 value={config.sortBy}
                                 onChange={(val) => setConfig({ ...config, sortBy: val })}
                                 searchable={false}
                                 options={options.sortOptions || [
-                                    { label: 'Name', value: 'name' },
-                                    { label: 'Attendance', value: 'attendance' }
+                                    { label: t('report_modal.sort_name'), value: 'name' },
+                                    { label: t('report_modal.sort_attendance'), value: 'attendance' }
                                 ]}
                             />
                         </div>
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>Direction</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>{t('report_modal.direction')}</label>
                             <CustomSelect
                                 value={config.order}
                                 onChange={(val) => setConfig({ ...config, order: val })}
                                 searchable={false}
                                 options={[
-                                    { label: 'ASC (Low to High)', value: 'asc' },
-                                    { label: 'DESC (High to Low)', value: 'desc' }
+                                    { label: t('report_modal.dir_asc'), value: 'asc' },
+                                    { label: t('report_modal.dir_desc'), value: 'desc' }
                                 ]}
                             />
                         </div>
@@ -132,20 +135,20 @@ const ReportModal = ({ isOpen, onClose, onGenerate, title, type, options = {} })
                     {/* Operational Filters for Personal Report */}
                     {type === 'personal' && options.activityTypes && (
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '12px' }}>Activity Type Filter</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '12px' }}>{t('report_modal.activity_filter')}</label>
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                {options.activityTypes.map(t => (
+                                {options.activityTypes.map(t_type => (
                                     <button
-                                        key={t}
-                                        onClick={() => toggleType(t)}
+                                        key={t_type}
+                                        onClick={() => toggleType(t_type)}
                                         style={{
                                             padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)',
-                                            backgroundColor: config.includeTypes.includes(t) ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
-                                            color: config.includeTypes.includes(t) ? 'var(--accent-primary)' : 'var(--text-muted)',
+                                            backgroundColor: config.includeTypes.includes(t_type) ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+                                            color: config.includeTypes.includes(t_type) ? 'var(--accent-primary)' : 'var(--text-muted)',
                                             fontSize: '0.7rem', fontWeight: '800', transition: 'all 0.2s'
                                         }}
                                     >
-                                        {t}
+                                        {t(`activities.type_${getActivityTypeKey(t_type)}`)}
                                     </button>
                                 ))}
                             </div>

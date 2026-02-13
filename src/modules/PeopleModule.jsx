@@ -4,12 +4,14 @@ import { dataService } from '../store/dataService';
 import PersonForm from '../components/PersonForm';
 import { reportService } from '../store/reportService';
 import { convertFileSrc } from '@tauri-apps/api/core';
+import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
 import ReportModal from '../components/ReportModal';
 import { intelligenceService } from '../store/intelligenceService';
 
 const PeopleModule = ({ onViewPerson }) => {
+    const { t } = useTranslation();
     const [people, setPeople] = useState([]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('active');
@@ -97,9 +99,9 @@ const PeopleModule = ({ onViewPerson }) => {
         <div style={{ animation: 'fadeIn 0.4s ease-out', paddingBottom: '40px' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Directory</h2>
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>{t('directory.title')}</h2>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-                        Tactical oversight of {people.length} organizational assets.
+                        {t('directory.subtitle', { count: people.length })}
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -109,7 +111,7 @@ const PeopleModule = ({ onViewPerson }) => {
                             backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', padding: '12px', borderRadius: 'var(--radius-md)',
                             border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center'
                         }}
-                        title="Export Personnel Directory"
+                        title={t('directory.export_personnel')}
                     >
                         <Download size={18} />
                     </button>
@@ -120,7 +122,7 @@ const PeopleModule = ({ onViewPerson }) => {
                             fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.95rem', boxShadow: '0 4px 15px rgba(var(--accent-primary-rgb), 0.3)'
                         }}
                     >
-                        <UserPlus size={20} /> Add Member
+                        <UserPlus size={20} /> {t('directory.add_member')}
                     </button>
                 </div>
             </header>
@@ -128,13 +130,13 @@ const PeopleModule = ({ onViewPerson }) => {
             <ReportModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-                title="PERSONNEL DIRECTORY AUDIT"
+                title={t('directory.directory_audit_title')}
                 type="people"
                 options={{
                     sortOptions: [
-                        { label: 'Name', value: 'name' },
-                        { label: 'Total Attendance', value: 'attendance' },
-                        { label: 'Engagement Status', value: 'status' }
+                        { label: t('directory.sort_name'), value: 'name' },
+                        { label: t('directory.sort_total_attendance'), value: 'attendance' },
+                        { label: t('directory.sort_engagement_status'), value: 'status' }
                     ]
                 }}
                 onGenerate={async (config) => {
@@ -149,7 +151,7 @@ const PeopleModule = ({ onViewPerson }) => {
                         <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                         <input
                             type="text"
-                            placeholder="Search high-precision asset database..."
+                            placeholder={t('directory.search_placeholder')}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', fontSize: '1rem', color: 'var(--text-primary)' }}
@@ -172,49 +174,49 @@ const PeopleModule = ({ onViewPerson }) => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    <div style={{ width: '200px' }}>
+                    <div style={{ width: 'max-content' }}>
                         <CustomSelect
                             value={filter}
                             onChange={setFilter}
                             options={[
-                                { label: 'VIEW ALL ACTIVE', value: 'active' },
-                                { label: 'VIEW JRs GROUP', value: 'jrs' },
-                                { label: 'VIEW ARCHIVED', value: 'archived' }
+                                { label: t('directory.view_all_active'), value: 'active' },
+                                { label: t('directory.view_jrs'), value: 'jrs' },
+                                { label: t('directory.view_archived'), value: 'archived' }
                             ]}
                         />
                     </div>
-                    <div style={{ width: '180px' }}>
+                    <div style={{ width: 'max-content' }}>
                         <CustomSelect
                             value={statusFilter}
                             onChange={setStatusFilter}
                             icon={Filter}
                             options={[
-                                { label: 'ANY STATUS', value: 'all' },
-                                { label: 'MEMBRES', value: 'Membre' },
-                                { label: 'ELEVES', value: 'Eleve' }
+                                { label: t('directory.any_status'), value: 'all' },
+                                { label: t('directory.membres'), value: 'Membre' },
+                                { label: t('directory.eleves'), value: 'Eleve' }
                             ]}
                         />
                     </div>
-                    <div style={{ width: '180px' }}>
+                    <div style={{ width: 'max-content' }}>
                         <CustomSelect
                             value={vitalityFilter}
                             onChange={setVitalityFilter}
                             icon={PulseIcon}
                             options={[
-                                { label: 'ANY VITALITY', value: 'all' },
-                                { label: 'VERY ACTIVE', value: 'Very Active' },
-                                { label: 'ACTIVE', value: 'Active' },
-                                { label: 'INACTIVE', value: 'Inactive' }
+                                { label: t('directory.any_vitality'), value: 'all' },
+                                { label: t('directory.very_active'), value: 'Very Active' },
+                                { label: t('directory.active'), value: 'Active' },
+                                { label: t('directory.inactive'), value: 'Inactive' }
                             ]}
                         />
                     </div>
-                    <div style={{ width: '180px' }}>
+                    <div style={{ width: 'max-content' }}>
                         <CustomSelect
                             value={sortOrder}
                             onChange={setSortOrder}
                             options={[
-                                { label: 'SORT BY NAME', value: 'name' },
-                                { label: 'SORT BY VITALITY', value: 'vitality' }
+                                { label: t('directory.sort_by_name'), value: 'name' },
+                                { label: t('directory.sort_by_vitality'), value: 'vitality' }
                             ]}
                         />
                     </div>
@@ -240,12 +242,12 @@ const PeopleModule = ({ onViewPerson }) => {
                                         ) : <User size={32} color="var(--text-muted)" />}
                                     </div>
                                     {person.forecastStatus === 'Drop Risk' && (
-                                        <div style={{ position: 'absolute', top: '-8px', left: '-8px', backgroundColor: '#ff4d4d', color: 'white', padding: '4px', borderRadius: '50%', boxShadow: '0 0 10px rgba(255, 77, 77, 0.5)', animation: 'pulse 1.5s infinite' }}>
+                                        <div style={{ position: 'absolute', top: '-8px', left: '-8px', backgroundColor: '#ff4d4d', color: 'white', padding: '4px', borderRadius: '50%', boxShadow: '0 0 10px rgba(255, 77, 77, 0.5)', animation: 'pulse 1.5s infinite', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                             <AlertTriangle size={14} />
                                         </div>
                                     )}
                                     {person.forecastStatus === 'Growing' && (
-                                        <div style={{ position: 'absolute', top: '-8px', left: '-8px', backgroundColor: 'var(--accent-green)', color: 'white', padding: '4px', borderRadius: '50%', boxShadow: '0 0 10px rgba(57, 255, 20, 0.5)' }}>
+                                        <div style={{ position: 'absolute', top: '-8px', left: '-8px', backgroundColor: 'var(--accent-green)', color: 'white', padding: '4px', borderRadius: '50%', boxShadow: '0 0 10px rgba(57, 255, 20, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                             <TrendingUp size={14} />
                                         </div>
                                     )}
@@ -254,22 +256,22 @@ const PeopleModule = ({ onViewPerson }) => {
                                     <h3 onClick={() => onViewPerson(person.id)} style={{ fontSize: '1.2rem', fontWeight: '800', cursor: 'pointer' }} className="hover-cyan">{person.name}</h3>
                                     <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
                                         <span style={{ fontSize: '0.65rem', background: 'rgba(255, 255, 255, 0.05)', color: person.vitalityColor || 'var(--text-secondary)', padding: '2px 8px', borderRadius: '4px', fontWeight: '900', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <PulseIcon size={10} /> {(person.vitality || 'ACTIVE').toUpperCase()}
+                                            <PulseIcon size={10} /> {t(`directory.${(person.vitality || 'active').toLowerCase().replace(/ /g, '_')}`, { defaultValue: person.vitality }).toUpperCase()}
                                         </span>
                                         <span style={{ fontSize: '0.65rem', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-muted)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)' }}>
-                                            {(person.status || 'Membre').toUpperCase()}
+                                            {t(`directory.${(person.status || 'Membre').toLowerCase()}`)}
                                         </span>
                                     </div>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '8px' }}>{person.phone || 'No contact'}</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '8px' }}>{person.phone || t('directory.no_contact')}</p>
                                 </div>
                                 <div style={{ position: 'relative' }}>
                                     <button onClick={() => setActiveMenuId(activeMenuId === person.id ? null : person.id)} style={{ color: 'var(--text-muted)' }}><MoreVertical size={20} /></button>
                                     {activeMenuId === person.id && (
-                                        <div className="glass" style={{ position: 'absolute', right: '0', top: '30px', width: '180px', borderRadius: 'var(--radius-md)', padding: '6px', zIndex: 100, border: '1px solid var(--border-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                                            <button onClick={() => { onViewPerson(person.id); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: 'var(--accent-primary)' }}><Eye size={16} /> Analysis</button>
-                                            <button onClick={() => { setEditingPerson(person); setIsFormOpen(true); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}><Edit2 size={16} /> Edit Profile</button>
-                                            <button onClick={() => handleArchive(person.id)} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}><Archive size={16} /> {person.isArchived ? 'Restore' : 'Archive'}</button>
-                                            <button onClick={() => handleSoftDelete(person.id)} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: '#ff4d4d' }}><Trash2 size={16} /> Move to Trash</button>
+                                        <div className="glass" style={{ position: 'absolute', right: '0', top: '30px', width: 'max-content', borderRadius: 'var(--radius-md)', padding: '6px', zIndex: 100, border: '1px solid var(--border-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+                                            <button onClick={() => { onViewPerson(person.id); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: 'var(--accent-primary)' }}><Eye size={16} /> {t('directory.analysis')}</button>
+                                            <button onClick={() => { setEditingPerson(person); setIsFormOpen(true); setActiveMenuId(null); }} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}><Edit2 size={16} /> {t('directory.edit_profile')}</button>
+                                            <button onClick={() => handleArchive(person.id)} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px' }}><Archive size={16} /> {person.isArchived ? t('directory.restore') : t('directory.archive')}</button>
+                                            <button onClick={() => handleSoftDelete(person.id)} style={{ width: '100%', textAlign: 'left', padding: '10px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '4px', color: '#ff4d4d' }}><Trash2 size={16} /> {t('directory.move_to_trash')}</button>
                                         </div>
                                     )}
                                 </div>
@@ -282,10 +284,10 @@ const PeopleModule = ({ onViewPerson }) => {
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead style={{ backgroundColor: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)' }}>
                             <tr>
-                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Asset Name</th>
-                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Vitality</th>
-                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Status</th>
-                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Operations</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{t('directory.asset_name')}</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{t('directory.vitality')}</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{t('directory.status')}</th>
+                                <th style={{ padding: '16px 24px', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{t('directory.actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -303,10 +305,10 @@ const PeopleModule = ({ onViewPerson }) => {
                                     </td>
                                     <td style={{ padding: '12px 24px' }}>
                                         <span style={{ color: person.vitalityColor, fontSize: '0.7rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <PulseIcon size={12} /> {(person.vitality || 'ACTIVE').toUpperCase()}
+                                            <PulseIcon size={12} /> {t(`directory.${(person.vitality || 'active').toLowerCase().replace(/ /g, '_')}`, { defaultValue: person.vitality }).toUpperCase()}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '12px 24px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{person.status}</td>
+                                    <td style={{ padding: '12px 24px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t(`directory.${(person.status || 'Membre').trim().toLowerCase()}`)}</td>
                                     <td style={{ padding: '12px 24px' }}>
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <button onClick={() => onViewPerson(person.id)} style={{ padding: '6px', color: 'var(--accent-primary)' }}><Eye size={16} /></button>
@@ -326,7 +328,7 @@ const PeopleModule = ({ onViewPerson }) => {
 
             {filteredPeople.length === 0 && (
                 <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
-                    <p>No organizational assets matching your criteria found.</p>
+                    <p>{t('directory.no_assets_found')}</p>
                 </div>
             )}
 

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Search, User, Filter, Save, Lock, LayoutGrid, List } from 'lucide-react';
-import { dataService, PERSON_STATUS_TYPES } from '../store/dataService';
+import { dataService, PERSON_STATUS_TYPES, getActivityTypeKey } from '../store/dataService';
 import { convertFileSrc } from '@tauri-apps/api/core';
+import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
 
 const AttendanceModule = ({ activity, onBack }) => {
+    const { t } = useTranslation();
     const [people, setPeople] = useState([]);
     const [attendance, setAttendance] = useState([]);
     const [selectedIds, setSelectedIds] = useState(new Set());
@@ -68,7 +70,7 @@ const AttendanceModule = ({ activity, onBack }) => {
             };
 
             await dataService.saveAttendance([...otherAttendance, newEntry]);
-            alert(shouldLock ? 'Attendance finalized and locked.' : 'Attendance saved successfully!');
+            alert(shouldLock ? t('attendance.finalized_msg') : t('attendance.saved_msg'));
             onBack();
         } catch (err) {
             console.error(err);
@@ -98,20 +100,20 @@ const AttendanceModule = ({ activity, onBack }) => {
                 onClick={onBack}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.9rem' }}
             >
-                <ArrowLeft size={16} /> Back to Activities
+                <ArrowLeft size={16} /> {t('attendance.back')}
             </button>
 
             <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '30px', border: isLocked ? '1px solid #ff4d4d' : '1px solid var(--accent-primary)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <span style={{ fontSize: '0.7rem', color: isLocked ? '#ff4d4d' : 'var(--accent-primary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {isLocked ? <><Lock size={12} /> Records Locked</> : <>Recording Attendance</>}
+                            {isLocked ? <><Lock size={12} /> {t('attendance.locked')}</> : <>{t('attendance.recording')}</>}
                         </span>
                         <h2 style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '4px' }}>{activity.name}</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>{activity.date} • {activity.type}</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>{activity.date} • {t(`activities.type_${getActivityTypeKey(activity.type)}`)}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Present</p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('attendance.present')}</p>
                         <p style={{ fontSize: '2.5rem', fontWeight: '800', color: isLocked ? 'var(--text-muted)' : 'var(--accent-green)' }}>{selectedIds.size}</p>
                     </div>
                 </div>
@@ -121,7 +123,7 @@ const AttendanceModule = ({ activity, onBack }) => {
                 <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
-                        placeholder="Search community database..."
+                        placeholder={t('attendance.search_placeholder')}
                         value={search} onChange={(e) => setSearch(e.target.value)}
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
@@ -131,7 +133,11 @@ const AttendanceModule = ({ activity, onBack }) => {
                         value={statusFilter}
                         onChange={setStatusFilter}
                         searchable={false}
-                        options={['all', ...PERSON_STATUS_TYPES]}
+                        options={['all', ...PERSON_STATUS_TYPES].map(type =>
+                            type === 'all'
+                                ? { label: t('common.all').toUpperCase(), value: 'all' }
+                                : { label: t(`directory.${type.toLowerCase()}`).toUpperCase(), value: type }
+                        )}
                     />
                 </div>
                 <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
@@ -159,11 +165,11 @@ const AttendanceModule = ({ activity, onBack }) => {
                                 display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid var(--border-color)'
                             }}
                         >
-                            <Save size={18} /> Save
+                            <Save size={18} /> {t('attendance.save')}
                         </button>
                         <button
                             onClick={() => {
-                                if (window.confirm('Finalize this session? Locked records are preserved for the historic audit.')) {
+                                if (window.confirm(t('attendance.finalize_confirm'))) {
                                     handleSave(true);
                                 }
                             }}
@@ -174,7 +180,7 @@ const AttendanceModule = ({ activity, onBack }) => {
                                 display: 'flex', alignItems: 'center', gap: '10px'
                             }}
                         >
-                            {isSaving ? 'Locking...' : <><Lock size={18} /> Finalize</>}
+                            {isSaving ? t('common.loading') : <><Lock size={18} /> {t('attendance.finalize')}</>}
                         </button>
                     </>
                 )}
@@ -219,7 +225,7 @@ const AttendanceModule = ({ activity, onBack }) => {
                             <div style={{ flex: 1 }}>
                                 <p style={{ fontSize: '0.95rem', fontWeight: '600', color: isSelected ? 'var(--accent-green)' : 'var(--text-primary)' }}>{person.name}</p>
                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>{(person.status || 'Membre').toUpperCase()}</span>
+                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>{t(`directory.${(person.status || 'Membre').trim().toLowerCase()}`).toUpperCase()}</span>
                                     {person.isJRs && <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: 'var(--accent-green)' }} />}
                                     {person.isJRs && <span style={{ fontSize: '0.65rem', color: 'var(--accent-green)', fontWeight: 'bold' }}>JRs</span>}
                                 </div>

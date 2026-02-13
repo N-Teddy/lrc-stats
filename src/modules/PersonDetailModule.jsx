@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Phone, Calendar, Clock, TrendingUp, Award, Activity, Download } from 'lucide-react';
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
+import { useTranslation } from 'react-i18next';
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import ReportModal from '../components/ReportModal';
@@ -9,6 +10,7 @@ import { ACTIVITY_TYPES } from '../store/dataService';
 import { notificationService } from '../store/notificationService';
 
 const PersonDetailModule = ({ personId, onBack }) => {
+    const { t } = useTranslation();
     const [person, setPerson] = useState(null);
     const [attendanceHistory, setAttendanceHistory] = useState([]);
     const [stats, setStats] = useState({
@@ -67,7 +69,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
         setAvailableYears(years);
     };
 
-    if (!person) return <div className="glass" style={{ padding: '40px', textAlign: 'center' }}>Loading profile...</div>;
+    if (!person) return <div className="glass" style={{ padding: '40px', textAlign: 'center' }}>{t('person_detail.loading')}</div>;
 
     const chartData = [...attendanceHistory].reverse().map(h => ({
         date: h.date,
@@ -81,7 +83,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     onClick={onBack}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600' }}
                 >
-                    <ArrowLeft size={18} /> Back to Directory
+                    <ArrowLeft size={18} /> {t('person_detail.back')}
                 </button>
                 <button
                     onClick={() => setIsReportModalOpen(true)}
@@ -92,21 +94,21 @@ const PersonDetailModule = ({ personId, onBack }) => {
                         display: 'flex', alignItems: 'center', gap: '8px'
                     }}
                 >
-                    <Download size={16} /> {isExporting ? 'Generating...' : 'Export Audit'}
+                    <Download size={16} /> {isExporting ? t('common.loading') : t('person_detail.export_audit')}
                 </button>
             </div>
 
             <ReportModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-                title="INDIVIDUAL PERFORMANCE AUDIT"
+                title={t('person_detail.audit_title')}
                 type="personal"
                 options={{
                     availableYears: availableYears,
                     activityTypes: ACTIVITY_TYPES,
                     sortOptions: [
-                        { label: 'Date', value: 'date' },
-                        { label: 'Presence Status', value: 'status' }
+                        { label: t('reports.date'), value: 'date' },
+                        { label: t('person_detail.presence_status'), value: 'status' }
                     ]
                 }}
                 onGenerate={async (config) => {
@@ -114,7 +116,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     setIsReportModalOpen(false);
                     await reportService.generatePersonReport(person, config);
                     setIsExporting(false);
-                    notificationService.notify('Report Exported', `Individual audit for ${person.name} generated.`);
+                    notificationService.notify(t('person_detail.report_exported'), t('person_detail.report_exported_msg', { name: person.name }));
                 }}
             />
 
@@ -137,7 +139,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                         <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px' }}>{person.name}</h2>
                         <div style={{ display: 'inline-flex', gap: '8px', marginBottom: '24px' }}>
                             <span style={{ fontSize: '0.65rem', background: person.status === 'Eleve' ? 'rgba(255, 170, 0, 0.1)' : 'rgba(var(--accent-primary-rgb), 0.1)', color: person.status === 'Eleve' ? '#ffaa00' : 'var(--accent-primary)', padding: '4px 12px', borderRadius: '50px', fontWeight: '900', border: '1px solid currentColor' }}>
-                                {person.status?.toUpperCase() || 'MEMBRE'}
+                                {t(`directory.${(person.status || 'Membre').trim().toLowerCase()}`).toUpperCase()}
                             </span>
                             {person.isJRs && <span style={{ fontSize: '0.65rem', background: 'rgba(57, 255, 20, 0.1)', color: 'var(--accent-green)', padding: '4px 12px', borderRadius: '50px', fontWeight: '900', border: '1px solid currentColor' }}>JRS</span>}
                         </div>
@@ -145,15 +147,15 @@ const PersonDetailModule = ({ personId, onBack }) => {
                         <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Phone size={16} color="var(--text-muted)" />
-                                <span style={{ fontSize: '0.9rem' }}>{person.phone || 'No phone'}</span>
+                                <span style={{ fontSize: '0.9rem' }}>{person.phone || t('person_detail.no_phone')}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Calendar size={16} color="var(--text-muted)" />
-                                <span style={{ fontSize: '0.9rem' }}>Born: {person.dob || '---'}</span>
+                                <span style={{ fontSize: '0.9rem' }}>{t('person_detail.born')}: {person.dob || '---'}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Clock size={16} color="var(--text-muted)" />
-                                <span style={{ fontSize: '0.9rem' }}>Joined: {stats.joinedDate}</span>
+                                <span style={{ fontSize: '0.9rem' }}>{t('person_detail.joined')}: {stats.joinedDate}</span>
                             </div>
                         </div>
                     </div>
@@ -161,11 +163,11 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     {/* Quick Stats Grid */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         <div className="glass" style={{ padding: '16px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-                            <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Engagement</p>
+                            <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>{t('person_detail.engagement')}</p>
                             <p style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--accent-primary)' }}>{stats.rate}%</p>
                         </div>
                         <div className="glass" style={{ padding: '16px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-                            <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Sessions</p>
+                            <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>{t('person_detail.sessions')}</p>
                             <p style={{ fontSize: '1.25rem', fontWeight: '900', color: 'var(--accent-green)' }}>{stats.totalAttendance}</p>
                         </div>
                     </div>
@@ -176,7 +178,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     {/* Activity Pipeline Chart */}
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
                         <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <TrendingUp size={20} color="var(--accent-primary)" /> Activity Pulse
+                            <TrendingUp size={20} color="var(--accent-primary)" /> {t('person_detail.activity_pulse')}
                         </h3>
                         <div style={{ width: '100%', height: '200px' }}>
                             <ResponsiveContainer width="100%" height="100%">
@@ -196,7 +198,7 @@ const PersonDetailModule = ({ personId, onBack }) => {
                     {/* Attendance Logs */}
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', flex: 1 }}>
                         <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Activity size={20} color="var(--accent-green)" /> Recent Participation
+                            <Activity size={20} color="var(--accent-green)" /> {t('person_detail.recent_participation')}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {attendanceHistory.length > 0 ? (
@@ -212,13 +214,13 @@ const PersonDetailModule = ({ personId, onBack }) => {
                                         </div>
                                         <div style={{ display: 'flex', gap: '8px', color: 'var(--accent-green)' }}>
                                             <Award size={16} />
-                                            <span style={{ fontSize: '0.75rem', fontWeight: '900' }}>PRESENT</span>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: '900' }}>{t('person_detail.present')}</span>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div style={{ textAlign: 'center', py: '40px', color: 'var(--text-muted)' }}>
-                                    No attendance records found for this member.
+                                    {t('person_detail.no_records')}
                                 </div>
                             )}
                         </div>

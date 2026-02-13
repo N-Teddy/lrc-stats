@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select option...', icon: Icon, searchable = true }) => {
+const CustomSelect = ({ options, value, onChange, label, placeholder, icon: Icon, searchable = true }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
     const [search, setSearch] = useState('');
@@ -57,10 +59,10 @@ const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select o
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {Icon && <Icon size={16} color={isOpen ? 'var(--accent-primary)' : 'var(--text-muted)'} />}
                     <span style={{ fontSize: '0.9rem', color: displayValue ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                        {displayValue || placeholder}
+                        {displayValue || placeholder || t('common.select')}
                     </span>
                 </div>
-                <ChevronDown size={16} color="var(--text-muted)" style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }} />
+                <ChevronDown size={16} color="var(--text-muted)" style={{ marginLeft: '12px', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }} />
             </div>
 
             {isOpen && (
@@ -96,7 +98,7 @@ const CustomSelect = ({ options, value, onChange, label, placeholder = 'Select o
                         </div>
                     )}
                     {filteredOptions.length === 0 ? (
-                        <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>No options found</div>
+                        <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>{t('common.no_options')}</div>
                     ) : (
                         filteredOptions.map((opt, i) => {
                             const optVal = typeof opt === 'object' ? opt.value : opt;

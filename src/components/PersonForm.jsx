@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, User, Phone, Calendar, Shield, Save, Upload, Camera } from 'lucide-react';
 import { dataService, createPersonModel } from '../store/dataService';
+import { useTranslation } from 'react-i18next';
 import { convertFileSrc } from '@tauri-apps/api/core';
 
 const PersonForm = ({ person, onSave, onCancel }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState(person || createPersonModel());
     const [previewImage, setPreviewImage] = useState(person?.image || null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -32,7 +34,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name) return alert('Name is mandatory');
+        if (!formData.name) return alert(t('person_form.name_required'));
 
         setIsProcessing(true);
         console.log('[DEBUG] Form submission started. Name:', formData.name);
@@ -50,7 +52,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     finalData.image = result.url;
                 } else {
                     console.error('[DEBUG] Image saving failed:', result.error);
-                    alert('Image could not be saved: ' + result.error);
+                    alert(t('person_form.image_save_error') + ': ' + result.error);
                 }
             } else {
                 console.log('[DEBUG] No new image to save or image already in path format.');
@@ -60,7 +62,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
             await onSave(finalData);
         } catch (err) {
             console.error('[DEBUG] handleSubmit Exception:', err);
-            alert('An unexpected error occurred during save.');
+            alert(t('common.error'));
         } finally {
             setIsProcessing(false);
         }
@@ -84,7 +86,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>
-                        {person ? 'Update Profile' : 'Member Registration'}
+                        {person ? t('person_form.update_title') : t('person_form.register_title')}
                     </h3>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         ID: {formData.id}
@@ -133,9 +135,9 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     </div>
 
                     <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)' }}>Profile Image</p>
+                        <p style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-primary)' }}>{t('person_form.profile_image')}</p>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            {previewImage ? 'Click avatar to change photo.' : 'Upload a portrait photo.'}
+                            {previewImage ? t('person_form.change_photo') : t('person_form.upload_photo')}
                         </p>
                         <input
                             type="file"
@@ -150,21 +152,21 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                 {/* Name and Status */}
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Full Name *</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>{t('person_form.full_name')} *</label>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                             <User size={18} color="var(--text-muted)" />
                             <input
                                 name="name"
                                 value={formData.name || ''}
                                 onChange={handleChange}
-                                placeholder="e.g. Jean Dupont"
+                                placeholder={t('person_form.name_placeholder')}
                                 style={{ background: 'transparent', border: 'none', width: '100%', fontSize: '1rem', color: 'var(--text-primary)', outline: 'none' }}
                                 required
                             />
                         </div>
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Status</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>{t('person_form.status')}</label>
                         <select
                             name="status"
                             value={formData.status}
@@ -191,7 +193,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     {/* Phone */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Phone</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>{t('person_form.phone')}</label>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                             <Phone size={18} color="var(--text-muted)" />
                             <input
@@ -205,7 +207,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     </div>
                     {/* DOB */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Date of Birth</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>{t('person_form.dob')}</label>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                             <Calendar size={18} color="var(--text-muted)" />
                             <input
@@ -222,7 +224,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     {/* Integration Date */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Integration Date</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>{t('person_form.integration_date')}</label>
                         <input
                             name="dateIntegration"
                             type="date"
@@ -233,7 +235,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     </div>
                     {/* Departure Date */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>Departure</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', fontWeight: 'bold' }}>{t('person_form.departure')}</label>
                         <input
                             name="dateDeparture"
                             type="date"
@@ -257,7 +259,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                         <Shield size={20} color="var(--accent-green)" />
                         <div>
-                            <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--accent-green)' }}>Junior Member (JRs)</p>
+                            <p style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--accent-green)' }}>{t('person_form.jr_member')}</p>
                         </div>
                     </div>
                     <label className="switch">
@@ -290,7 +292,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                             cursor: isProcessing ? 'not-allowed' : 'pointer'
                         }}
                     >
-                        {isProcessing ? 'Processing...' : <><Save size={20} /> Save Profile</>}
+                        {isProcessing ? t('person_form.processing') : <><Save size={20} /> {t('person_form.save_profile')}</>}
                     </button>
                     <button
                         type="button"
@@ -298,7 +300,7 @@ const PersonForm = ({ person, onSave, onCancel }) => {
                         disabled={isProcessing}
                         style={{ padding: '16px 24px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)', fontWeight: '600' }}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </button>
                 </div>
             </form>

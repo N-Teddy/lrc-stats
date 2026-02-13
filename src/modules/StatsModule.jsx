@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
-import { dataService } from '../store/dataService';
+import { dataService, getActivityTypeKey } from '../store/dataService';
 import { reportService } from '../store/reportService';
+import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
 import ReportModal from '../components/ReportModal';
 import { Download, Filter, Sliders, Heart, TrendingUp, Users, AlertCircle, Award } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
 
 const StatsModule = () => {
+    const { t } = useTranslation();
     const { accentColor } = useTheme();
     const [rawStats, setRawStats] = useState({ people: [], activities: [], attendance: [] });
     const [selectedCurveYear, setSelectedCurveYear] = useState('all');
@@ -45,8 +47,8 @@ const StatsModule = () => {
             sortedActivities: activities,
             availableYears: ['all', ...years],
             distribution: [
-                { name: 'Membres', value: membres },
-                { name: 'Eleves', value: eleves }
+                { name: t('directory.membres'), value: membres },
+                { name: t('directory.eleves'), value: eleves }
             ]
         };
     }, [rawStats]);
@@ -91,7 +93,7 @@ const StatsModule = () => {
         // Resonance calculation
         const typeMetrics = {};
         sortedActivities.forEach(act => {
-            if (!typeMetrics[act.type]) typeMetrics[act.type] = { subject: act.type, A: 0, count: 0 };
+            if (!typeMetrics[act.type]) typeMetrics[act.type] = { subject: t(`activities.type_${getActivityTypeKey(act.type)}`), A: 0, count: 0 };
             const attCount = attendance.filter(att => att.activityId === act.id).length;
             typeMetrics[act.type].A += (attCount / (activePeople.length || 1)) * 100;
             typeMetrics[act.type].count += 1;
@@ -104,7 +106,7 @@ const StatsModule = () => {
         if (last3Activities.length >= 3) {
             drifting = activePeople.filter(person => {
                 const presentInLast3 = attendance.filter(att =>
-                    att.personId === person.id &&
+                    att.personIds && att.personIds.includes(person.id) &&
                     last3Activities.map(a => a.id).includes(att.activityId)
                 ).length;
                 return presentInLast3 === 0;
@@ -124,8 +126,8 @@ const StatsModule = () => {
         <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>Community Insights</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Advanced metrics for group harmony and congregational care.</p>
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>{t('stats.title')}</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>{t('stats.subtitle')}</p>
                 </div>
                 <button
                     onClick={() => setIsReportModalOpen(true)}
@@ -137,14 +139,14 @@ const StatsModule = () => {
                         cursor: 'pointer'
                     }}
                 >
-                    <Download size={18} /> {isGenerating ? 'Compiling...' : 'Download Yearly Audit'}
+                    <Download size={18} /> {isGenerating ? t('stats.compiling') : t('stats.download_audit')}
                 </button>
             </header>
 
             <ReportModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
-                title="YEARLY ATTENDANCE AUDIT"
+                title={t('stats.yearly_audit')}
                 type="yearly"
                 options={{
                     availableYears: availableYears.filter(y => y !== 'all'),
@@ -152,7 +154,7 @@ const StatsModule = () => {
                 }}
                 onGenerate={async (config) => {
                     if (config.years.length === 0) {
-                        alert('Please select at least one tactical year for the audit.');
+                        alert(t('stats.select_year_error'));
                         return;
                     }
                     setIsGenerating(true);
@@ -167,7 +169,7 @@ const StatsModule = () => {
                 <div className="glass animate-in stagger-1" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <TrendingUp size={18} color="var(--accent-primary)" /> Participation Curve
+                            <TrendingUp size={18} color="var(--accent-primary)" /> {t('stats.curve_title')}
                         </h3>
                         <div style={{ width: '120px' }}>
                             <CustomSelect
@@ -199,9 +201,9 @@ const StatsModule = () => {
                 {/* Reach Out / At Risk */}
                 <div className="glass animate-in stagger-2" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 77, 77, 0.2)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px', color: '#ff4d4d' }}>
-                        <AlertCircle size={18} /> Reach Out Needs
+                        <AlertCircle size={18} /> {t('stats.reach_out_title')}
                     </h3>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '20px' }}>Members missed last 3 gatherings.</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '20px' }}>{t('stats.reach_out_subtitle')}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {atRisk.length > 0 ? atRisk.map(p => (
                             <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
@@ -211,12 +213,12 @@ const StatsModule = () => {
                                     </div>
                                     <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>{p.name}</span>
                                 </div>
-                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '800' }}>3+ ABSENT</span>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: '800' }}>{t('stats.absent_badge')}</span>
                             </div>
                         )) : (
                             <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
                                 <Heart size={32} style={{ marginBottom: '12px', opacity: 0.2 }} />
-                                <p style={{ fontSize: '0.85rem' }}>Everyone is accounted for.</p>
+                                <p style={{ fontSize: '0.85rem' }}>{t('stats.everyone_accounted')}</p>
                             </div>
                         )}
                     </div>
@@ -227,7 +229,7 @@ const StatsModule = () => {
                 {/* Activity Resonance (Radar) */}
                 <div className="glass animate-in stagger-3" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <TrendingUp size={18} color="var(--accent-green)" /> Activity Resonance (%)
+                        <TrendingUp size={18} color="var(--accent-green)" /> {t('stats.resonance_title')}
                     </h3>
                     <div style={{ width: '100%', height: '300px' }}>
                         <ResponsiveContainer width="100%" height="100%">
@@ -235,7 +237,7 @@ const StatsModule = () => {
                                 <PolarGrid stroke="var(--border-color)" />
                                 <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} />
                                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                                <Radar name="Resonance" dataKey="A" stroke="var(--accent-green)" fill="var(--accent-green)" fillOpacity={0.6} />
+                                <Radar name={t('stats.radar_resonance')} dataKey="A" stroke="var(--accent-green)" fill="var(--accent-green)" fillOpacity={0.6} />
                                 <Tooltip contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
                             </RadarChart>
                         </ResponsiveContainer>
@@ -245,7 +247,7 @@ const StatsModule = () => {
                 {/* Status Segmentation (Pie) */}
                 <div className="glass animate-in stagger-4" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Users size={18} color="var(--accent-primary)" /> Community Distribution
+                        <Users size={18} color="var(--accent-primary)" /> {t('stats.distribution_title')}
                     </h3>
                     <div style={{ width: '100%', height: '240px' }}>
                         <ResponsiveContainer width="100%" height="100%">

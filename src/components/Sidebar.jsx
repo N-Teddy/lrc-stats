@@ -1,6 +1,7 @@
 import React from 'react';
 import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon, History, Trash2, Sparkles } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 import logo from '../assets/logo.jpg';
 
@@ -34,6 +35,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
+    const { t } = useTranslation();
     return (
         <div className="glass" style={{
             width: 'var(--sidebar-width)',
@@ -67,43 +69,43 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             <nav style={{ flex: 1 }}>
                 <SidebarItem
                     icon={Home}
-                    label="Dashboard"
+                    label={t('sidebar.dashboard')}
                     active={activeTab === 'dashboard'}
                     onClick={() => setActiveTab('dashboard')}
                 />
                 <SidebarItem
                     icon={Users}
-                    label="People"
+                    label={t('sidebar.directory')}
                     active={activeTab === 'people'}
                     onClick={() => setActiveTab('people')}
                 />
                 <SidebarItem
                     icon={Calendar}
-                    label="Activities"
+                    label={t('sidebar.activities')}
                     active={activeTab === 'activities'}
                     onClick={() => setActiveTab('activities')}
                 />
                 <SidebarItem
                     icon={Sparkles}
-                    label="Assistant"
+                    label={t('sidebar.assistant')}
                     active={activeTab === 'assistant'}
                     onClick={() => setActiveTab('assistant')}
                 />
                 <SidebarItem
                     icon={BarChart2}
-                    label="Statistics"
+                    label={t('sidebar.stats')}
                     active={activeTab === 'stats'}
                     onClick={() => setActiveTab('stats')}
                 />
                 <SidebarItem
                     icon={History}
-                    label="Logs"
+                    label={t('sidebar.history')}
                     active={activeTab === 'logs'}
                     onClick={() => setActiveTab('logs')}
                 />
                 <SidebarItem
                     icon={Trash2}
-                    label="Recycle Bin"
+                    label={t('sidebar.recycle_bin')}
                     active={activeTab === 'trash'}
                     onClick={() => setActiveTab('trash')}
                 />
@@ -123,11 +125,11 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                 >
                     {theme === 'dark' ? <Sun size={18} color="var(--accent-primary)" /> : <Moon size={18} color="var(--accent-primary)" />}
-                    <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                    <span>{theme === 'dark' ? t('common.light_mode', { defaultValue: 'Light Mode' }) : t('common.dark_mode', { defaultValue: 'Dark Mode' })}</span>
                 </button>
                 <SidebarItem
                     icon={Settings}
-                    label="Settings"
+                    label={t('sidebar.settings')}
                     active={activeTab === 'settings'}
                     onClick={() => setActiveTab('settings')}
                 />

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, RotateCcw, User, Calendar, ShieldAlert, Search, Database } from 'lucide-react';
 import { dataService } from '../store/dataService';
 import { notificationService } from '../store/notificationService';
+import { useTranslation } from 'react-i18next';
 import Pagination from '../components/Pagination';
 
 const RecycleBinModule = () => {
+    const { t } = useTranslation();
     const [deletedAssets, setDeletedAssets] = useState([]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all'); // all, person, activity
@@ -34,18 +36,18 @@ const RecycleBinModule = () => {
             const people = await dataService.getPeople();
             const updated = people.map(p => p.id === asset.id ? { ...p, isDeleted: false, deletedAt: null } : p);
             await dataService.savePeople(updated);
-            notificationService.notify('Asset Restored', `${asset.name} has been returned to the directory.`);
+            notificationService.notify(t('recycle_bin.restore'), t('recycle_bin.restore_success_person', { name: asset.name }));
         } else {
             const activities = await dataService.getActivities();
             const updated = activities.map(a => a.id === asset.id ? { ...a, isDeleted: false, deletedAt: null } : a);
             await dataService.saveActivities(updated);
-            notificationService.notify('Activity Restored', `${asset.name} has been returned to operations.`);
+            notificationService.notify(t('recycle_bin.restore'), t('recycle_bin.restore_success_activity', { name: asset.name }));
         }
         loadDeletedAssets();
     };
 
     const handlePermanentDelete = async (asset) => {
-        if (!confirm(`Are you absolutely sure you want to permanently delete "${asset.name}"? This action is irreversible.`)) return;
+        if (!confirm(t('recycle_bin.delete_permanent_confirm', { name: asset.name }))) return;
 
         if (asset.assetType === 'person') {
             const people = await dataService.getPeople();
@@ -57,11 +59,11 @@ const RecycleBinModule = () => {
             await dataService.saveActivities(updated);
         }
         loadDeletedAssets();
-        notificationService.notify('Permanent Deletion', 'Asset has been shredded from the tactical database.');
+        notificationService.notify(t('recycle_bin.delete_permanently'), t('recycle_bin.delete_permanent_success'));
     };
 
     const handleEmptyBin = async () => {
-        if (!confirm('Shred ALL assets in the recycle bin? All data will be lost forever.')) return;
+        if (!confirm(t('recycle_bin.empty_bin_confirm'))) return;
 
         const people = await dataService.getPeople();
         const activities = await dataService.getActivities();
@@ -75,7 +77,7 @@ const RecycleBinModule = () => {
         ]);
 
         loadDeletedAssets();
-        notificationService.notify('Data Sanitized', 'Recycle bin has been successfully purged.');
+        notificationService.notify(t('recycle_bin.empty_bin_success_title'), t('recycle_bin.empty_bin_success_msg'));
     };
 
     const filtered = deletedAssets.filter(a => {
@@ -90,8 +92,8 @@ const RecycleBinModule = () => {
         <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>Recycle Bin</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Tactical recovery area for soft-deleted organizational assets.</p>
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>{t('recycle_bin.title')}</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>{t('recycle_bin.subtitle')}</p>
                 </div>
                 {deletedAssets.length > 0 && (
                     <button
@@ -102,7 +104,7 @@ const RecycleBinModule = () => {
                             display: 'flex', alignItems: 'center', gap: '10px'
                         }}
                     >
-                        <Trash2 size={18} /> Empty Bin
+                        <Trash2 size={18} /> {t('recycle_bin.empty_bin')}
                     </button>
                 )}
             </header>
@@ -111,24 +113,24 @@ const RecycleBinModule = () => {
                 <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
-                        placeholder="Search deleted assets..."
+                        placeholder={t('recycle_bin.search_placeholder')}
                         value={search} onChange={(e) => setSearch(e.target.value)}
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
                 </div>
                 <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', padding: '4px', border: '1px solid var(--border-color)' }}>
-                    {['all', 'person', 'activity'].map(t => (
+                    {['all', 'person', 'activity'].map(type => (
                         <button
-                            key={t}
-                            onClick={() => setFilter(t)}
+                            key={type}
+                            onClick={() => setFilter(type)}
                             style={{
                                 padding: '8px 16px', borderRadius: '4px', border: 'none',
-                                backgroundColor: filter === t ? 'var(--bg-secondary)' : 'transparent',
-                                color: filter === t ? 'var(--accent-primary)' : 'var(--text-muted)',
+                                backgroundColor: filter === type ? 'var(--bg-secondary)' : 'transparent',
+                                color: filter === type ? 'var(--accent-primary)' : 'var(--text-muted)',
                                 fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase'
                             }}
                         >
-                            {t}
+                            {t(`recycle_bin.filter_${type}`)}
                         </button>
                     ))}
                 </div>
@@ -158,7 +160,7 @@ const RecycleBinModule = () => {
                                     backgroundColor: 'transparent', cursor: 'pointer'
                                 }}
                             >
-                                <RotateCcw size={16} /> Restore
+                                <RotateCcw size={16} /> {t('recycle_bin.restore')}
                             </button>
                             <button
                                 onClick={() => handlePermanentDelete(asset)}
@@ -166,7 +168,7 @@ const RecycleBinModule = () => {
                                     padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255, 77, 77, 0.3)',
                                     color: '#ff4d4d', backgroundColor: 'transparent', cursor: 'pointer'
                                 }}
-                                title="Delete Permanently"
+                                title={t('recycle_bin.delete_permanently')}
                             >
                                 <Trash2 size={16} />
                             </button>
@@ -177,8 +179,8 @@ const RecycleBinModule = () => {
                 {filtered.length === 0 && (
                     <div className="glass" style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
                         <ShieldAlert size={48} color="var(--border-color)" style={{ marginBottom: '16px' }} />
-                        <h4 style={{ fontWeight: '800', marginBottom: '8px' }}>Recycle Bin is Sanitary</h4>
-                        <p style={{ fontSize: '0.9rem' }}>No recently deleted assets detected in the tactical database.</p>
+                        <h4 style={{ fontWeight: '800', marginBottom: '8px' }}>{t('recycle_bin.bin_empty_title')}</h4>
+                        <p style={{ fontSize: '0.9rem' }}>{t('recycle_bin.bin_empty_msg')}</p>
                     </div>
                 )}
             </div>

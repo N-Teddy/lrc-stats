@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, UserPlus, Calendar, ArrowRight, Filter, Search } from 'lucide-react';
 import { dataService } from '../store/dataService';
+import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
 
 const HistoryModule = () => {
+    const { t } = useTranslation();
     const [logs, setLogs] = useState([]);
     const [filter, setFilter] = useState('all'); // all, person, activity
     const [search, setSearch] = useState('');
@@ -26,8 +28,11 @@ const HistoryModule = () => {
             .map(p => ({
                 id: `p-${p.id}`,
                 type: 'person',
-                title: 'New Member Integrated',
-                description: `${p.name} joined as ${p.status}.`,
+                title: t('history.log_new_member'),
+                description: t('history.log_new_member_desc', {
+                    name: p.name,
+                    status: t(`directory.${(p.status || 'Membre').toLowerCase()}`)
+                }),
                 date: p.dateIntegration,
                 timestamp: new Date(p.dateIntegration).getTime(),
                 icon: UserPlus,
@@ -37,8 +42,11 @@ const HistoryModule = () => {
         const activityLogs = activities.map(a => ({
             id: `a-${a.id}`,
             type: 'activity',
-            title: 'Activity Organized',
-            description: `${a.name} (${a.type}) was held.`,
+            title: t('history.log_activity_organized'),
+            description: t('history.log_activity_organized_desc', {
+                name: a.name,
+                type: a.type
+            }),
             date: a.date,
             timestamp: new Date(a.date).getTime(),
             icon: Calendar,
@@ -68,28 +76,28 @@ const HistoryModule = () => {
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Operational Logs</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>A chronological audit trail of all organization events.</p>
+                <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>{t('history.title')}</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>{t('history.subtitle')}</p>
             </header>
 
             <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
                 <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
-                        placeholder="Search logs..."
+                        placeholder={t('history.search_placeholder')}
                         value={search} onChange={(e) => setSearch(e.target.value)}
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
                     />
                 </div>
-                <div style={{ width: '200px' }}>
+                <div style={{ width: 'max-content' }}>
                     <CustomSelect
                         value={filter}
                         onChange={setFilter}
                         icon={Filter}
                         options={[
-                            { label: 'ALL LOG ENTRIES', value: 'all' },
-                            { label: 'MEMBER GROWTH', value: 'person' },
-                            { label: 'ACTIVITY HISTORY', value: 'activity' }
+                            { label: t('history.filter_all'), value: 'all' },
+                            { label: t('history.filter_growth'), value: 'person' },
+                            { label: t('history.filter_history'), value: 'activity' }
                         ]}
                     />
                 </div>
@@ -146,7 +154,7 @@ const HistoryModule = () => {
 
                 {filteredLogs.length === 0 && (
                     <div className="glass" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', borderRadius: 'var(--radius-md)' }}>
-                        No logs match your current filter.
+                        {t('history.no_logs')}
                     </div>
                 )}
             </div>

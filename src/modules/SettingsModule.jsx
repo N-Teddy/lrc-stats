@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Settings, Shield, Cloud, Save, Download, Upload, Trash2, Bell, Eye, EyeOff, Palette, Check } from 'lucide-react';
+import { Settings, Shield, Cloud, Save, Download, Upload, Trash2, Bell, Eye, EyeOff, Palette, Check, Languages } from 'lucide-react';
 import { useTheme, ACCENTS } from '../store/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import { dataService } from '../store/dataService';
 import { notificationService } from '../store/notificationService';
 
 const SettingsModule = () => {
     const { theme, toggleTheme, accent, setAccent } = useTheme();
+    const { t, i18n } = useTranslation();
     const [binId, setBinId] = useState(localStorage.getItem('lrc_bin_id') || '');
     const [masterKey, setMasterKey] = useState(localStorage.getItem('lrc_master_key') || '');
     const [showToken, setShowToken] = useState(false);
@@ -15,11 +17,11 @@ const SettingsModule = () => {
     const handleSaveCloudConfig = () => {
         localStorage.setItem('lrc_bin_id', binId);
         localStorage.setItem('lrc_master_key', masterKey);
-        alert('Community Sync Configuration saved.');
+        alert(t('settings.sync_config_saved'));
     };
 
     const handleCloudSync = async () => {
-        if (!binId) return alert('Please provide a Bin ID first.');
+        if (!binId) return alert(t('settings.sync_no_bin'));
         setIsSyncing(true);
         try {
             const [people, activities, attendance] = await Promise.all([
@@ -44,14 +46,14 @@ const SettingsModule = () => {
                 const now = new Date().toLocaleString();
                 setLastSync(now);
                 localStorage.setItem('lrc_last_sync', now);
-                notificationService.notify('Sync Successful', 'Community records have been updated.');
+                notificationService.notify(t('settings.sync_success'), t('settings.sync_success_msg'));
             } else {
                 const errData = await response.json();
                 throw new Error(errData.message || `Server responded with ${response.status}`);
             }
         } catch (err) {
             console.error(err);
-            alert(`Sync Failed: ${err.message}. Ensure your Bin ID and Master Key are correct.`);
+            alert(t('settings.sync_failed', { error: err.message }));
         } finally {
             setIsSyncing(false);
         }
@@ -70,14 +72,14 @@ const SettingsModule = () => {
         a.href = url;
         a.download = `LRC_Community_Backup_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
-        notificationService.notify('Backup Created', 'Community records have been exported successfully.');
+        notificationService.notify(t('settings.backup_created'), t('settings.backup_created_msg'));
     };
 
     const handleRestoreBackup = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
-        if (!window.confirm('WARNING: This will overwrite ALL current local records with data from the backup file. This cannot be undone. Proceed?')) {
+        if (!window.confirm(t('settings.restore_confirm'))) {
             event.target.value = '';
             return;
         }
@@ -98,12 +100,12 @@ const SettingsModule = () => {
                     dataService.saveAttendance(data.attendance)
                 ]);
 
-                notificationService.notify('Restore Successful', 'Community records have been restored.');
-                alert('Database Restored Successfully. The application will now reload.');
+                notificationService.notify(t('settings.restore_success'), t('settings.restore_success_msg'));
+                alert(t('settings.restore_reload'));
                 window.location.reload();
             } catch (err) {
                 console.error('Extraction Error:', err);
-                alert(`Restore Failed: ${err.message}`);
+                alert(t('settings.restore_failed', { error: err.message }));
             }
         };
         reader.readAsText(file);
@@ -112,8 +114,8 @@ const SettingsModule = () => {
     return (
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>System Settings</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Configuration, community sync, and record preservation.</p>
+                <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>{t('settings.title')}</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>{t('settings.subtitle')}</p>
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
@@ -121,11 +123,11 @@ const SettingsModule = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Cloud size={22} color="var(--accent-primary)" /> Community Synchronisation
+                            <Cloud size={22} color="var(--accent-primary)" /> {t('settings.community_sync')}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>Community Bin ID</label>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>{t('settings.community_bin_id')}</label>
                                 <input
                                     value={binId} onChange={(e) => setBinId(e.target.value)}
                                     placeholder="e.g. 64e..."
@@ -133,12 +135,12 @@ const SettingsModule = () => {
                                 />
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>X-Master-Key (Secret)</label>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>{t('settings.master_key')}</label>
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         type={showToken ? 'text' : 'password'}
                                         value={masterKey} onChange={(e) => setMasterKey(e.target.value)}
-                                        placeholder="Your secret key"
+                                        placeholder={t('settings.master_key_placeholder')}
                                         style={{ width: '100%', padding: '12px 40px 12px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                                     />
                                     <button
@@ -154,23 +156,23 @@ const SettingsModule = () => {
                                     onClick={handleSaveCloudConfig}
                                     style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', fontWeight: '700', fontSize: '0.85rem' }}
                                 >
-                                    Save Config
+                                    {t('settings.save_config')}
                                 </button>
                                 <button
                                     onClick={handleCloudSync}
                                     disabled={isSyncing}
                                     style={{ flex: 1, padding: '12px', borderRadius: '8px', backgroundColor: 'var(--accent-primary)', color: 'black', fontWeight: '800', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
-                                    {isSyncing ? 'Syncing...' : <><Cloud size={16} /> Sync Now</>}
+                                    {isSyncing ? t('settings.syncing') : <><Cloud size={16} /> {t('settings.sync_now')}</>}
                                 </button>
                             </div>
-                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>Last successful sync: {lastSync}</p>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>{t('settings.last_sync')}: {lastSync}</p>
                         </div>
                     </div>
 
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Save size={22} color="var(--accent-green)" /> Local Data Management
+                            <Save size={22} color="var(--accent-green)" /> {t('settings.data_management')}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <button
@@ -181,8 +183,8 @@ const SettingsModule = () => {
                                     <Download size={18} color="var(--accent-green)" />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <p style={{ textAlign: 'left' }}>Export Group Backup</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>Save a snapshot of all community data</p>
+                                    <p style={{ textAlign: 'left' }}>{t('settings.export_backup')}</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>{t('settings.export_desc')}</p>
                                 </div>
                             </button>
 
@@ -191,8 +193,8 @@ const SettingsModule = () => {
                                     <Upload size={18} color="var(--accent-primary)" />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <p style={{ textAlign: 'left' }}>Restore from File</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>Import records from a backup JSON</p>
+                                    <p style={{ textAlign: 'left' }}>{t('settings.restore_backup')}</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '400' }}>{t('settings.restore_desc')}</p>
                                 </div>
                                 <input
                                     type="file"
@@ -208,13 +210,13 @@ const SettingsModule = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Bell size={22} color="var(--accent-primary)" /> System Notifications
+                            <Bell size={22} color="var(--accent-primary)" /> {t('settings.notifications')}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <p style={{ fontWeight: '700' }}>Birthday Alerts</p>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Notify on app launch for birthdays.</p>
+                                    <p style={{ fontWeight: '700' }}>{t('settings.birthday_alerts')}</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('settings.birthday_alerts_desc')}</p>
                                 </div>
                                 <div style={{ width: '40px', height: '20px', backgroundColor: 'var(--accent-primary)', borderRadius: '20px', position: 'relative' }}>
                                     <div style={{ position: 'absolute', right: '2px', top: '2px', width: '16px', height: '16px', backgroundColor: 'white', borderRadius: '50%' }} />
@@ -225,11 +227,11 @@ const SettingsModule = () => {
 
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Palette size={22} color="var(--accent-primary)" /> Personalization
+                            <Palette size={22} color="var(--accent-primary)" /> {t('settings.personalization')}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase' }}>Community Accent Theme</label>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase' }}>{t('settings.accent_theme')}</label>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                                     {Object.entries(ACCENTS).map(([key, data]) => (
                                         <button
@@ -251,8 +253,8 @@ const SettingsModule = () => {
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)' }}>
                                 <div>
-                                    <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>Laboratory Mode</p>
-                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Switch to the light community theme.</p>
+                                    <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{t('settings.lab_mode')}</p>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('settings.lab_mode_desc')}</p>
                                 </div>
                                 <button
                                     onClick={toggleTheme}
@@ -261,21 +263,53 @@ const SettingsModule = () => {
                                         color: theme === 'light' ? 'black' : 'var(--text-primary)', fontSize: '0.75rem', fontWeight: '800', border: '1px solid var(--border-color)'
                                     }}
                                 >
-                                    {theme === 'light' ? 'ENABLED' : 'DISABLED'}
+                                    {theme === 'light' ? t('settings.enabled') : t('settings.disabled')}
                                 </button>
+                            </div>
+
+                            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Languages size={14} /> {t('settings.language')}
+                                </label>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button
+                                        onClick={() => i18n.changeLanguage('en')}
+                                        style={{
+                                            flex: 1, padding: '12px', borderRadius: '8px',
+                                            backgroundColor: i18n.language.startsWith('en') ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'var(--bg-tertiary)',
+                                            border: i18n.language.startsWith('en') ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                                            color: i18n.language.startsWith('en') ? 'var(--accent-primary)' : 'var(--text-primary)',
+                                            fontWeight: '800', fontSize: '0.85rem'
+                                        }}
+                                    >
+                                        {t('settings.english')}
+                                    </button>
+                                    <button
+                                        onClick={() => i18n.changeLanguage('fr')}
+                                        style={{
+                                            flex: 1, padding: '12px', borderRadius: '8px',
+                                            backgroundColor: i18n.language.startsWith('fr') ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'var(--bg-tertiary)',
+                                            border: i18n.language.startsWith('fr') ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                                            color: i18n.language.startsWith('fr') ? 'var(--accent-primary)' : 'var(--text-primary)',
+                                            fontWeight: '800', fontSize: '0.85rem'
+                                        }}
+                                    >
+                                        {t('settings.french')}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255, 77, 77, 0.2)' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#ff4d4d' }}>
-                            <Shield size={22} /> Advanced Maintenance
+                            <Shield size={22} color="#ff4d4d" /> {t('settings.maintenance')}
                         </h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>Resetting the community system is IRREVERSIBLE.</p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '24px' }}>{t('settings.maintenance_desc')}</p>
                         <button
                             style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #ff4d4d', color: '#ff4d4d', backgroundColor: 'transparent', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                         >
-                            <Trash2 size={16} /> FACTORY SYSTEM RESET
+                            <Trash2 size={16} /> {t('settings.factory_reset')}
                         </button>
                     </div>
                 </div>

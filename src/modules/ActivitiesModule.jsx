@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Calendar, BarChart3, ChevronRight, LayoutGrid, List, Trash2, Users, Mic2, HeartPulse, Gamepad2, Home, MoreHorizontal, Lock, CheckCircle2 } from 'lucide-react';
-import { dataService, createActivityModel, ACTIVITY_TYPES } from '../store/dataService';
+import { Plus, Search, Calendar, BarChart3, ChevronRight, LayoutGrid, List, Trash2, Users, Mic2, HeartPulse, Gamepad2, Home, MoreHorizontal, Lock, Unlock, CheckCircle2 } from 'lucide-react';
+import { dataService, createActivityModel, ACTIVITY_TYPES, getActivityTypeKey } from '../store/dataService';
+import { useTranslation } from 'react-i18next';
 import CustomSelect from '../components/CustomSelect';
 import Pagination from '../components/Pagination';
 
@@ -14,6 +15,7 @@ const TYPE_CONFIG = {
 };
 
 const ActivityForm = ({ activity, onSave, onCancel }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState(activity || createActivityModel());
 
     const handleChange = (e) => {
@@ -23,7 +25,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.name) return alert('Activity Name is required');
+        if (!formData.name) return alert(t('activities.name_required'));
         onSave(formData);
     };
 
@@ -34,11 +36,11 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
             boxShadow: '0 20px 50px rgba(0,0,0,0.8)', border: '1px solid var(--border-color)'
         }}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '24px' }}>
-                {activity ? 'Edit Activity' : 'New Activity'}
+                {activity ? t('activities.edit_activity') : t('activities.add_activity')}
             </h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Activity Name</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>{t('activities.activity_name')}</label>
                     <input
                         name="name"
                         value={formData.name}
@@ -50,7 +52,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Date</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>{t('person_form.dob')}</label>
                         <input
                             name="date"
                             type="date"
@@ -60,19 +62,19 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Type</label>
+                        <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>{t('activities.type')}</label>
                         <select
                             name="type"
                             value={formData.type}
                             onChange={handleChange}
                             style={{ width: '100%', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
                         >
-                            {ACTIVITY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                            {ACTIVITY_TYPES.map(t_type => <option key={t_type} value={t_type}>{t(`activities.type_${getActivityTypeKey(t_type)}`)}</option>)}
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Notes (Optional)</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>{t('activities.notes')}</label>
                     <textarea
                         name="notes"
                         value={formData.notes || ''}
@@ -82,8 +84,8 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
                     />
                 </div>
                 <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
-                    <button type="submit" style={{ flex: 1, backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px', borderRadius: 'var(--radius-md)', fontWeight: '700' }}>Save Activity</button>
-                    <button type="button" onClick={onCancel} style={{ padding: '12px 20px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)' }}>Cancel</button>
+                    <button type="submit" style={{ flex: 1, backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px', borderRadius: 'var(--radius-md)', fontWeight: '700' }}>{t('activities.save_activity')}</button>
+                    <button type="button" onClick={onCancel} style={{ padding: '12px 20px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', color: 'var(--text-muted)' }}>{t('common.cancel')}</button>
                 </div>
             </form>
         </div>
@@ -91,6 +93,7 @@ const ActivityForm = ({ activity, onSave, onCancel }) => {
 };
 
 const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
+    const { t } = useTranslation();
     const [activities, setActivities] = useState([]);
     const [attendance, setAttendance] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -163,8 +166,8 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
         <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
                 <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>Operations</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Log events and track participation history.</p>
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '800' }}>{t('activities.title')}</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>{t('activities.subtitle')}</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '4px' }}>
@@ -185,7 +188,7 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                         onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
                         style={{ backgroundColor: 'var(--accent-primary)', color: 'black', padding: '12px 24px', borderRadius: 'var(--radius-md)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}
                     >
-                        <Plus size={20} /> New Activity
+                        <Plus size={20} /> {t('activities.add_activity')}
                     </button>
                 </div>
             </header>
@@ -194,7 +197,7 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                 <div style={{ position: 'relative', flex: 1, backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
-                        placeholder="Search high-precision operational database..."
+                        placeholder={t('activities.search_placeholder')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         style={{ width: '100%', padding: '14px 14px 14px 48px', border: 'none', background: 'transparent', color: 'var(--text-primary)' }}
@@ -215,19 +218,19 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                             onChange={setSelectedMonth}
                             searchable={false}
                             options={[
-                                { label: 'ALL', value: 'all' },
-                                { label: 'January', value: '1' },
-                                { label: 'February', value: '2' },
-                                { label: 'March', value: '3' },
-                                { label: 'April', value: '4' },
-                                { label: 'May', value: '5' },
-                                { label: 'June', value: '6' },
-                                { label: 'July', value: '7' },
-                                { label: 'August', value: '8' },
-                                { label: 'September', value: '9' },
-                                { label: 'October', value: '10' },
-                                { label: 'November', value: '11' },
-                                { label: 'December', value: '12' }
+                                { label: t('common.all').toUpperCase(), value: 'all' },
+                                { label: t('months.january'), value: '1' },
+                                { label: t('months.february'), value: '2' },
+                                { label: t('months.march'), value: '3' },
+                                { label: t('months.april'), value: '4' },
+                                { label: t('months.may'), value: '5' },
+                                { label: t('months.june'), value: '6' },
+                                { label: t('months.july'), value: '7' },
+                                { label: t('months.august'), value: '8' },
+                                { label: t('months.september'), value: '9' },
+                                { label: t('months.october'), value: '10' },
+                                { label: t('months.november'), value: '11' },
+                                { label: t('months.december'), value: '12' }
                             ]}
                         />
                     </div>
@@ -235,17 +238,21 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                         <CustomSelect
                             value={typeFilter}
                             onChange={setTypeFilter}
-                            options={['all', ...ACTIVITY_TYPES]}
+                            options={['all', ...ACTIVITY_TYPES].map(type =>
+                                type === 'all'
+                                    ? { label: t('common.all').toUpperCase(), value: 'all' }
+                                    : { label: t(`activities.type_${getActivityTypeKey(type)}`), value: type }
+                            )}
                         />
                     </div>
-                    <div style={{ width: '150px' }}>
+                    <div style={{ width: 'max-content' }}>
                         <CustomSelect
                             value={timelineFilter}
                             onChange={setTimelineFilter}
                             options={[
-                                { label: 'ALL LOGS', value: 'all' },
-                                { label: 'PAST ONLY', value: 'past' },
-                                { label: 'SCHEDULED', value: 'scheduled' }
+                                { label: t('activities.all_logs'), value: 'all' },
+                                { label: t('activities.past_only'), value: 'past' },
+                                { label: t('activities.scheduled'), value: 'scheduled' }
                             ]}
                         />
                     </div>
@@ -255,7 +262,9 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
             {viewMode === 'list' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {paginated.map((activity, index) => {
-                        const isLocked = attendance.some(att => att.activityId === activity.id);
+                        const attRecord = attendance.find(att => att.activityId === activity.id);
+                        const isLocked = attRecord?.isLocked || false;
+                        const isRecorded = !!attRecord;
                         const config = TYPE_CONFIG[activity.type] || TYPE_CONFIG['AUTRES'];
                         const Icon = config.icon;
 
@@ -268,12 +277,12 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                                     <div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{activity.name}</h3>
-                                            {isLocked && <Lock size={14} color="var(--text-muted)" style={{ opacity: 0.6 }} />}
+                                            {isLocked ? <Lock size={14} color="var(--text-muted)" style={{ opacity: 0.6 }} /> : <Unlock size={14} color="var(--accent-primary)" style={{ opacity: 0.6 }} />}
                                         </div>
                                         <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
                                             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{activity.date}</span>
-                                            <span style={{ fontSize: '0.8rem', color: config.color, fontWeight: '700' }}>{activity.type.toUpperCase()}</span>
-                                            {isLocked && <span style={{ fontSize: '0.75rem', color: 'var(--accent-green)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={12} /> RECORDED</span>}
+                                            <span style={{ fontSize: '0.8rem', color: config.color, fontWeight: '700' }}>{t(`activities.type_${getActivityTypeKey(activity.type)}`)}</span>
+                                            {isRecorded && <span style={{ fontSize: '0.75rem', color: 'var(--accent-green)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={12} /> {t('activities.recorded')}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -290,7 +299,7 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                                             backgroundColor: isLocked ? 'var(--bg-tertiary)' : 'transparent'
                                         }}
                                     >
-                                        {isLocked ? 'Review' : 'Track'} <ChevronRight size={16} />
+                                        {isLocked ? t('activities.review') : t('activities.track')} <ChevronRight size={16} />
                                     </button>
                                 </div>
                             </div>
@@ -300,7 +309,9 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                     {paginated.map((activity) => {
-                        const isLocked = attendance.some(att => att.activityId === activity.id);
+                        const attRecord = attendance.find(att => att.activityId === activity.id);
+                        const isLocked = attRecord?.isLocked || false;
+                        const isRecorded = !!attRecord;
                         const config = TYPE_CONFIG[activity.type] || TYPE_CONFIG['AUTRES'];
                         const Icon = config.icon;
 
@@ -311,14 +322,14 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                                         <Icon size={24} color={config.color} />
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                        <span style={{ fontSize: '0.65rem', color: config.color, fontWeight: '800' }}>{activity.type.toUpperCase()}</span>
-                                        {isLocked && <Lock size={12} color="var(--text-muted)" style={{ opacity: 0.5 }} />}
+                                        <span style={{ fontSize: '0.65rem', color: config.color, fontWeight: '800' }}>{t(`activities.type_${getActivityTypeKey(activity.type)}`)}</span>
+                                        {isLocked ? <Lock size={12} color="var(--text-muted)" style={{ opacity: 0.5 }} /> : <Unlock size={12} color="var(--accent-primary)" style={{ opacity: 0.5 }} />}
                                     </div>
                                 </div>
                                 <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px', color: isLocked ? 'var(--text-secondary)' : 'var(--text-primary)' }}>{activity.name}</h3>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{activity.date}</p>
-                                    {isLocked && <span style={{ fontSize: '0.6rem', color: 'var(--accent-green)', fontWeight: '900', letterSpacing: '1px' }}>RECORDED</span>}
+                                    {isRecorded && <span style={{ fontSize: '0.6rem', color: 'var(--accent-green)', fontWeight: '900', letterSpacing: '1px' }}>{t('activities.recorded').toUpperCase()}</span>}
                                 </div>
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <button
@@ -330,7 +341,7 @@ const ActivitiesModule = ({ onTrackAttendance, onAnalyzeActivity }) => {
                                             fontWeight: '800', borderRadius: 'var(--radius-sm)', border: isLocked ? '1px solid var(--border-color)' : 'none'
                                         }}
                                     >
-                                        {isLocked ? 'REVIEW' : 'TRACK'}
+                                        {isLocked ? t('activities.review').toUpperCase() : t('activities.track').toUpperCase()}
                                     </button>
                                     <button onClick={() => onAnalyzeActivity(activity)} style={{ padding: '10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', backgroundColor: 'transparent' }}><BarChart3 size={18} /></button>
                                 </div>

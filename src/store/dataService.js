@@ -147,6 +147,20 @@ export const ACTIVITY_TYPES = [
     'JPO'
 ];
 
+export const getActivityTypeKey = (type) => {
+    if (!type) return 'autres';
+    const firstWord = type.trim().toUpperCase().split(' ')[0];
+    const mapping = {
+        'REUNION': 'reunion',
+        'CONFERENCE': 'conference',
+        'SERVICE': 'service',
+        'ACTIVITE': 'activite',
+        'JPO': 'jpo',
+        'AUTRES': 'autres'
+    };
+    return mapping[firstWord] || 'autres';
+};
+
 export const PERSON_STATUS_TYPES = [
     'Membre',
     'Eleve'

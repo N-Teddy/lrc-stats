@@ -3,6 +3,7 @@ import { Users, Calendar, Activity, TrendingUp, Download, CheckCircle, Clock, Ca
 import { dataService } from '../store/dataService';
 import { reportService } from '../store/reportService';
 import { useTheme } from '../store/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
@@ -28,12 +29,13 @@ const StatCard = ({ icon: Icon, label, value, trend, color, subtext }) => (
 );
 
 const PresenceChart = ({ data, filter, onFilterChange }) => {
+    const { t } = useTranslation();
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
                 <div className="glass" style={{ padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                     <p style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{payload[0].payload.name}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>{payload[0].value} Attendees</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>{payload[0].value} {t('dashboard.attendees')}</p>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{payload[0].payload.date}</p>
                 </div>
             );
@@ -45,8 +47,8 @@ const PresenceChart = ({ data, filter, onFilterChange }) => {
         <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: '32px', border: '1px solid var(--border-color)', height: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
                 <div>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800' }}>Engagement Dynamics</h3>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Attendance volume over recent activities</p>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800' }}>{t('dashboard.engagement_title')}</h3>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('dashboard.engagement_subtitle')}</p>
                 </div>
                 <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                     {['all', 'membres', 'eleves', 'jrs'].map(f => (
@@ -60,7 +62,7 @@ const PresenceChart = ({ data, filter, onFilterChange }) => {
                                 fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase'
                             }}
                         >
-                            {f}
+                            {t(`dashboard.${f}`)}
                         </button>
                     ))}
                 </div>
@@ -86,53 +88,60 @@ const PresenceChart = ({ data, filter, onFilterChange }) => {
     );
 };
 
-const ActivityHub = ({ items }) => (
-    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', height: '100%' }}>
-        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Recent Activity Hub</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {items.length > 0 ? items.map((act, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', border: '2px solid var(--accent-primary)' }} />
-                    <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{act.name}</p>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{act.date}</p>
+const ActivityHub = ({ items }) => {
+    const { t } = useTranslation();
+    return (
+        <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', height: '100%' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{t('dashboard.recent_activity_hub')}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {items.length > 0 ? items.map((act, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)' }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', border: '2px solid var(--accent-primary)' }} />
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{act.name}</p>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{act.date}</p>
+                        </div>
+                        <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--accent-primary)' }}>{act.count}</span>
                     </div>
-                    <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--accent-primary)' }}>{act.count}</span>
-                </div>
-            )) : <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No activities logged.</p>}
+                )) : <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t('dashboard.no_activities')}</p>}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
-const BirthdayWatch = ({ people, onViewAll }) => (
-    <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.05) 0%, transparent 100%)', border: '1px solid rgba(255, 170, 0, 0.2)', height: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: '800', textTransform: 'uppercase', color: '#ffaa00' }}>Birthday Watch</h3>
-            <Cake size={16} color="#ffaa00" />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {people.slice(0, 3).map((p, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {p.image ? <img src={p.image.startsWith('http') || p.image.startsWith('data:') ? p.image : convertFileSrc(p.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Gift size={16} color="var(--text-muted)" />}
+const BirthdayWatch = ({ people, onViewAll }) => {
+    const { t } = useTranslation();
+    return (
+        <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, rgba(255, 170, 0, 0.05) 0%, transparent 100%)', border: '1px solid rgba(255, 170, 0, 0.2)', height: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '800', textTransform: 'uppercase', color: '#ffaa00' }}>{t('dashboard.birthday_watch')}</h3>
+                <Cake size={16} color="#ffaa00" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {people.slice(0, 3).map((p, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {p.image ? <img src={p.image.startsWith('http') || p.image.startsWith('data:') ? p.image : convertFileSrc(p.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Gift size={16} color="var(--text-muted)" />}
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{p.name}</p>
+                            <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{p.dob?.substring(5)}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p style={{ fontSize: '0.85rem', fontWeight: '700' }}>{p.name}</p>
-                        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{p.dob?.substring(5)}</p>
-                    </div>
-                </div>
-            ))}
-            {people.length > 0 && (
-                <button onClick={onViewAll} style={{ width: '100%', padding: '8px', marginTop: '4px', backgroundColor: 'rgba(255, 170, 0, 0.1)', color: '#ffaa00', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800' }}>View All Celebrations</button>
-            )}
+                ))}
+                {people.length > 0 && (
+                    <button onClick={onViewAll} style={{ width: '100%', padding: '8px', marginTop: '4px', backgroundColor: 'rgba(255, 170, 0, 0.1)', color: '#ffaa00', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800' }}>{t('dashboard.view_all_celebrations')}</button>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // --- Main Dashboard Component ---
 
 const Dashboard = () => {
     const { accent } = useTheme();
+    const { t } = useTranslation();
     const [stats, setStats] = useState({
         membres: 0, eleves: 0, jrs: 0, total: 0, activitiesCount: 0, avgAttendance: 0,
         recentAttendance: [], birthdays: [], pendingAlerts: []
@@ -242,13 +251,13 @@ const Dashboard = () => {
                     justifyContent: 'space-between'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ backgroundColor: '#ff4d4d', padding: '8px', borderRadius: '50%' }}>
+                        <div style={{ backgroundColor: '#ff4d4d', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '30px', height: '30px' }}>
                             <Clock size={20} color="black" />
                         </div>
                         <div>
-                            <h4 style={{ color: '#ff4d4d', fontWeight: '800', fontSize: '0.9rem' }}>ACTION REQUIRED</h4>
+                            <h4 style={{ color: '#ff4d4d', fontWeight: '800', fontSize: '0.9rem' }}>{t('dashboard.action_needed').toUpperCase()}</h4>
                             <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
-                                {stats.pendingAlerts.length} past {stats.pendingAlerts.length === 1 ? 'activity has' : 'activities have'} unlocked attendance records.
+                                {t('dashboard.pending_attendance_msg')}
                             </p>
                         </div>
                     </div>
@@ -264,8 +273,8 @@ const Dashboard = () => {
 
             <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>Command Center</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Tactical Mission Hub • Phase 4 Operational</p>
+                    <h2 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px' }}>{t('dashboard.title')}</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>{t('dashboard.subtitle')}</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <button
@@ -277,13 +286,13 @@ const Dashboard = () => {
                             borderColor: isEditMode ? 'var(--accent-green)' : 'var(--border-color)'
                         }}
                     >
-                        {isEditMode ? <><Save size={18} /> SAVE LAYOUT</> : <><Layout size={18} /> CUSTOMIZE</>}
+                        {isEditMode ? <><Save size={18} /> {t('dashboard.save_layout').toUpperCase()}</> : <><Layout size={18} /> {t('dashboard.customize').toUpperCase()}</>}
                     </button>
                     {!isEditMode && (
                         <div className="glass" style={{ padding: '8px 20px', borderRadius: '30px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: stats.pendingAlerts.length > 0 ? '#ff4d4d' : 'var(--accent-green)', boxShadow: `0 0 10px ${stats.pendingAlerts.length > 0 ? '#ff4d4d' : 'var(--accent-green)'}` }} />
                             <span style={{ fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase' }}>
-                                {stats.pendingAlerts.length > 0 ? 'Action Needed' : 'System Nominal'}
+                                {stats.pendingAlerts.length > 0 ? t('dashboard.action_needed') : t('dashboard.nominal')}
                             </span>
                         </div>
                     )}
@@ -293,7 +302,7 @@ const Dashboard = () => {
             {isEditMode && (
                 <div className="glass animate-in" style={{ padding: '20px', borderRadius: 'var(--radius-lg)', marginBottom: '32px', border: '1px solid var(--accent-primary)' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Move size={18} /> Rearrange Modular Widgets
+                        <Move size={18} /> {t('dashboard.rearrange')}
                     </h3>
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         {layout.map((widget, idx) => (
@@ -302,7 +311,7 @@ const Dashboard = () => {
                                 display: 'flex', alignItems: 'center', gap: '16px', border: '1px solid var(--border-color)'
                             }}>
                                 <span style={{ fontSize: '0.8rem', fontWeight: '700', color: widget.visible ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                                    {widget.id.replace('-', ' ').toUpperCase()}
+                                    {t(`dashboard.widget_${widget.id.replace(/-/g, '_')}`, { defaultValue: widget.id.replace(/-/g, ' ').toUpperCase() })}
                                 </span>
                                 <div style={{ display: 'flex', gap: '4px' }}>
                                     <button onClick={() => toggleVisibility(widget.id)} style={{ color: widget.visible ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
@@ -323,10 +332,10 @@ const Dashboard = () => {
                         case 'stats-grid':
                             return (
                                 <div key="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-                                    <StatCard icon={Users} label="Membres" value={stats.membres} color="0, 210, 255" subtext="Permanent Assets" />
-                                    <StatCard icon={Users} label="Eleves" value={stats.eleves} color="121, 40, 202" subtext="Probationary" />
-                                    <StatCard icon={Activity} label="JRs Group" value={stats.jrs} color="57, 255, 20" subtext="Active Segment" />
-                                    <StatCard icon={Calendar} label="Operations" value={stats.activitiesCount} color="0, 112, 243" subtext={`Average: ${stats.avgAttendance}`} />
+                                    <StatCard icon={Users} label={t('directory.membres')} value={stats.membres} color="0, 210, 255" subtext={t('dashboard.permanent_assets')} />
+                                    <StatCard icon={Users} label={t('directory.eleves')} value={stats.eleves} color="121, 40, 202" subtext={t('dashboard.probationary')} />
+                                    <StatCard icon={Activity} label={t('dashboard.jrs_group')} value={stats.jrs} color="57, 255, 20" subtext={t('dashboard.active_segment')} />
+                                    <StatCard icon={Calendar} label={t('sidebar.activities')} value={stats.activitiesCount} color="0, 112, 243" subtext={`${t('dashboard.average')}: ${stats.avgAttendance}`} />
                                 </div>
                             );
                         case 'engagement-chart':
@@ -346,19 +355,19 @@ const Dashboard = () => {
                                 <div key="birthday-watch" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <BirthdayWatch people={stats.birthdays} onViewAll={() => setIsBirthdayModalOpen(true)} />
                                     <div className="glass" style={{ padding: '24px', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', textAlign: 'center', color: 'var(--text-muted)', marginBottom: '4px' }}>TACTICAL AUDITS</h3>
+                                        <h3 style={{ fontSize: '0.9rem', fontWeight: '800', textAlign: 'center', color: 'var(--text-muted)', marginBottom: '4px' }}>{t('dashboard.tactical_audits')}</h3>
                                         <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
                                             <button
                                                 onClick={() => reportService.generateYearlyReport()}
                                                 style={{ flex: 1, padding: '14px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', justifyContent: 'center', fontSize: '0.85rem' }}
                                             >
-                                                <Download size={16} color="var(--accent-primary)" /> Yearly
+                                                <Download size={16} color="var(--accent-primary)" /> {t('dashboard.yearly')}
                                             </button>
                                             <button
                                                 onClick={() => reportService.generateAllActivitiesReport()}
                                                 style={{ flex: 1, padding: '14px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', justifyContent: 'center', fontSize: '0.85rem' }}
                                             >
-                                                <Clock size={16} color="var(--accent-green)" /> Master Log
+                                                <Clock size={16} color="var(--accent-green)" /> {t('dashboard.master_log')}
                                             </button>
                                         </div>
                                     </div>
@@ -374,12 +383,12 @@ const Dashboard = () => {
                     <div onClick={e => e.stopPropagation()} className="glass" style={{ width: '600px', maxHeight: '80vh', padding: '40px', borderRadius: 'var(--radius-lg)', overflowY: 'auto' }}>
                         <header style={{ textAlign: 'center', marginBottom: '32px' }}>
                             <Cake size={48} color="#ffaa00" style={{ marginBottom: '16px' }} />
-                            <h2 style={{ fontSize: '2rem', fontWeight: '900' }}>Month of Celebration</h2>
+                            <h2 style={{ fontSize: '2rem', fontWeight: '900' }}>{t('dashboard.month_of_celebration')}</h2>
                         </header>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             {stats.birthdays.map((p, idx) => (
                                 <div key={idx} className="glass" style={{ padding: '16px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #ffaa00' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid #ffaa00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         {p.image ? <img src={p.image.startsWith('http') || p.image.startsWith('data:') ? p.image : convertFileSrc(p.image)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Users size={20} />}
                                     </div>
                                     <div>
@@ -389,7 +398,7 @@ const Dashboard = () => {
                                 </div>
                             ))}
                         </div>
-                        <button onClick={() => setIsBirthdayModalOpen(false)} style={{ width: '100%', padding: '14px', marginTop: '32px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', fontWeight: '800' }}>CLOSE</button>
+                        <button onClick={() => setIsBirthdayModalOpen(false)} style={{ width: '100%', padding: '14px', marginTop: '32px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', fontWeight: '800' }}>{t('dashboard.close').toUpperCase()}</button>
                     </div>
                 </div>
             )}

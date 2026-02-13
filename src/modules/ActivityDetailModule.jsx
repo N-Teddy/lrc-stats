@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Users, UserCheck, PieChart as PieIcon, BarChart3, Clock, MapPin, Download } from 'lucide-react';
-import { dataService } from '../store/dataService';
+import { dataService, getActivityTypeKey } from '../store/dataService';
 import { reportService } from '../store/reportService';
+import { useTranslation } from 'react-i18next';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 const ActivityDetailModule = ({ activity, onBack }) => {
+    const { t } = useTranslation();
     const [stats, setStats] = useState({
         total: 0,
         membres: 0,
@@ -39,8 +41,8 @@ const ActivityDetailModule = ({ activity, onBack }) => {
     };
 
     const statusData = [
-        { name: 'Membres', value: stats.membres, color: 'var(--accent-primary)' },
-        { name: 'Eleves', value: stats.eleves, color: '#ffaa00' }
+        { name: t('directory.membres'), value: stats.membres, color: 'var(--accent-primary)' },
+        { name: t('directory.eleves'), value: stats.eleves, color: '#ffaa00' }
     ].filter(d => d.value > 0);
 
     return (
@@ -50,7 +52,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                     onClick={onBack}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600' }}
                 >
-                    <ArrowLeft size={18} /> Back to Operations
+                    <ArrowLeft size={18} /> {t('activity_detail.back')}
                 </button>
                 <button
                     onClick={async () => {
@@ -65,7 +67,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                         display: 'flex', alignItems: 'center', gap: '8px'
                     }}
                 >
-                    <Download size={16} /> {isExporting ? 'Generating...' : 'Download Session Audit'}
+                    <Download size={16} /> {isExporting ? t('common.loading') : t('activity_detail.download_audit')}
                 </button>
             </div>
 
@@ -78,12 +80,12 @@ const ActivityDetailModule = ({ activity, onBack }) => {
                                 <Clock size={16} /> {activity.date}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <MapPin size={16} /> {activity.type}
+                                <MapPin size={16} /> {t(`activities.type_${getActivityTypeKey(activity.type)}`, { defaultValue: activity.type })}
                             </div>
                         </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' }}>Overall Presence</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' }}>{t('activity_detail.overall_presence')}</p>
                         <p style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--accent-primary)', lineHeight: 1 }}>{stats.total}</p>
                     </div>
                 </div>
@@ -91,7 +93,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
 
             <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)', marginBottom: '32px' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <PieIcon size={20} color="var(--accent-primary)" /> Organizational Status Breakdown
+                    <PieIcon size={20} color="var(--accent-primary)" /> {t('activity_detail.status_breakdown')}
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
                     <div style={{ height: '240px' }}>
@@ -119,7 +121,7 @@ const ActivityDetailModule = ({ activity, onBack }) => {
             </div>
 
             <div className="glass" style={{ padding: '32px', borderRadius: 'var(--radius-lg)' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px' }}>Participant List</h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px' }}>{t('activity_detail.participant_list')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
                     {attendanceList.map(p => (
                         <div key={p.id} style={{ padding: '12px 16px', backgroundColor: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
