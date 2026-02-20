@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0] - 2026-02-21
+### Added
+- **Mobile App**: Launch of the official mobile application for iOS and Android.
+- **Cross-Platform Sync**: Automatic data synchronization between mobile and desktop apps.
+- **Offline-First**: Full offline functionality on mobile with intelligent background sync.
+
+
 ## [2.0.0] - Upcoming
 ### Planned Features
 - *To be defined...*
