@@ -338,7 +338,7 @@ const SettingsModule = () => {
                             </div>
 
                             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <Languages size={14} /> {t('settings.language')}
                                 </label>
                                 <div style={{ display: 'flex', gap: '12px' }}>
