@@ -17,6 +17,8 @@ import { notificationService } from './store/notificationService';
 import { dataService } from './store/dataService';
 import { syncService } from './store/syncService';
 import CommandPalette from './components/CommandPalette';
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,6 +26,8 @@ function App() {
     const [selectedPersonId, setSelectedPersonId] = useState(null);
     const [analyzingActivity, setAnalyzingActivity] = useState(null);
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+    const [pendingUpdate, setPendingUpdate] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
         const initNotifications = async () => {
@@ -64,6 +68,24 @@ function App() {
     }, []);
 
     useEffect(() => {
+        const checkForUpdates = async () => {
+            try {
+                const update = await check();
+                if (update?.available) {
+                    console.log(`Update ${update.version} available!`);
+                    setPendingUpdate(update);
+                }
+            } catch (error) {
+                console.error('Update check failed:', error);
+            }
+        };
+
+        // Check for updates shortly after startup
+        const timer = setTimeout(checkForUpdates, 3000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
         const handleKeyDown = (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
@@ -95,6 +117,18 @@ function App() {
     const handleAnalyzeActivity = (activity) => {
         setAnalyzingActivity(activity);
         setActiveTab('activity-detail');
+    };
+
+    const handleInstallUpdate = async () => {
+        if (!pendingUpdate) return;
+        try {
+            setIsUpdating(true);
+            await pendingUpdate.downloadAndInstall();
+            await relaunch();
+        } catch (error) {
+            console.error('Failed to install update:', error);
+            setIsUpdating(false);
+        }
     };
 
     const renderContent = () => {
@@ -140,6 +174,31 @@ function App() {
 
     return (
         <Layout activeTab={activeTab === 'attendance' ? 'activities' : activeTab} setActiveTab={setActiveTab}>
+            {pendingUpdate && (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] max-w-md bg-zinc-900/90 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-4 shadow-2xl shadow-blue-500/10 flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-blue-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-white">Update Available</p>
+                            <p className="text-xs text-zinc-400">Version {pendingUpdate.version} is ready for installation.</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleInstallUpdate}
+                        disabled={isUpdating}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isUpdating
+                                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 active:scale-95'
+                            }`}
+                    >
+                        {isUpdating ? 'Installing...' : 'Install Now'}
+                    </button>
+                </div>
+            )}
             <IdentityModal />
             {renderContent()}
             <CommandPalette
