@@ -1,9 +1,14 @@
-import React from 'react';
 import Sidebar from './Sidebar';
+import NotificationOverlay from './NotificationOverlay';
+import TacticalModal from './TacticalModal';
+import TacticalPrompt from './TacticalPrompt';
 
 const Layout = ({ children, activeTab, setActiveTab }) => {
     return (
         <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+            <NotificationOverlay />
+            <TacticalModal />
+            <TacticalPrompt />
             <div className="title-bar-drag" />
 
             <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />

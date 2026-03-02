@@ -2,10 +2,13 @@
 
 :root {
   /* Common Tokens */
+  --accent-primary: #00d2ff;
+  --accent-primary-rgb: 0, 210, 255;
   --accent-cyan: #00d2ff;
   --accent-green: #39ff14;
   --accent-blue: #0070f3;
   --accent-purple: #7928ca;
+  --accent-crimson: #ff4d4d;
   --sidebar-width: 240px;
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -33,20 +36,18 @@
 }
 
 [data-theme='light'] {
-  --bg-darker: #f0f2f5;
-  --bg-primary: #ffffff;
+  --bg-darker: #eaedf0;
+  --bg-primary: #f0f2f5;
   --bg-secondary: #f8f9fa;
-  --bg-tertiary: #f1f3f5;
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-stroke: rgba(0, 0, 0, 0.05);
-  --text-primary: #1a1a1a;
-  --text-secondary: #666666;
-  --text-muted: #888888;
+  --bg-tertiary: #eaedf0;
+  --glass-bg: rgba(240, 242, 245, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-stroke: rgba(0, 0, 0, 0.04);
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   --text-inverted: #ffffff;
-  --border-color: #e9ecef;
-  --scrollbar-thumb: #dee2e6;
-  --scrollbar-hover: #ced4da;
+  --border-color: #e2e8f0;
 }
 
 @keyframes slideUpFade {
@@ -63,15 +64,15 @@
 
 @keyframes pulseGlow {
   0% {
-    box-shadow: 0 0 0 rgba(0, 210, 255, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-primary-rgb), 0);
   }
 
   50% {
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    box-shadow: 0 0 15px rgba(var(--accent-primary-rgb), 0.2);
   }
 
   100% {
-    box-shadow: 0 0 0 rgba(0, 210, 255, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-primary-rgb), 0);
   }
 }
 
@@ -81,8 +82,8 @@
 }
 
 .hover-glow:hover {
-  border-color: var(--accent-cyan) !important;
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.1);
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 20px rgba(var(--accent-primary-rgb, 0, 210, 255), 0.1);
   background: var(--bg-secondary) !important;
 }
 
@@ -176,7 +177,7 @@ textarea {
 }
 
 .gradient-text {
-  background: linear-gradient(to right, var(--accent-cyan), var(--accent-green));
+  background: linear-gradient(to right, var(--accent-primary), var(--accent-green));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -193,4 +194,35 @@ textarea {
 
 .no-drag {
   -webkit-app-region: no-drag;
+}
+
+/* Command Palette Animations */
+@keyframes paletteIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.palette-overlay {
+  animation: overlayFadeIn 0.2s ease-out forwards;
+}
+
+.palette-container {
+  animation: paletteIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }

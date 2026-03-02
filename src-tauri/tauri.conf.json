@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "lrc-stats",
-  "version": "0.1.0",
+  "version": "2.2.0",
   "identifier": "com.lrc.stats",
   "build": {
     "frontendDist": "../dist",
@@ -13,14 +13,22 @@
     "windows": [
       {
         "title": "LRC Stats",
-        "width": 800,
-        "height": 600,
+        "width": 1200,
+        "height": 800,
         "resizable": true,
         "fullscreen": false
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost http://asset.localhost; connect-src 'self' https://asset.localhost http://asset.localhost;",
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$APPDATA/**",
+          "$RESOURCE/**",
+          "**"
+        ]
+      }
     }
   },
   "bundle": {
@@ -33,5 +41,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/N-Teddy/lrc-stats/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQ3MjlGREU1QTdFRUY0QjgKUldTNDlPNm41ZjBwMXpLaVFBdmFLY05Cb2Jsem9uVndRUTl3TkEzaFlubEFSZ0NHRVVHS2lmZSsK"
+    }
   }
 }

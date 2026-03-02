@@ -1,6 +1,9 @@
 import React from 'react';
-import { Home, Users, Calendar, BarChart2, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { Home, Users, Calendar, BarChart2, Settings, Sun, Moon, Shield, Trash2, Sparkles } from 'lucide-react';
 import { useTheme } from '../store/ThemeContext';
+import { useTranslation } from 'react-i18next';
+
+import logo from '../assets/logo.jpg';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
     <button
@@ -17,67 +20,119 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
             textAlign: 'left',
             fontSize: '0.9rem',
             fontWeight: '500',
-            backgroundColor: active ? 'var(--bg-secondary)' : 'transparent',
-            color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-            boxShadow: active ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
-            cursor: 'pointer'
+            backgroundColor: active ? 'rgba(var(--accent-primary-rgb), 0.1)' : 'transparent',
+            color: active ? 'var(--accent-primary)' : 'var(--text-secondary)',
+            border: active ? '1px solid var(--accent-primary)' : '1px solid transparent',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
         }}
-        onMouseOver={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
-        onMouseOut={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = active ? 'var(--text-primary)' : 'var(--text-secondary)'; }}
+        onMouseOver={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; }}
+        onMouseOut={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent'; }}
     >
-        <Icon size={18} color={active ? 'var(--accent-cyan)' : 'currentColor'} />
+        <Icon size={18} color={active ? 'var(--accent-primary)' : 'currentColor'} />
         <span>{label}</span>
     </button>
 );
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
+    const { t } = useTranslation();
+    const isSandbox = localStorage.getItem('lrc_operation_mode') === 'SANDBOX';
+
     return (
         <div className="glass" style={{
             width: 'var(--sidebar-width)',
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            padding: '40px 16px 20px 16px',
-            borderRight: '1px solid var(--glass-border)'
+            padding: '24px 16px 20px 16px',
+            borderRight: '1px solid var(--glass-border)',
+            backgroundColor: 'var(--bg-secondary)',
+            position: 'relative',
+            zIndex: 10
         }}>
-            <div style={{ marginBottom: '40px', paddingLeft: '8px' }}>
-                <h1 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>
-                    LRC STATS
-                </h1>
-                <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '4px' }}>
-                    Management v1.0
-                </p>
+            <div style={{ marginBottom: '40px', paddingLeft: '8px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--border-color)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+                }}>
+                    <img src={logo} alt="LRC Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div>
+                    <h1 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px', lineHeight: '1.2' }}>
+                        LRC STATS
+                    </h1>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginTop: '2px' }}>
+                        Command Center v4.6.0
+                    </p>
+                </div>
             </div>
 
             <nav style={{ flex: 1 }}>
                 <SidebarItem
                     icon={Home}
-                    label="Dashboard"
+                    label={t('sidebar.dashboard')}
                     active={activeTab === 'dashboard'}
                     onClick={() => setActiveTab('dashboard')}
                 />
                 <SidebarItem
                     icon={Users}
-                    label="People"
+                    label={t('sidebar.directory')}
                     active={activeTab === 'people'}
                     onClick={() => setActiveTab('people')}
                 />
                 <SidebarItem
                     icon={Calendar}
-                    label="Activities"
+                    label={t('sidebar.activities')}
                     active={activeTab === 'activities'}
                     onClick={() => setActiveTab('activities')}
                 />
                 <SidebarItem
+                    icon={Sparkles}
+                    label={t('sidebar.assistant')}
+                    active={activeTab === 'assistant'}
+                    onClick={() => setActiveTab('assistant')}
+                />
+                <SidebarItem
                     icon={BarChart2}
-                    label="Statistics"
+                    label={t('sidebar.stats')}
                     active={activeTab === 'stats'}
                     onClick={() => setActiveTab('stats')}
+                />
+                <SidebarItem
+                    icon={Shield}
+                    label={t('sidebar.history')}
+                    active={activeTab === 'logs'}
+                    onClick={() => setActiveTab('logs')}
+                />
+                <SidebarItem
+                    icon={Trash2}
+                    label={t('sidebar.recycle_bin')}
+                    active={activeTab === 'trash'}
+                    onClick={() => setActiveTab('trash')}
                 />
             </nav>
 
             <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {isSandbox && (
+                    <div style={{
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(255, 170, 0, 0.1)',
+                        border: '1px solid rgba(255, 170, 0, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '8px'
+                    }}>
+                        <Sparkles size={14} color="#ffaa00" />
+                        <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#ffaa00', letterSpacing: '0.5px' }}>SANDBOX MODE</span>
+                    </div>
+                )}
                 <button
                     onClick={toggleTheme}
                     className="w-full transition-all no-drag"
@@ -90,12 +145,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                 >
-                    {theme === 'dark' ? <Sun size={18} color="var(--accent-cyan)" /> : <Moon size={18} color="var(--accent-cyan)" />}
-                    <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                    {theme === 'dark' ? <Sun size={18} color="var(--accent-primary)" /> : <Moon size={18} color="var(--accent-primary)" />}
+                    <span>{theme === 'dark' ? t('common.light_mode', { defaultValue: 'Light Mode' }) : t('common.dark_mode', { defaultValue: 'Dark Mode' })}</span>
                 </button>
                 <SidebarItem
                     icon={Settings}
-                    label="Settings"
+                    label={t('sidebar.settings')}
                     active={activeTab === 'settings'}
                     onClick={() => setActiveTab('settings')}
                 />
